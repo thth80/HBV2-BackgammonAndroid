@@ -18,6 +18,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".LobbyActivity"
+            android:label="@string/title_activity_lobby"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".InGameActivity"
+            android:label="@string/title_activity_in_game"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".TrophyActivity"
+            android:label="@string/title_activity_trophy"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".StatsActivity"
+            android:label="@string/title_activity_stats"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
