@@ -18,7 +18,7 @@ public class TrophyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_trophy);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        int addi = 14;
+        int addi = 146;
         int egg = 2;
         int fff = 3;
         int oneTime = 4666;
