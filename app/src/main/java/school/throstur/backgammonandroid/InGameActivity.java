@@ -18,7 +18,7 @@ public class InGameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_in_game);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        int skal = 4;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
