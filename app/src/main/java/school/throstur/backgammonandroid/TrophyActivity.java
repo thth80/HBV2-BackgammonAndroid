@@ -20,6 +20,7 @@ public class TrophyActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         int addi = 1;
         int egg = 2;
+        int fff = 3;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
