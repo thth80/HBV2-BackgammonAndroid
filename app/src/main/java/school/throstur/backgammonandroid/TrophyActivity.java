@@ -21,7 +21,7 @@ public class TrophyActivity extends AppCompatActivity {
         int addi = 1;
         int egg = 2;
         int fff = 3;
-        int oneTime = 4666;
+        int oneTime = 466;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
