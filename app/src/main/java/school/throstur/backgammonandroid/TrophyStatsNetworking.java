@@ -29,4 +29,22 @@ public class TrophyStatsNetworking {
             return null;
         }
     }
+
+    public static List<HashMap<String, String>> checkForJoinedMatch(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/checkForJoin")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
 }

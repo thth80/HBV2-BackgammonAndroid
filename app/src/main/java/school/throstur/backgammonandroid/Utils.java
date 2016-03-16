@@ -18,6 +18,17 @@ import java.util.List;
  * Created by Aðalsteinn on 14.3.2016.
  */
 public class Utils {
+    public static final int TEAM_WH = 0;
+    public static final int TEAM_BL = 1;
+    public static final int TEAM_NONE = 2;
+    public static int WIDTH = 450;
+    public static int HEIGHT = 450;
+    public static int SQUARE_WIDTH = 60;
+    public static int SQUARE_HEIGHT = 200;
+    public static final int WHITE_LIGHT = 5;
+    public static final int GREEN_LIGHT = 6;
+    public static final int NO_LIGHT = 9;
+
 
     private static byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);

@@ -10,6 +10,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class InGameActivity extends AppCompatActivity {
 
@@ -17,12 +21,17 @@ public class InGameActivity extends AppCompatActivity {
     private static final String USERNAME = "nameOfUser";
     private static final String IS_PLAYING = "canPlay";
 
-    private String username = "addi";
-    private boolean isPlaying = false;
+    private String username;
+    private boolean isPlaying;
     private int[] greenSquares;
     private int[] whiteSquares;
     private int pivotSquare;
     private int timeLeft;
+    private AnimationCoordinator animator;
+
+    private Button leaveMatchButton;
+    private Button submitChatButton;
+
 
     //Gæti verið kallað á þessa úr Stats, Trophy eða Lobby
     public static Intent playingUserIntent(Context packageContext, String username)
@@ -53,19 +62,38 @@ public class InGameActivity extends AppCompatActivity {
         isPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
         username = getIntent().getStringExtra(USERNAME);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your hello Addi action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+    }
+
+    //Map með lyklunum c0-c27(counts), t0-t27(teams), d0-d3(diceVals), cube
+    private void setUpWholeBoard(HashMap<String, String> boardDescription)
+    {
+        int[] counts = new int[28];
+        int[] teams = new int[28];
+        int[] diceVals = new int[4];
+        int cubeValue;
+        for (String key : boardDescription.keySet())
+        {
+            int value = Integer.parseInt(boardDescription.get(key));
+            if(key.length() < 4)
+            {
+                int index = Integer.parseInt(key.substring(1));
+                char first = key.charAt(0);
+                if(first == 'c')
+                    counts[index] = value;
+                else if(first == 't')
+                    teams[index] = value;
+                else if(first == 'd')
+                    diceVals[index] = value;
             }
-        });
+            else
+                cubeValue = value;
+        }
+
     }
 
     //<String, MSG, MSG>
-    public class NetworkingTask extends AsyncTask<String, Void, MSG[]> {
-
+    public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>>
+    {
         private final String mUsername;
         private final String mPath;
 
@@ -75,7 +103,7 @@ public class InGameActivity extends AppCompatActivity {
         }
 
         @Override
-        protected MSG[] doInBackground(String... params)
+        protected List<HashMap<String, String>> doInBackground(String... params)
         {
             try
             {
@@ -100,16 +128,26 @@ public class InGameActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(final MSG[] message)
+        protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
-
+            for(HashMap<String, String> msg: messages)
+            {
+                switch (msg.get("action"))
+                {
+                    case "wholeBoard":
+                        setUpWholeBoard(msg);
+                        break;
+                    case "waitEntry":
+                        break;
+                    case "startObserving":
+                        break;
+                    case "startPlaying":
+                        break;
+                }
+            }
 
         }
 
-        @Override
-        protected void onCancelled() {
-
-        }
     }
 
 }

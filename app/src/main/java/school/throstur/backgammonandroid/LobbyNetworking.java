@@ -20,6 +20,45 @@ import java.util.Map;
  */
 public class LobbyNetworking {
 
+    public static List<HashMap<String, String>> removeWaitEntry(String waitId ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/addHumanMatch")
+                    .buildUpon()
+                    .appendQueryParameter("waitId", waitId)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static List<HashMap<String, String>> startBotMatch(String name, String points, String clock, String addedTime ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/addHumanMatch")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .appendQueryParameter("points", points)
+                    .appendQueryParameter("clock", clock)
+                    .appendQueryParameter("addedTime", addedTime)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
     public static List<HashMap<String, String>> addHumanMatch(String name, String points, String clock ) throws IOException
     {
         try
@@ -47,6 +86,24 @@ public class LobbyNetworking {
                     .buildUpon()
                     .appendQueryParameter("matchId", id)
                     .appendQueryParameter("joiner", user)
+                    .build().toString();
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static List<HashMap<String, String>> addLobbyChat(String chatter, String chatEntry ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/joinHumanMatch")
+                    .buildUpon()
+                    .appendQueryParameter("name", chatter)
+                    .appendQueryParameter("chatEntry", chatEntry)
                     .build().toString();
             JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
             return Utils.JSONToMapList(jsonArray);
