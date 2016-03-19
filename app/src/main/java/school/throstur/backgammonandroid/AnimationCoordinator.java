@@ -13,7 +13,8 @@ public class AnimationCoordinator {
     private BoardManager board;
     private ArrayList<HashMap<String, Integer>> moves;
     private int currAnimIndex;
-    boolean isSequential, pawnsAreMoving, isAnimating;
+    private int[] lastWhiteLighted;
+    boolean isSequential, pawnsAreMoving, isAnimating, isDelaying;
 
     public AnimationCoordinator()
     {
@@ -38,7 +39,30 @@ public class AnimationCoordinator {
         return existingBoard;
     }
 
-    public void receiveMoves(ArrayList<HashMap<String, Integer>> moves)
+    //TODO AE: Muna að eyða EKKI moves úr move-listanum, merkja þess í staðinn .put("finished).
+
+    public void startDiceRoll(int first, int second, int team)
+    {
+        if(team == Utils.TEAM_WH)
+            board.startWhiteDiceRoll(first, second);
+        else
+            board.startBlackDiceRoll(first, second);
+    }
+
+    public void delayWhiteLighting(int[] positions)
+    {
+        lastWhiteLighted = positions;
+        isDelaying = true;
+        //TODO AE: Passa að isDelaying sé sett á false eftir að búið er að lýsa upp reitina
+    }
+
+    public boolean isRollingDice()
+    {
+        return isAnimating;
+        //TODO AE: Rétta lógík hér
+    }
+
+    public void receiveAnimMoves(ArrayList<HashMap<String, Integer>> moves)
     {
         pawnsAreMoving = true;
         this.moves = moves;
@@ -62,12 +86,29 @@ public class AnimationCoordinator {
         isAnimating = true;
     }
 
+    public void performInTurnMoves(ArrayList<HashMap<String, Integer>> moves)
+    {
+        board.prepareTeleport();
+        isSequential = true;
+        for(HashMap<String, Integer> move: moves)
+        {
+            //Koma teleport af stað og update-a nógu oft til að klára move. Síðan er renderað hér eða af hálfy
+            //inGameActivity
+        }
+
+    }
+
     public void update(int deltaMs)
     {
         if(isSequential)
             sequentialUpdate(deltaMs);
         else
             batchUpdate(deltaMs);
+    }
+
+    public void render(String ctx)
+    {
+
     }
 
     private void sequentialUpdate(int deltaMs)

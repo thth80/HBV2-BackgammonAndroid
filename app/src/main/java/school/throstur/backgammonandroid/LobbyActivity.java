@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,11 +75,25 @@ public class LobbyActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
-    /*
-    TODO ÞÞ: Líklega viðeigandi í aðferðunum 2 hér að neðan að sýna notandanum að verið sé að vinna
-    í þessari beiðni(progress spinner, toast eða eitthvað einfalt). Líklega verður kallað á server áður en kallað er
-    á startActivity.
-    */
+    //Hér fyrir neðan eru aðferðir sem bregðast við viðburðum á framendanum, yfirleitt takka klikkum. Tengja þarf onClick við þessar aðferðir
+
+    private void onCancelClick(String id)
+    {
+        (new NetworkingTask("removeWaitEntry")).execute(id);
+    }
+
+    private void onJoinClick(String id)
+    {
+        (new NetworkingTask("joinHumanMatch")).execute(id);
+    }
+
+    private void onObserveClick(String id)
+    {
+        (new NetworkingTask("observeMatch")).execute(id);
+    }
+
+    //TODO ÞÞ: Líklega viðeigandi í enter aðferðunum 2 hér að neðan að sýna notandanum að verið sé að vinna(Toast, progress spinner, etc.)
+
     private void enterMyStats()
     {
         //Kannski eitthvað sem þarf að gera áður en við yfirgefum Lobby
@@ -117,6 +132,52 @@ public class LobbyActivity extends AppCompatActivity {
             (new NetworkingTask("startBotMatch")).execute(points, clock, addedTime);
     }
 
+
+    //Hér að neðan má finna HTTP response aðferðir sem notast við skilaboð frá server
+
+    private void appendChatEntry(String chatEntry, String chatType)
+    {
+        //TODO ÞÞ: Bæta textanum í chatEntry aftast í chat UI. chatType skiptir ekki máli sem stendur
+    }
+
+    private void addChatBatch(HashMap<String, String> chats)
+    {
+        chats.remove("action");
+        for(int i = 0; i < chats.size(); i++)
+            appendChatEntry(chats.get("" + i), "regular");
+    }
+
+    private void addWaitEntry(String waiter, String points, String addedTime, String id)
+    {
+        //TODO ÞÞ: Búa til grafískt wait entry úr upplýsingum og bæta aftan á waiting entry listann.
+        //JOIN/CANCEL takkinn verður að vera bendlaður við ID-ið. Takkinn þarf að vera tengdur við onClick
+        //clock = True/false breytan var redundant. Það er tími á leiknum ef (int)addedTime > 0
+        //ATH: Það er búinn til cancel takki ef waiter.equals(mUsername), annars join
+    }
+
+    private void addOngoingEntry(String playerOne, String playerTwo, String points, String addedTime, String id)
+    {
+        //TODO ÞÞ: Mjög svipað og í addWaitEntry. Búinn til grafískur entry og honum er appendað.
+        //addedTime > 0 segir að leikurinn sé á tíma. ID þarf að tengja við OBSERVE takka, takka þarf að tengja við onClick
+    }
+
+    private void removeListEntries(HashMap<String, String> deleteIds)
+    {
+        deleteIds.remove("action");
+        for(int i = 0; i < deleteIds.size(); i++)
+        {
+            String idToDelete = deleteIds.get("" + i);
+            //TODO ÞÞ: Finna lista entry(waiting eða ongoing) sem er bendlað við þetta id og fjarlægja
+            //TODO ÞÞ: Entry í heild sinni. Líklega hægt að finna takkann sem er bendlaður við ID og eyða
+            //Foreldri hans eða eitthvað álíka.
+        }
+    }
+
+    private void removeListEntry(String id)
+    {
+        //TODO ÞÞ: Sama og í entries hér að ofan
+    }
+
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
 
         private final String mUsername;
@@ -137,8 +198,8 @@ public class LobbyActivity extends AppCompatActivity {
                 {
                     case "addWaitEntry":
                         return LobbyNetworking.addWaitEntry(mUsername, params[0], params[1]);
-                    case "removeWaiEntry":
-                        return LobbyNetworking.removeWaitEntry("waitID=5?");
+                    case "removeWaitEntry":
+                        return LobbyNetworking.removeWaitEntry(params[0]);
                     case "joinHumanMatch":
                         return LobbyNetworking.joinHumanMatch(mUsername, params[0]);
                     case "startBotMatch":
@@ -170,7 +231,7 @@ public class LobbyActivity extends AppCompatActivity {
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
             //Þau tilfelli þegar vitað er að yfirgefa þarf Lobby. Tryggja þarf að /goToTrophy skili EKKI new match
-            //Hvernig veit framendi að human vs human match er að byrja?
+
             if(mPath.equals("startBotMatch"))
                 startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername));
             else if(mPath.equals("goToTrophy"))
@@ -183,25 +244,32 @@ public class LobbyActivity extends AppCompatActivity {
                 switch (msg.get("action"))
                 {
                     case "chatEntry":
+                        appendChatEntry(msg.get("entry"), msg.get("type"));
                         break;
                     case "chatBatch":
+                        addChatBatch(msg);
                         break;
                     case "waitEntry":
+                        addWaitEntry(msg.get("playerOne"), msg.get("points"), msg.get("addedTime"), msg.get("id"));
                         break;
                     case "ongoingEntry":
+                        addOngoingEntry(msg.get("playerOne"), msg.get("playerTwo"), msg.get("points"), msg.get("addedTime"), msg.get("id"));
                         break;
                     case "matchAvailable":
-                        break;
+                        if(mPath.equals("joinHumanMatch"))
+                            startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername));
+                        else if(mPath.equals("observeMatch"))
+                            startActivity(InGameActivity.obersvingUserIntent(LobbyActivity.this, mUsername));
                     case "deletedEntries":
+                        removeListEntries(msg);
                         break;
                     case "deletedEntry":
+                        removeListEntry(msg.get("id"));
                         break;
                     case "explain":
-                        break;
+                        Toast.makeText(LobbyActivity.this, msg.get("explain"), Toast.LENGTH_SHORT);
                 }
             }
         }
-
     }
-
 }

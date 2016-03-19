@@ -116,6 +116,15 @@ public class BoardManager {
         }
     }
 
+    public void startBlackDiceRoll(int first, int second)
+    {
+        blackDice.prepareForAnimation(first, second);
+    }
+    public void startWhiteDiceRoll(int first, int second)
+    {
+        whiteDice.prepareForAnimation(first, second);
+    }
+
     private void setDicePairs(int[] vals)
     {
         whiteDice = new DicePair(Utils.TEAM_WH);
@@ -159,6 +168,12 @@ public class BoardManager {
             sq.unHighlight();
     }
 
+    public void prepareTeleport()
+    {
+        for(PawnMover mover: pawnMovers)
+            mover.setToTeleport();
+    }
+
     private void flipCube()
     {
         doublingCube.flip();
@@ -174,6 +189,9 @@ public class BoardManager {
             if(mover.isActive())
                 mover.render(ctx);
     }
+
+
+
 
     private void addSquares()
     {

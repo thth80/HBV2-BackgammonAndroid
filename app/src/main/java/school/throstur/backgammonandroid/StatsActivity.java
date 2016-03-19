@@ -39,6 +39,16 @@ public class StatsActivity extends AppCompatActivity {
         initStats.execute();
     }
 
+    private void appendToStatsList(String currUser, String opponent, String currPoints, String oppoPoints, String currPawns, String oppoPawns)
+    {
+        //TODO ÞÞ: Gegn tilteknum spilara. Entry fer aftast í listann.
+    }
+
+    private void prependToStatsList(String userPoints, String othersPoints)
+    {
+        //TODO ÞÞ: Overall stats- entry, fer fremst/efst í listann.
+    }
+
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
 
         private final String mUsername;
@@ -54,8 +64,8 @@ public class StatsActivity extends AppCompatActivity {
         {
             try
             {
-                List<HashMap<String, String>> messages = TrophyStatsNetworking.initStats(mUsername);
-                return messages;
+                return TrophyStatsNetworking.initStats(mUsername);
+                //TODO AE: Setja timeout sem tékka frekar sjaldan á hvort leikur eigi að byrja
             }
             catch (Exception e)
             {
@@ -66,15 +76,14 @@ public class StatsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
-            //Farið í gegnum skilaboðin, mögulega keyrt út frá núverandi mPath
-            //sem segir okkur eitthvað um samhengi skilaboðanna sem tekið er á móti
-
-        }
-
-        @Override
-        protected void onCancelled() {
-
+            for(HashMap<String, String> msg: messages)
+            {
+                if(msg.get("action").equals("versusStats"))
+                    appendToStatsList(msg.get("playerOne"), msg.get("playerTwo"), msg.get("pointsOne"), msg.get("pointsTwo"),
+                            msg.get("pawnsOne"), msg.get("pawnsTwo"));
+                else
+                    prependToStatsList(msg.get("pointsFor"), msg.get("pointsAgainst"));
+            }
         }
     }
-
 }

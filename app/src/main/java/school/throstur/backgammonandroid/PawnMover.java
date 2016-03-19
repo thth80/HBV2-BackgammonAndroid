@@ -78,7 +78,6 @@ public class PawnMover {
     {
         for(int i = 0; i< updateProtocols.length; i++)
             updateProtocols[i] = TELEPORT;
-
     }
 
     public boolean isActive()
