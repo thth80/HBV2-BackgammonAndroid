@@ -102,6 +102,7 @@ public class InGameActivity extends AppCompatActivity {
             mPath = path;
         }
 
+        //HTTP REQUESTS
         @Override
         protected List<HashMap<String, String>> doInBackground(String... params)
         {
@@ -109,15 +110,20 @@ public class InGameActivity extends AppCompatActivity {
             {
                 switch (mPath)
                 {
-                    case "dice":
-                        break;
-                    case "cube":
-                        break;
                     case "green":
-                        break;
+                        return Utils.JSONToMapList(InGameNetworking.greenSquare(mUsername, params[0]));
                     case "white":
-                        break;
-
+                        return Utils.JSONToMapList(InGameNetworking.whiteSquare(mUsername, params[0]));
+                    case "dice":
+                        return Utils.JSONToMapList(InGameNetworking.diceThrown(mUsername));
+                    case "cube":
+                        return Utils.JSONToMapList(InGameNetworking.cubeThrown(mUsername));
+                    case "pivot":
+                        return Utils.JSONToMapList(InGameNetworking.pivotClicked(mUsername));
+                    case "leave":
+                        return Utils.JSONToMapList(InGameNetworking.leaveMatch(mUsername));
+                    case "endTurn":
+                        return Utils.JSONToMapList(InGameNetworking.endTurn(mUsername));
                 }
                 return null;
             }
@@ -127,6 +133,7 @@ public class InGameActivity extends AppCompatActivity {
             }
         }
 
+        //HTTP RESPONSES, Chat svör koma kannski seinna inn
         @Override
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
@@ -134,14 +141,36 @@ public class InGameActivity extends AppCompatActivity {
             {
                 switch (msg.get("action"))
                 {
+                    case "animate":
+                        break;
+                    case "inTurnMove":
+                        break;
+                    case "diceThrow":
+                        break;
+                    case "whiteLighted":
+                        break;
+                    case "greenLighted":
+                        break;
+                    case "showButtons":
+                        break;
+                    case "mayEndTurn":
+                        break;
+                    case "addedTime":
+                        break;
+                    case "announcement":
+                        break;
+                    case "matchOver":
+                        break;
+                    case "gameOver":
+                        break;
                     case "wholeBoard":
                         setUpWholeBoard(msg);
                         break;
-                    case "waitEntry":
+                    case "explain":
                         break;
-                    case "startObserving":
+                    case "presentTrophy":
                         break;
-                    case "startPlaying":
+                    case "playerDoubled":
                         break;
                 }
             }

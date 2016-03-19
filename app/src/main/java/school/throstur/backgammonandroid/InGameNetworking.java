@@ -49,4 +49,91 @@ public class InGameNetworking {
         }
     }
 
+    public static JSONArray whiteSquare(String name, String pos) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/whiteSquare")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .appendQueryParameter("pos", pos)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray greenSquare(String name, String pos) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/greenSquare")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .appendQueryParameter("pos", pos)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray pivotClicked(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/pivot")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray leaveMatch(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/leaveMatch")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray endTurn(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/endTurn")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
 }

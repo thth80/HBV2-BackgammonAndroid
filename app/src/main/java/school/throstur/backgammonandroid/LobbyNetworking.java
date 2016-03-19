@@ -24,7 +24,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/addHumanMatch")
+            String url = Uri.parse("http://localhost:9090/removeWait")
                     .buildUpon()
                     .appendQueryParameter("waitId", waitId)
                     .build().toString();
@@ -42,7 +42,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/addHumanMatch")
+            String url = Uri.parse("http://localhost:9090/startBotMatch")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("points", points)
@@ -59,11 +59,11 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> addHumanMatch(String name, String points, String clock ) throws IOException
+    public static List<HashMap<String, String>> addWaitEntry(String name, String points, String clock ) throws IOException
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/addHumanMatch")
+            String url = Uri.parse("http://localhost:9090/addWaitEntry")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("clock", clock)
@@ -96,15 +96,125 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> addLobbyChat(String chatter, String chatEntry ) throws IOException
+    public static List<HashMap<String, String>> submitLobbyChat(String chatter, String chatEntry ) throws IOException
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/joinHumanMatch")
+            String url = Uri.parse("http://localhost:9090/submitLobbyChat")
                     .buildUpon()
                     .appendQueryParameter("name", chatter)
                     .appendQueryParameter("chatEntry", chatEntry)
                     .build().toString();
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static List<HashMap<String, String>> observeMatch(String username, String matchId ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/observeMatch")
+                    .buildUpon()
+                    .appendQueryParameter("waitId", matchId)
+                    .appendQueryParameter("name", username)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static List<HashMap<String, String>> refresh(String username ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/refresh")
+                    .buildUpon()
+                    .appendQueryParameter("name", username)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static List<HashMap<String, String>> goToTrophy(String username ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/goToTrophy")
+                    .buildUpon()
+                    .appendQueryParameter("name", username)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static List<HashMap<String, String>> leaveApp(String username ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/leaveApp")
+                    .buildUpon()
+                    .appendQueryParameter("name", username)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static List<HashMap<String, String>> goToStats(String username ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/goToStats")
+                    .buildUpon()
+                    .appendQueryParameter("name", username)
+                    .build().toString();
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+
+    public static List<HashMap<String, String>> initLobby(String username ) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/initLobby")
+                    .buildUpon()
+                    .appendQueryParameter("name", username)
+                    .build().toString();
+
             JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
             return Utils.JSONToMapList(jsonArray);
         }

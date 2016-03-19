@@ -18,6 +18,13 @@ public class TrophyActivity extends AppCompatActivity {
     private static final String SENT_USERNAME = "usernameSent";
     private String username;
 
+    public class Trophy
+    {
+        private boolean isAccumulated;
+        private String desctipt, name;
+        private int id;
+    }
+
     public static Intent usernameIntent(Context packageContext, String username)
     {
         Intent i = new Intent(packageContext, LobbyActivity.class);
@@ -36,6 +43,13 @@ public class TrophyActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         username = getIntent().getStringExtra(SENT_USERNAME);
+    }
+
+    private void appendToTrophyList(int id, int current )
+    {
+        //TODO ÞÞ: Trophy entry er búið til. Framendi á að eiga allar upplýsingar um trophy með þessum
+        //TODO ÞÞ: 2 breytum. ID á að gefa okkur mynd, textalýsingu, nafn bikars og hvort hann sé af
+        //TODO ÞÞ: uppsafnaða toganum. Ætli sqlite virki ekki best í það. Ég sé um SQL-ið ef sú aðferð er notuð.
     }
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
@@ -59,15 +73,17 @@ public class TrophyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(final List<HashMap<String, String>> messages) {
-            //Farið í gegnum skilaboðin, mögulega keyrt út frá núverandi mPath
-            //sem segir okkur eitthvað um samhengi skilaboðanna sem tekið er á móti
+        protected void onPostExecute(final List<HashMap<String, String>> messages)
+        {
+            //TODO AE: Hér ætti að hlaða gögnum úr local sqlite yfir í Trophy[]. Id myndi svo virka sem index í það fylki.
 
-        }
-
-        @Override
-        protected void onCancelled() {
-
+            for(HashMap<String, String> msg: messages)
+            {
+                if(msg.get("action").equals("trophyEntry"))
+                    appendToTrophyList(Integer.parseInt(msg.get("id")), Integer.parseInt(msg.get("current")));
+                else
+                    System.out.print("VILLA");
+            }
         }
     }
 

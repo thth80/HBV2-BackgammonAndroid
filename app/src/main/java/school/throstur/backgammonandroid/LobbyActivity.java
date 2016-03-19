@@ -13,16 +13,8 @@ import android.widget.Button;
 import java.util.HashMap;
 import java.util.List;
 
-//MUNA að það þarf að vera til 6. PostboxmManagerinn, forAll sem getur geymt skilaboð sem
-//fá má í lobby, stats og trophy room
-
 public class LobbyActivity extends AppCompatActivity {
     private static final String SENT_FROM_LOGIN = "usernameExtra";
-
-    /*
-        Öll view sem þurfa að vera tengt við events. Join og Cancel takkinn á hverju einasta entry
-        eru meira vandamál, líklega ekki viðeigandi að láta activity tengja þá takka.
-    */
 
     private String mUsername;
     private Button mSetupMatchButton;
@@ -135,39 +127,38 @@ public class LobbyActivity extends AppCompatActivity {
             mPath = path;
         }
 
+        //HTTP REQUESTS
         @Override
         protected List<HashMap<String, String>> doInBackground(String... params)
         {
             try
             {
-                List<HashMap<String, String>> messages = null;
                 switch (mPath)
                 {
-                    case "addHuman":
-                        messages = LobbyNetworking.addHumanMatch(mUsername, params[0], params[1]);
-                        break;
+                    case "addWaitEntry":
+                        return LobbyNetworking.addWaitEntry(mUsername, params[0], params[1]);
+                    case "removeWaiEntry":
+                        return LobbyNetworking.removeWaitEntry("waitID=5?");
                     case "joinHumanMatch":
-                        messages = LobbyNetworking.joinHumanMatch(mUsername, params[0]);
-                        break;
-                    case "removeHumanMatch":
-                        messages = LobbyNetworking.removeWaitEntry("waitID=5?");
-                        break;
+                        return LobbyNetworking.joinHumanMatch(mUsername, params[0]);
                     case "startBotMatch":
-                        messages = LobbyNetworking.startBotMatch(mUsername, params[0], params[1], params[2]);
-                        break;
+                        return LobbyNetworking.startBotMatch(mUsername, params[0], params[1], params[2]);
                     case "observeMatch":
-                        break;
-                    case "initLobby":
-                        break;
-                    case "newLobbyChat":
-                        messages = LobbyNetworking.addLobbyChat(mUsername, params[0]);
-                        break;
-                    case "waitingEntry":
-                        break;
+                        return LobbyNetworking.observeMatch(mUsername, params[0]);
+                    case "submitLobbyChat":
+                        return LobbyNetworking.submitLobbyChat(mUsername, params[0]);
                     case "refresh":
-                        break;
+                        return LobbyNetworking.refresh(mUsername);
+                    case "initLobby":
+                        return LobbyNetworking.initLobby(mUsername);
+                    case "goToTrophy":
+                        return LobbyNetworking.goToTrophy(mUsername);
+                    case "goToStats":
+                        return LobbyNetworking.goToStats(mUsername);
+                    case "leaveApp":
+                        return LobbyNetworking.leaveApp(mUsername);
                 }
-                return messages;
+                return null;
             }
             catch (Exception e)
             {
@@ -175,13 +166,11 @@ public class LobbyActivity extends AppCompatActivity {
             }
         }
 
-        //Kannski ætti klikk á Trophy/stats að valda því að server generate-ar rétt gögn ÁÐUR en kallað er á startActivity.
         @Override
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
-            //Þau tilfelli þegar vitað er að yfirgefa þarf Lobby. Ath að það er tiny séns á að samþykktum leik verði "hent" hérna
-            //Ef einhver önnur skilaboð fylgdu með þá er þeim hent. Þegar aftur er komið úr InGame er allt ástandið refreshað
-
+            //Þau tilfelli þegar vitað er að yfirgefa þarf Lobby. Tryggja þarf að /goToTrophy skili EKKI new match
+            //Hvernig veit framendi að human vs human match er að byrja?
             if(mPath.equals("startBotMatch"))
                 startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername));
             else if(mPath.equals("goToTrophy"))
@@ -195,15 +184,22 @@ public class LobbyActivity extends AppCompatActivity {
                 {
                     case "chatEntry":
                         break;
+                    case "chatBatch":
+                        break;
                     case "waitEntry":
                         break;
-                    case "startObserving":
+                    case "ongoingEntry":
                         break;
-                    case "startPlaying":
+                    case "matchAvailable":
+                        break;
+                    case "deletedEntries":
+                        break;
+                    case "deletedEntry":
+                        break;
+                    case "explain":
                         break;
                 }
             }
-
         }
 
     }
