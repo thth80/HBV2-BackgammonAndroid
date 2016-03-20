@@ -3,6 +3,7 @@ package school.throstur.backgammonandroid;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,17 +17,15 @@ import java.util.List;
 
 public class InGameActivity extends AppCompatActivity {
 
-    //ATH: MSG um að leikmaður joinaði leik notanda má EKKI vera einungis Lobby MSG
     private static final String USERNAME = "nameOfUser";
     private static final String IS_PLAYING = "canPlay";
 
     private String mUsername;
+    private boolean mCouldDouble, mIsPlaying;
     private AnimationCoordinator mAnimator;
 
-    private boolean isPlaying, mCouldDouble;
-    private int pivotSquare;
+    private int mPivot, mTimeBetweenRefresh;
     private int mTimeLeftMs;
-    private AnimationCoordinator animator;
 
     private Button leaveMatchButton;
     private Button submitChatButton;
@@ -58,50 +57,57 @@ public class InGameActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        isPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
+        mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
         mUsername = getIntent().getStringExtra(USERNAME);
     }
 
-    //TODO ÞÞ: Ekkert sem þarf að gera hér, bara að benda á að onXXX aðferðirnar eru callbacks sem á að tengja við viðeigandi takka
+    //TODO ÞÞ: Ekkert sem þarf að gera hér, bara að benda á að onXXX aðferðirnar eru aðferðir sem á að tengja við viðeigandi events
 
     private void onCanvasClicked(double cx, double cy)
     {
+        int pos = 15;
+        String event = "derp";
+        if(event == "white")
+        {
+            (new NetworkingTask("white")).execute(pos + "");
+            //aflita hvíta
+        }
+        else if(event == "green")
+        {
+            (new NetworkingTask("green")).execute(pos+"");
+            //aflita alla reiti
+        }
+        else if(event == "pivot")
+        {
+            (new NetworkingTask("pivot")).execute(pos+"");
+            //lýsa aftur upp hvíta reiti
+        }
 
     }
 
-    private void onWhiteSquareClicked(int pos)
-    {
-
-    }
-
-    private void onGreenSquareClicked(int pos)
-    {
-
-    }
-
-    private void onPivotClicked()
-    {
-        //TODO AE: Lýsa aftur upp reitina með síðustu white lighting gildum
-    }
 
     private void onEndTurnClicked()
     {
-
+        (new NetworkingTask("endTurn")).execute();
+        //aflita alla græna eða hvíta, stilla mPivot rétt
     }
 
     private void onDoublingClicked()
     {
-
+        (new NetworkingTask("cube")).execute();
+        //fela alla takka
     }
 
     private void onThrowDiceClicked()
     {
-
+        (new NetworkingTask("dice")).execute();
+        //fela alla takka
     }
 
     private void onTimeRunningOut()
     {
-
+        (new NetworkingTask("timeOut")).execute();
+        //aflita alla, skipta um pivot, senda toast
     }
 
     private void onLeaveMatch()
@@ -123,11 +129,12 @@ public class InGameActivity extends AppCompatActivity {
 
             int killMove = animInfo.get("kill" + i).equals("true")? 1 : 0;
             singleAnim.put("killMove",killMove ) ;
+            singleAnim.put("finished", 0);
             animMoves.add(singleAnim);
         }
 
-        //TODO AE: Hvernig virkar leikjalykkjan?
-        mAnimator.receiveAnimMoves(animMoves);
+        //TODO AE: Hvernig virkar leikjalykkjan? Hvað með þegar moves.length = 0?
+        mAnimator.initPawnAnimation(animMoves);
     }
 
     private void performInTurnMoves(HashMap<String, String> moveInfo)
@@ -146,7 +153,7 @@ public class InGameActivity extends AppCompatActivity {
         }
 
         mAnimator.performInTurnMoves(inTurnMoves);
-        mAnimator.render("ctx");
+        mAnimator.render(new Canvas());
     }
 
     private void startDiceRoll(int first, int second, int team)
@@ -171,7 +178,7 @@ public class InGameActivity extends AppCompatActivity {
         else
         {
             mAnimator.whiteLightSquares(squarePos);
-            mAnimator.render("ctx");
+            mAnimator.render(new Canvas());
         }
     }
 
@@ -183,15 +190,15 @@ public class InGameActivity extends AppCompatActivity {
             squarePos[i] = Integer.parseInt(positions.get(""+i));
 
         mAnimator.greenLightSquares(squarePos);
-        mAnimator.render("ctx");
+        mAnimator.render(new Canvas());
     }
 
     //Hér mun alltaf þurfa að bíða eftir að animation peða(og allt animation) klárist
-    //Líklega best að láta acitivity kalla á finish delayed og síðan á mAnimator.render()
+    //Líklega best að láta acitivity kalla á finish delayed og síðan á onDraw()
     //Reyndar alveg spurning hvort animator sé sá sem á að sjá um þetta ??? Líkelga frekar activity sem reddar þessu.
     private void showButtonsIfPossible(boolean canDouble)
     {
-        if(!mAnimator.isAnimating)
+        if(!mAnimator.pawnsAreMoving)
             showButtons(canDouble);
         else
             mCouldDouble = canDouble;
@@ -243,8 +250,6 @@ public class InGameActivity extends AppCompatActivity {
         //Þessi skilaboð geta borist fyrir nokkur HTTP Requests. Delayed postbox á server? Láta teninga rúlla í bakgrunni?
     }
 
-    //TODO AE: CRUCIAL að borðið sé sett upp áður en nokkrar breytingar eru gerðar á því, gerist líklega á server.
-    //Map með lyklunum c0-c27(counts), t0-t27(teams), d0-d3(diceVals), cube
     private void setUpWholeBoard(HashMap<String, String> boardDescription)
     {
         int[] counts = new int[28];
@@ -261,12 +266,13 @@ public class InGameActivity extends AppCompatActivity {
             diceVals[i] = Integer.parseInt(boardDescription.get("d" + i));
 
         mAnimator.buildExistingBoard(teams, counts, diceVals, cubeValue);
-        mAnimator.render("ctx");
+        mAnimator.render(new Canvas());
     }
 
     private void presentTrophy(int id)
     {
-        //TODO AE: Er ekki bara best að harðkóða þessar tiltölulega litlu upplýsingar í Utils? SLeppa því local sql veseni
+        //TODO: tengja löglegt imageId hérna í stað 1
+        displayTrophy(Utils.trophyNames[id], Utils.trophyDesc[id], 1);
     }
 
     private void displayTrophy(String name, String descript, int imageId)
@@ -298,7 +304,9 @@ public class InGameActivity extends AppCompatActivity {
             mPath = path;
         }
 
-        //HTTP REQUESTS
+        /*
+            HTTP REQUESTS
+         */
         @Override
         protected List<HashMap<String, String>> doInBackground(String... params)
         {
@@ -320,6 +328,8 @@ public class InGameActivity extends AppCompatActivity {
                         return Utils.JSONToMapList(InGameNetworking.leaveMatch(mUsername));
                     case "endTurn":
                         return Utils.JSONToMapList(InGameNetworking.endTurn(mUsername));
+                    case "timeOut":
+                        return Utils.JSONToMapList(InGameNetworking.timeOut(mUsername));
                 }
                 return null;
             }
@@ -329,7 +339,9 @@ public class InGameActivity extends AppCompatActivity {
             }
         }
 
-        //HTTP RESPONSES, Chat svör koma kannski seinna inn
+        /*
+            HTTP RESPONSES
+        */
         @Override
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {

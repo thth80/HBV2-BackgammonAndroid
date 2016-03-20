@@ -5,18 +5,17 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class StatsActivity extends AppCompatActivity {
     private static final String SENT_USERNAME = "usernameSent";
-    private String username;
+    private String mUsername;
 
     public static Intent usernameIntent(Context packageContext, String username)
     {
@@ -31,12 +30,16 @@ public class StatsActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_stats);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        username = getIntent().getStringExtra(SENT_USERNAME);
-        NetworkingTask initStats = new NetworkingTask("initStats");
+        mUsername = getIntent().getStringExtra(SENT_USERNAME);
+        NetworkingTask initStats = new NetworkingTask(mUsername, "initStats");
         initStats.execute();
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                (new NetworkingTask(mUsername, "checkForMatch")).execute();
+            }
+        }, 0, 5000);
     }
 
     private void appendToStatsList(String currUser, String opponent, String currPoints, String oppoPoints, String currPawns, String oppoPawns)
@@ -54,7 +57,8 @@ public class StatsActivity extends AppCompatActivity {
         private final String mUsername;
         private final String mPath;
 
-        NetworkingTask(String path) {
+        NetworkingTask(String username, String path)
+        {
             mUsername = username;
             mPath = path;
         }
@@ -64,8 +68,10 @@ public class StatsActivity extends AppCompatActivity {
         {
             try
             {
-                return TrophyStatsNetworking.initStats(mUsername);
-                //TODO AE: Setja timeout sem tékka frekar sjaldan á hvort leikur eigi að byrja
+                if(mPath.equals("initStats"))
+                    return TrophyStatsNetworking.initStats(mUsername);
+                else
+                    return TrophyStatsNetworking.checkForJoinedMatch(mUsername);
             }
             catch (Exception e)
             {
@@ -81,8 +87,10 @@ public class StatsActivity extends AppCompatActivity {
                 if(msg.get("action").equals("versusStats"))
                     appendToStatsList(msg.get("playerOne"), msg.get("playerTwo"), msg.get("pointsOne"), msg.get("pointsTwo"),
                             msg.get("pawnsOne"), msg.get("pawnsTwo"));
-                else
+                else if(msg.get("action").equals("overallStats"))
                     prependToStatsList(msg.get("pointsFor"), msg.get("pointsAgainst"));
+                else if(msg.get("action").equals("matchJoined"))
+                    ;
             }
         }
     }

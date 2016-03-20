@@ -2,9 +2,6 @@ package school.throstur.backgammonandroid;
 
 import java.util.ArrayList;
 
-/**
- * Created by Aðalsteinn on 15.3.2016.
- */
 public class BoardManager {
     public class Cube{
         private int value;
@@ -192,6 +189,7 @@ public class BoardManager {
 
 
 
+    //Aðferðir hér fyrir neðan skipta litlu mali
 
     private void addSquares()
     {

@@ -29,6 +29,53 @@ public class Utils {
     public static final int GREEN_LIGHT = 6;
     public static final int NO_LIGHT = 9;
 
+    public static final String[] trophyNames = new String[]
+            {
+                    "Baby Steps",
+                    "Bigger Baby Steps",
+                    "Triple Double",
+                    "Double Double",
+                    "Try Hard",
+                    "Centurion",
+                    "50 Centurion",
+                    "We need a bigger cube!",
+                    "Double Trouble",
+                    "A Leader of Pawns",
+                    "Pawn Moses",
+                    "Slightly Unlucky",
+                    "Donald Duck Unlucky",
+                    "Played Some",
+                    "Spares Nobody",
+                    "The Bully",
+                    "El Bulli!",
+                    "Not Pointless",
+                    "Point Hoarder",
+                    "Fun Up to a Point"
+            };
+
+    public static final String[] trophyDesc = new String[]
+        {
+                "Make your pawns progress by 500 squares",
+                "Make your pawns progress by 1000 squares",
+                "Win by Backgammons 10 times",
+                "Win by Gammon 10 times",
+                "Get a 50% winrate or better versus Hard Bot(At least 10 points played)",
+                "Win a game where your opponent was at least 100 steps behind you",
+                "Win 5 games where your opponent was at least 100 steps behind you",
+                "Play a game that gets doubled 4 times ",
+                "Win a 10+ point game",
+                "Get 100 pawns to safety",
+                "Get 500 pawns to safety",
+                "Lose a game while being one step away from victory",
+                "Lose 5 games one step away from victory",
+                "Win a game against 5 different players",
+                "Win a game against 15 different players",
+                "Win 10 points against a player before he wins a single point against you",
+                "Win 20 points against a player before he wins a single point against you",
+                "Earn your first point",
+                "Earn 50 Backgammon points",
+                "Earn 500 Backgammon points"
+        };
 
     private static byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);

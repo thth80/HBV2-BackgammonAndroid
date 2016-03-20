@@ -1,12 +1,11 @@
 package school.throstur.backgammonandroid;
 
+import android.graphics.Canvas;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-/**
- * Created by Aðalsteinn on 15.3.2016.
- */
 public class AnimationCoordinator {
     public static final int NOT_AN_ID = -1;
 
@@ -14,7 +13,7 @@ public class AnimationCoordinator {
     private ArrayList<HashMap<String, Integer>> moves;
     private int currAnimIndex;
     private int[] lastWhiteLighted;
-    boolean isSequential, pawnsAreMoving, isAnimating, isDelaying;
+    boolean isSequential, pawnsAreMoving, diceAreRolling, isDelaying;
 
     public AnimationCoordinator()
     {
@@ -22,7 +21,7 @@ public class AnimationCoordinator {
         currAnimIndex = 0;
         isSequential = false;
         pawnsAreMoving = false;
-        isAnimating = false;
+        diceAreRolling = false;
     }
 
     public static AnimationCoordinator buildNewBoard()
@@ -58,11 +57,10 @@ public class AnimationCoordinator {
 
     public boolean isRollingDice()
     {
-        return isAnimating;
-        //TODO AE: Rétta lógík hér
+        return diceAreRolling;
     }
 
-    public void receiveAnimMoves(ArrayList<HashMap<String, Integer>> moves)
+    public void initPawnAnimation(ArrayList<HashMap<String, Integer>> moves)
     {
         pawnsAreMoving = true;
         this.moves = moves;
@@ -83,7 +81,7 @@ public class AnimationCoordinator {
                     board.setUpNextMove(move.get("from"), move.get("to"), move.get("killMove"), currAnimIndex);
         }
 
-        isAnimating = true;
+        pawnsAreMoving = true;
     }
 
     public void performInTurnMoves(ArrayList<HashMap<String, Integer>> moves)
@@ -95,7 +93,6 @@ public class AnimationCoordinator {
             //Koma teleport af stað og update-a nógu oft til að klára move. Síðan er renderað hér eða af hálfy
             //inGameActivity
         }
-
     }
 
     public void update(int deltaMs)
@@ -106,7 +103,7 @@ public class AnimationCoordinator {
             batchUpdate(deltaMs);
     }
 
-    public void render(String ctx)
+    public void render(Canvas canvas)
     {
 
     }
@@ -133,7 +130,6 @@ public class AnimationCoordinator {
         ArrayList<Integer> finishedIndexes = board.updateMovers(deltaMs);
         if(finishedIndexes.size() == 0) return;
 
-        Collections.sort(finishedIndexes);
         for(Integer index: finishedIndexes)
             board.finishMove(index, moves.get(index).get("to"));
 
@@ -141,10 +137,15 @@ public class AnimationCoordinator {
         {
             startKilledMoveIfPossible(finishedIndexes.get(i));
             moves.remove(finishedIndexes.get(i));
+            moves.get(finishedIndexes.get(i)).put("finished", 1);
         }
 
-        if(moves.size() == 0)
-            pawnsAreMoving = false;
+        pawnsAreMoving = false;
+        for(HashMap<String, Integer> move: moves)
+        {
+            int finished = move.get("finished");
+            if(finished == 0) pawnsAreMoving = true;
+        }
     }
 
 

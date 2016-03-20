@@ -24,7 +24,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/removeWait")
+            String url = Uri.parse("http://localhost:9090/removeWaitEntry")
                     .buildUpon()
                     .appendQueryParameter("waitId", waitId)
                     .build().toString();
@@ -204,7 +204,6 @@ public class LobbyNetworking {
             return null;
         }
     }
-
 
     public static List<HashMap<String, String>> initLobby(String username ) throws IOException
     {

@@ -43,8 +43,8 @@ public class LobbyActivity extends AppCompatActivity {
         mToStatsButton = (Button)new View(LobbyActivity.this);   //to_stats
 
         mUsername = getIntent().getStringExtra(SENT_FROM_LOGIN);
-        NetworkingTask initData = new NetworkingTask("initLobby");
-        initData.execute();
+        NetworkingTask initLobby = new NetworkingTask("initLobby");
+        initLobby.execute();
 
         mSetupMatchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,21 +61,23 @@ public class LobbyActivity extends AppCompatActivity {
         mToTrophyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                enterTrophyRoom();
+                (new NetworkingTask("goToTrophy")).execute();
             }
         });
         mToStatsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                enterMyStats();
+                (new NetworkingTask("goToStats")).execute();
             }
         });
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
     }
 
-    //Hér fyrir neðan eru aðferðir sem bregðast við viðburðum á framendanum, yfirleitt takka klikkum. Tengja þarf onClick við þessar aðferðir
+    /*
+        LOCAL EVENT HANDLING
+     */
+
+    //TODO ÞÞ:Hér fyrir neðan eru aðferðir sem bregðast við viðburðum á framendanum, yfirleitt takka klikkum. Tengja þarf onClick við þessar aðferðir
+    //Eða bara setja þessi köll beint inn í callbacks, sbr hér að ofan. Óþarfa clutter að hafa þetta í sér aðferð
 
     private void onCancelClick(String id)
     {
@@ -90,21 +92,6 @@ public class LobbyActivity extends AppCompatActivity {
     private void onObserveClick(String id)
     {
         (new NetworkingTask("observeMatch")).execute(id);
-    }
-
-    //TODO ÞÞ: Líklega viðeigandi í enter aðferðunum 2 hér að neðan að sýna notandanum að verið sé að vinna(Toast, progress spinner, etc.)
-
-    private void enterMyStats()
-    {
-        //Kannski eitthvað sem þarf að gera áður en við yfirgefum Lobby
-        //AÐ ÖLLUM LÍKINDUM verður talað við server hér og skilaboð fyrir stats generated þar
-        startActivity(StatsActivity.usernameIntent(LobbyActivity.this, mUsername));
-    }
-
-    private void enterTrophyRoom()
-    {
-        //Kannski eitthvað sem þarf að gera áður en við yfirgefum Lobby
-        startActivity(TrophyActivity.usernameIntent(LobbyActivity.this, mUsername));
     }
 
     private void submitChatEntry()
@@ -133,7 +120,9 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
 
-    //Hér að neðan má finna HTTP response aðferðir sem notast við skilaboð frá server
+    /*
+        HTTP RESPONSES
+     */
 
     private void appendChatEntry(String chatEntry, String chatType)
     {
@@ -167,9 +156,9 @@ public class LobbyActivity extends AppCompatActivity {
         for(int i = 0; i < deleteIds.size(); i++)
         {
             String idToDelete = deleteIds.get("" + i);
+
             //TODO ÞÞ: Finna lista entry(waiting eða ongoing) sem er bendlað við þetta id og fjarlægja
-            //TODO ÞÞ: Entry í heild sinni. Líklega hægt að finna takkann sem er bendlaður við ID og eyða
-            //Foreldri hans eða eitthvað álíka.
+            //TODO ÞÞ: Entry í heild sinni. Líklega hægt að finna takkann sem er bendlaður við ID og eyða foreldri
         }
     }
 
