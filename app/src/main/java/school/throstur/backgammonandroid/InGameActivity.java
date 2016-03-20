@@ -14,6 +14,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class InGameActivity extends AppCompatActivity {
 
@@ -22,16 +24,15 @@ public class InGameActivity extends AppCompatActivity {
 
     private String mUsername;
     private boolean mCouldDouble, mIsPlaying;
+    private Timer mAnimLoop, mRefresher, mClockTimer;
     private AnimationCoordinator mAnimator;
 
-    private int mPivot, mTimeBetweenRefresh;
     private int mTimeLeftMs;
 
     private Button leaveMatchButton;
     private Button submitChatButton;
 
 
-    //Gæti verið kallað á þessa úr Stats, Trophy eða Lobby
     public static Intent playingUserIntent(Context packageContext, String username)
     {
         Intent i = new Intent(packageContext, InGameActivity.class);
@@ -39,7 +40,7 @@ public class InGameActivity extends AppCompatActivity {
         i.putExtra(IS_PLAYING, true);
         return i;
     }
-    //Einungis kallanleg úr Lobby
+
     public static Intent obersvingUserIntent(Context packageContext, String username)
     {
         Intent i = new Intent(packageContext, InGameActivity.class);
@@ -54,14 +55,22 @@ public class InGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_in_game);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
         mUsername = getIntent().getStringExtra(USERNAME);
+
+        int refreshPause = (mIsPlaying)? 1500: 2000 ;
+
+        mRefresher = new Timer();
+        mRefresher.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                (new NetworkingTask("refresh")).execute();
+            }
+        }, 1500 ,refreshPause);
+
     }
 
-    //TODO ÞÞ: Ekkert sem þarf að gera hér, bara að benda á að onXXX aðferðirnar eru aðferðir sem á að tengja við viðeigandi events
 
     private void onCanvasClicked(double cx, double cy)
     {
@@ -115,7 +124,9 @@ public class InGameActivity extends AppCompatActivity {
 
     }
 
-    //Hér að neðan eru aðferðirnar sem bregðast við mismunandi HTTP response skilaboðum
+    /*
+        HTTP RESPONSE aðferðir
+     */
 
     private void startAnimation(HashMap<String, String> animInfo)
     {
@@ -167,17 +178,15 @@ public class InGameActivity extends AppCompatActivity {
     private void whiteLightSquares(HashMap<String, String> positions)
     {
         positions.remove("action");
-        int[] squarePos = new int[positions.size()];
-        for(int i = 0; i < squarePos.length; i++)
-            squarePos[i] = Integer.parseInt(positions.get(""+i));
+        int[] squarePositions = new int[positions.size()];
+        for(int i = 0; i < squarePositions.length; i++)
+            squarePositions[i] = Integer.parseInt(positions.get(""+i));
 
         if(mAnimator.isRollingDice())
-            //Þegar teningarnir rúlla þarf að bíða með whitelight, annars ekki
-            //TODO AE: Sjá til þess að animator whitelighti þegar teningar hætta að rúlla
-            mAnimator.delayWhiteLighting(squarePos);
+            mAnimator.delayWhiteLighting(squarePositions);
         else
         {
-            mAnimator.whiteLightSquares(squarePos);
+            mAnimator.whiteLightSquares(squarePositions);
             mAnimator.render(new Canvas());
         }
     }
@@ -193,15 +202,18 @@ public class InGameActivity extends AppCompatActivity {
         mAnimator.render(new Canvas());
     }
 
-    //Hér mun alltaf þurfa að bíða eftir að animation peða(og allt animation) klárist
     //Líklega best að láta acitivity kalla á finish delayed og síðan á onDraw()
-    //Reyndar alveg spurning hvort animator sé sá sem á að sjá um þetta ??? Líkelga frekar activity sem reddar þessu.
     private void showButtonsIfPossible(boolean canDouble)
     {
         if(!mAnimator.pawnsAreMoving)
             showButtons(canDouble);
         else
             mCouldDouble = canDouble;
+    }
+
+    public void updateAnimator(int deltaMs)
+    {
+
     }
 
     private void showButtons(boolean canDouble)
@@ -221,6 +233,7 @@ public class InGameActivity extends AppCompatActivity {
         //TODO ÞÞ: uppfæra klukkuna með gildinu í secondsOnClock
     }
 
+    //Á þessum tímapunkti þarf að koma
     private void presentStartingMatch(String playerOne, String playerTwo)
     {
         //TODO ÞÞ: Seinni tíma vandamál að láta match presentation birtast hér
@@ -234,6 +247,8 @@ public class InGameActivity extends AppCompatActivity {
     {
         //TODO ÞÞ: Búið er til element með þessum upplýsingum. Það er sett inn í stað canvas elements,
         //þar sem leikurinn(match) er hvort eð er búinn. Ekkert að því heldur að setja yfir canvasinn án þess að eyða canvas.
+
+        mRefresher.cancel();
     }
 
     private void presentFinishedGame(String winner, String multiplier, String cube, String winType)
@@ -324,6 +339,8 @@ public class InGameActivity extends AppCompatActivity {
                         return Utils.JSONToMapList(InGameNetworking.cubeThrown(mUsername));
                     case "pivot":
                         return Utils.JSONToMapList(InGameNetworking.pivotClicked(mUsername));
+                    case "refresh":
+                        return Utils.JSONToMapList(InGameNetworking.refresh(mUsername));
                     case "leave":
                         return Utils.JSONToMapList(InGameNetworking.leaveMatch(mUsername));
                     case "endTurn":
@@ -374,17 +391,11 @@ public class InGameActivity extends AppCompatActivity {
                     case "addedTime":
                         addGameTime(Integer.parseInt(msg.get("seconds")));
                         break;
-                    case "announcement":
-                        presentStartingMatch(msg.get("playerOne"), msg.get("playerTwo"));
-                        break;
                     case "matchOver":
                         presentFinishedMatch(msg.get("winner"), msg.get("loser"), msg.get("winPoints"), msg.get("lossPoints"));
                         break;
                     case "gameOver":
                         presentFinishedGame(msg.get("winner"), msg.get("mult"), msg.get("cube"), msg.get("type"));
-                        break;
-                    case "wholeBoard":
-                        setUpWholeBoard(msg);
                         break;
                     case "explain":
                         Toast.makeText(InGameActivity.this, msg.get("explain"), Toast.LENGTH_LONG);
@@ -394,6 +405,12 @@ public class InGameActivity extends AppCompatActivity {
                         break;
                     case "playerDoubled":
                         playerDoubled(msg.get("doubler"), msg.get("decider"), msg.get("stakes"));
+                        break;
+                    case "presentMatch":
+                        presentStartingMatch(msg.get("playerOne"), msg.get("playerTwo"));
+                        break;
+                    case "wholeBoard":
+                        setUpWholeBoard(msg);
                         break;
                 }
             }

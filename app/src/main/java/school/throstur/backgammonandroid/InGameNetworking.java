@@ -66,6 +66,23 @@ public class InGameNetworking {
         }
     }
 
+    public static JSONArray refresh(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/refresh")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
     public static JSONArray whiteSquare(String name, String pos) throws IOException
     {
         try

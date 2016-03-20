@@ -21,7 +21,7 @@ public class DicePair {
         timeBtwFlips = 80;
     }
 
-    public void update(int deltaMs)
+    public boolean update(int deltaMs)
     {
         int oldFlipsLeft = animTimeLeft/timeBtwFlips;
         animTimeLeft -= deltaMs;
@@ -43,6 +43,13 @@ public class DicePair {
             first = firstCopy;
             second = secondCopy;
         }
+
+        return isAnimating;
+    }
+
+    public boolean isRolling()
+    {
+        return isAnimating;
     }
 
     public void prepareForAnimation(int updatedFirst, int updatedSecond)

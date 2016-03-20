@@ -13,7 +13,7 @@ public class AnimationCoordinator {
     private ArrayList<HashMap<String, Integer>> moves;
     private int currAnimIndex;
     private int[] lastWhiteLighted;
-    boolean isSequential, pawnsAreMoving, diceAreRolling, isDelaying;
+    boolean isSequential, pawnsAreMoving, diceAreRolling, isDelaying, cubeIsFlipping;
 
     public AnimationCoordinator()
     {
@@ -22,6 +22,7 @@ public class AnimationCoordinator {
         isSequential = false;
         pawnsAreMoving = false;
         diceAreRolling = false;
+        cubeIsFlipping = false;
     }
 
     public static AnimationCoordinator buildNewBoard()
@@ -38,26 +39,34 @@ public class AnimationCoordinator {
         return existingBoard;
     }
 
-    //TODO AE: Muna að eyða EKKI moves úr move-listanum, merkja þess í staðinn .put("finished).
-
     public void startDiceRoll(int first, int second, int team)
     {
+        diceAreRolling = true;
         if(team == Utils.TEAM_WH)
             board.startWhiteDiceRoll(first, second);
         else
             board.startBlackDiceRoll(first, second);
     }
 
+    public void startCubeFlipping(int nextValue)
+    {
+        board.startCubeFlipping(nextValue);
+        cubeIsFlipping = true;
+    }
+
     public void delayWhiteLighting(int[] positions)
     {
         lastWhiteLighted = positions;
         isDelaying = true;
-        //TODO AE: Passa að isDelaying sé sett á false eftir að búið er að lýsa upp reitina
     }
 
     public boolean isRollingDice()
     {
         return diceAreRolling;
+    }
+    public boolean isFlippingCube()
+    {
+        return cubeIsFlipping;
     }
 
     public void initPawnAnimation(ArrayList<HashMap<String, Integer>> moves)
@@ -77,7 +86,7 @@ public class AnimationCoordinator {
         {
             board.resetMovementSettings(false);
             for(HashMap<String, Integer> move: this.moves)
-                if(move.get("killMove") == 0)
+                if(move.get("killMove").equals(0))
                     board.setUpNextMove(move.get("from"), move.get("to"), move.get("killMove"), currAnimIndex);
         }
 
@@ -88,19 +97,39 @@ public class AnimationCoordinator {
     {
         board.prepareTeleport();
         isSequential = true;
+        currAnimIndex = 0;
         for(HashMap<String, Integer> move: moves)
         {
-            //Koma teleport af stað og update-a nógu oft til að klára move. Síðan er renderað hér eða af hálfy
-            //inGameActivity
+            board.setUpNextMove(move.get("from"), move.get("to"), move.get("killMoce"), currAnimIndex++);
+            board.updateMovers(1);
+            board.finishMove(currAnimIndex - 1, move.get("to"));
         }
     }
 
-    public void update(int deltaMs)
+    //TODO AE: Láta Activity sjá um að birta takkana eftir að peð hafa verið hreyfð
+
+    public void updatePawns(int deltaMs)
     {
         if(isSequential)
             sequentialUpdate(deltaMs);
         else
             batchUpdate(deltaMs);
+    }
+
+    public void updateDice(int deltaMs)
+    {
+        boolean oldStatus = diceAreRolling;
+        diceAreRolling = board.updateDice(deltaMs);
+        if(oldStatus != diceAreRolling && isDelaying)
+        {
+            isDelaying = false;
+            whiteLightSquares(lastWhiteLighted);
+        }
+    }
+
+    public void updateCube(int deltaMs)
+    {
+        cubeIsFlipping = board.updateCube(deltaMs);
     }
 
     public void render(Canvas canvas)
@@ -122,9 +151,9 @@ public class AnimationCoordinator {
             }
             else
                 pawnsAreMoving = false;
-
         }
     }
+
     private void batchUpdate(int deltaMs)
     {
         ArrayList<Integer> finishedIndexes = board.updateMovers(deltaMs);
@@ -146,10 +175,11 @@ public class AnimationCoordinator {
             int finished = move.get("finished");
             if(finished == 0) pawnsAreMoving = true;
         }
+
+        //Ef pawnsAreMoving = false og storedMoves != null þá eru þau move keyrð og pawnsAreMoving = true
     }
 
-
-    //TODO AE: Integer.equals er MUST allstaðar
+    //TODO AE: Sannreyna að þessi aðferð virki sem skildi
     private void startKilledMoveIfPossible(int index)
     {
         HashMap<String, Integer> finishedMove = moves.get(index);
@@ -158,11 +188,10 @@ public class AnimationCoordinator {
             HashMap<String, Integer> move = moves.get(index);
             if(move.get("killMove").equals(1) && move.get("from").equals(finishedMove.get("to")))
             {
-                board.setUpNextMove(move.get("from"), move.get("to"), 1, i);
+                board.setUpNextMove(move.get("from"), move.get("to"), 0, i);
                 return;
             }
         }
-            
     }
 
     private HashMap<String, Integer> getCurrentMove()

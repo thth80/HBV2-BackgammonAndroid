@@ -48,6 +48,11 @@ public class Pawn {
         this.cy = cy;
     }
 
+    public void applyVerticalForce(double zForce)
+    {
+        zVel += zForce;
+    }
+
     public void changeXVelocity(double change)
     {
         xVel += change;
@@ -62,6 +67,12 @@ public class Pawn {
         z = 1.0;
     }
 
+    public void applyForces(double xForce, double yForce)
+    {
+        xVel += xForce;
+        yVel += yForce;
+    }
+
     public int getTeam()
     {
         return team;
@@ -71,7 +82,13 @@ public class Pawn {
     {
         return cx;
     }
-
+    public double getY(){
+        return cy;
+    }
+    public double getZ()
+    {
+        return z;
+    }
 
     public void render(String ctx)
     {

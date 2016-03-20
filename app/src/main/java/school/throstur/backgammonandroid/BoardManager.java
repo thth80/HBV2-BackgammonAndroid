@@ -3,17 +3,6 @@ package school.throstur.backgammonandroid;
 import java.util.ArrayList;
 
 public class BoardManager {
-    public class Cube{
-        private int value;
-        public Cube(int val)
-        {
-            value = val;
-        }
-        public void flip()
-        {
-            value *= 2;
-        }
-    }
 
     private Square[] squares;
     private Pawn[] killedPawns;
@@ -50,6 +39,22 @@ public class BoardManager {
         custom.setCube(cube);
 
         return custom;
+    }
+
+    public boolean updateCube(int deltaMs)
+    {
+        return false;
+    }
+
+    //Skilar true ef teningar eru animating, annars false
+    public boolean updateDice(int deltaMs)
+    {
+        if(!blackDice.isRolling() && !whiteDice.isRolling())
+            return false;
+        else if(blackDice.isRolling())
+            return blackDice.update(deltaMs);
+        else
+            return whiteDice.update(deltaMs);
     }
 
     //TODO AE: Vera handviss um að Integer sé ekki að valda neinum vandræðum
@@ -121,6 +126,10 @@ public class BoardManager {
     {
         whiteDice.prepareForAnimation(first, second);
     }
+    public void startCubeFlipping(int nextVal)
+    {
+        doublingCube.startFlipping(nextVal);
+    }
 
     private void setDicePairs(int[] vals)
     {
@@ -169,11 +178,6 @@ public class BoardManager {
     {
         for(PawnMover mover: pawnMovers)
             mover.setToTeleport();
-    }
-
-    private void flipCube()
-    {
-        doublingCube.flip();
     }
 
     public void render(String ctx)

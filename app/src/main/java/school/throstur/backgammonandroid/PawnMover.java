@@ -2,9 +2,6 @@ package school.throstur.backgammonandroid;
 
 import android.graphics.Point;
 
-/**
- * Created by Aðalsteinn on 15.3.2016.
- */
 public class PawnMover {
 
     private static final int JUMPER = 0;
@@ -15,6 +12,7 @@ public class PawnMover {
     private int[] updateProtocols;
     private Point[] targetsOnTheWay;
     private boolean isActive;
+    private double gravity;
 
     public PawnMover()
     {
@@ -24,17 +22,14 @@ public class PawnMover {
         updateProtocols = new int[]{JUMPER, JUMPER, JUMPER, JUMPER};
         isActive = false;
         targetsOnTheWay = null;
-    }
-
-    public int update(int deltaMs)
-    {
-        return AnimationCoordinator.NOT_AN_ID;
+        gravity = 0;
     }
 
     public int getId()
     {
         return id;
     }
+
 
     public Pawn shutDownAndReleasePawn()
     {
@@ -55,14 +50,112 @@ public class PawnMover {
             updateProtocols[i] = newProto[i];
     }
 
-    public void receiveDirections(Pawn pawn, double targetX, double targetY, int id)
+    public int update(int deltaMs)
     {
-        this.id = id;
-        movingPawn = pawn;
+        if(this.updateProtocols[0] == TELEPORT)
+            return this.id;
+        else if(this.updateProtocols[0] == JUMPER)
+            return updateStandardJumper(deltaMs);
+        else
+            return 0;
+    }
+
+    private boolean noMoreTargets()
+    {
+        return currTargetIndex >= targetsOnTheWay.length;
+    }
+
+    private int updateStandardJumper(int deltaMs)
+    {
+        movingPawn.updatePos(deltaMs);
+        if(reachedTarget(movingPawn.getX(), movingPawn.getY(), getCurrentTarget()))
+        {
+            currTargetIndex++;
+            if(noMoreTargets())
+            {
+                movingPawn.putOnGround();
+                return id;
+            }
+            else
+            {
+                movingPawn.verticalReverse();
+                return AnimationCoordinator.NOT_AN_ID;
+            }
+        }
+
+        return AnimationCoordinator.NOT_AN_ID;
+    }
+
+    private Point getCurrentTarget()
+    {
+        return targetsOnTheWay[currTargetIndex];
+    }
+
+    private boolean reachedTarget(double pawnCx, double pawnCy, Point target )
+    {
+        double xDistSquared = Math.pow(Math.abs(pawnCx - target.x ),2);
+        double yDistSquared = Math.pow(Math.abs(pawnCy - target.y),2);
+        double realDistSquared = xDistSquared + yDistSquared;
+        return realDistSquared < 100;
+    }
+
+    private void initTargetList(double cx, double cy)
+    {
+        if(updateProtocols[0] == TELEPORT)
+            movingPawn.placeAt(cx, cy);
+        else if(updateProtocols[0] == JUMPER)
+            initJumper(cx, cy);
+    }
+
+    private void initLauncher(double cx, double cy)
+    {
+        gravity = -0.00003;
+        double zLaunchVel = 0.011 + Math.random()*0.003;
+        double timeToLandAgain = -2 * (zLaunchVel/gravity);
+
+        double xVector = cx - movingPawn.getX();
+        double yVector = cy - movingPawn.getY();
+        double neededXVel = xVector/timeToLandAgain;
+        double neededYVel = yVector/timeToLandAgain;
+
+        movingPawn.applyForces(neededXVel, neededYVel);
+        movingPawn.applyVerticalForce(zLaunchVel);
 
     }
 
-    //TODO AE: Hafa þetta frekar static, þar sem stillingar allra breytast við þetta?
+    private void initJumper(double cx, double cy)
+    {
+        double apexZ = 4.0;
+        double zVel = 0.003;
+        double timeToApex = (apexZ - movingPawn.getZ())/zVel;
+        double midXVect = (cx - movingPawn.getX())/2;
+        double midYVect = (cy - movingPawn.getY())/2;
+
+        double xForce = midXVect/timeToApex;
+        double yForce = midYVect/timeToApex;
+        targetsOnTheWay = new Point[2];
+        targetsOnTheWay[0] = new Point((int)(movingPawn.getX()+ midXVect),(int)( movingPawn.getY() + midYVect));
+        targetsOnTheWay[1] = new Point((int)cx, (int)cy);
+
+        movingPawn.applyForces(xForce, yForce);
+        movingPawn.applyVerticalForce(zVel);
+    }
+
+    public void receiveDirections(Pawn pawn, double targetX, double targetY, int id)
+    {
+        this.id = id;
+        isActive = true;
+        currTargetIndex = 0;
+        movingPawn = pawn;
+
+        initTargetList(targetX, targetY);
+    }
+
+    public void activate()
+    {
+        isActive = true;
+    }
+
     public static int[] randomMovementSettings()
     {
         int[] randomProtocols = new int[4];

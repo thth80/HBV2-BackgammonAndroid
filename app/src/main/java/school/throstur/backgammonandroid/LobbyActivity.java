@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LobbyActivity extends AppCompatActivity {
     private static final String SENT_FROM_LOGIN = "usernameExtra";
@@ -22,6 +24,8 @@ public class LobbyActivity extends AppCompatActivity {
     private Button mSubmitChatButton;
     private Button mToTrophyButton;
     private Button mToStatsButton;
+
+    private Timer mRefresher;
 
     public static Intent usernameIntent(Context packageContext, String username)
     {
@@ -70,37 +74,27 @@ public class LobbyActivity extends AppCompatActivity {
                 (new NetworkingTask("goToStats")).execute();
             }
         });
+
+        mRefresher = new Timer();
+        mRefresher.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                (new NetworkingTask("refresh")).execute();
+            }
+        }, 1500, 1500);
     }
 
-    /*
+     /*
         LOCAL EVENT HANDLING
      */
 
-    //TODO ÞÞ:Hér fyrir neðan eru aðferðir sem bregðast við viðburðum á framendanum, yfirleitt takka klikkum. Tengja þarf onClick við þessar aðferðir
-    //Eða bara setja þessi köll beint inn í callbacks, sbr hér að ofan. Óþarfa clutter að hafa þetta í sér aðferð
-
-    private void onCancelClick(String id)
-    {
-        (new NetworkingTask("removeWaitEntry")).execute(id);
-    }
-
-    private void onJoinClick(String id)
-    {
-        (new NetworkingTask("joinHumanMatch")).execute(id);
-    }
-
-    private void onObserveClick(String id)
-    {
-        (new NetworkingTask("observeMatch")).execute(id);
-    }
-
     private void submitChatEntry()
     {
-        //TODO ÞÞ: Extract-a chat textann úr tilsvarandi View-i og setja í chatEntry. Einnig skal henda í Toast þegar length == 0
+        //TODO ÞÞ: Extract-a chat textann úr tilsvarandi View-i og setja í chatEntry.
         String chatEntry = "Trump Trump Trump! Make America great again";
 
-        if(chatEntry.length() == 0);
-            //TOAST: Bannað að senda tóma strengi sem chat
+        if(chatEntry.length() == 0)
+            Toast.makeText(LobbyActivity.this, "If you want to chat you must write something down!", Toast.LENGTH_SHORT);
         else
             (new NetworkingTask("newLobbyChat")).execute(chatEntry);
     }
@@ -118,7 +112,6 @@ public class LobbyActivity extends AppCompatActivity {
         else
             (new NetworkingTask("startBotMatch")).execute(points, clock, addedTime);
     }
-
 
     /*
         HTTP RESPONSES
@@ -138,16 +131,48 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void addWaitEntry(String waiter, String points, String addedTime, String id)
     {
-        //TODO ÞÞ: Búa til grafískt wait entry úr upplýsingum og bæta aftan á waiting entry listann.
-        //JOIN/CANCEL takkinn verður að vera bendlaður við ID-ið. Takkinn þarf að vera tengdur við onClick
+        //TODO ÞÞ: Búa til grafískt wait entry úr upplýsingum og bæta aftan á waiting entry listann. Tengja ID við takkann eða foreldrið
         //clock = True/false breytan var redundant. Það er tími á leiknum ef (int)addedTime > 0
-        //ATH: Það er búinn til cancel takki ef waiter.equals(mUsername), annars join
+
+        Button cancelOrJoin = (Button) new View(LobbyActivity.this);
+        if(waiter.equals(mUsername))
+        {
+            //Case CANCEL
+            cancelOrJoin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String id = "ná í gegnum view?";
+                    (new NetworkingTask("removeWaitEntry")).execute(id);
+                }
+            });
+        }
+        else
+        {
+            //Case JOIN
+            cancelOrJoin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String id = "ná í gegnum view?";
+                    (new NetworkingTask("joinHumanMatch")).execute(id);
+                }
+            });
+        }
     }
 
     private void addOngoingEntry(String playerOne, String playerTwo, String points, String addedTime, String id)
     {
-        //TODO ÞÞ: Mjög svipað og í addWaitEntry. Búinn til grafískur entry og honum er appendað.
-        //addedTime > 0 segir að leikurinn sé á tíma. ID þarf að tengja við OBSERVE takka, takka þarf að tengja við onClick
+        //TODO ÞÞ: Mjög svipað og í addWaitEntry. Búinn til grafískur entry og honum er appendað við entry listann. Tengja ID við observe takka.
+
+        boolean timedMatch = !addedTime.equals("0");
+        Button observe = (Button)new View(LobbyActivity.this);
+
+        observe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = "ná í gegnum view?";
+                (new NetworkingTask("observeMatch")).execute(id);
+            }
+        });
     }
 
     private void removeListEntries(HashMap<String, String> deleteIds)
@@ -177,7 +202,9 @@ public class LobbyActivity extends AppCompatActivity {
             mPath = path;
         }
 
-        //HTTP REQUESTS
+        /*
+            HTTP REQUESTS
+         */
         @Override
         protected List<HashMap<String, String>> doInBackground(String... params)
         {
