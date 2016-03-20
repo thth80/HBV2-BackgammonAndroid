@@ -1,19 +1,14 @@
-package school.throstur.backgammonandroid;
+package school.throstur.backgammonandroid.Utility;
 
 import android.net.Uri;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+
+import school.throstur.backgammonandroid.Utility.Utils;
 
 /**
  * Created by Aðalsteinn on 14.3.2016.

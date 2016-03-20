@@ -1,6 +1,9 @@
-package school.throstur.backgammonandroid;
+package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Point;
+
+import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
+import school.throstur.backgammonandroid.GameBoard.Pawn;
 
 public class PawnMover {
 

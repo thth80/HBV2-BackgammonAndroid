@@ -1,14 +1,12 @@
-package school.throstur.backgammonandroid;
+package school.throstur.backgammonandroid.Utility;
 
 import android.net.Uri;
 
 import org.json.JSONArray;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
+import school.throstur.backgammonandroid.Utility.Utils;
 
 /**
  * Created by Aðalsteinn on 14.3.2016.
@@ -54,6 +52,23 @@ public class InGameNetworking {
         try
         {
             String url = Uri.parse("http://localhost:9090/timeOut")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray initMatch(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/initMatch")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();

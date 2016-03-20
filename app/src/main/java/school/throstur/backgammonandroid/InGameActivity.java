@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -17,17 +16,22 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
+import school.throstur.backgammonandroid.Utility.InGameNetworking;
+import school.throstur.backgammonandroid.Utility.Utils;
+
 public class InGameActivity extends AppCompatActivity {
 
     private static final String USERNAME = "nameOfUser";
     private static final String IS_PLAYING = "canPlay";
 
     private String mUsername;
-    private boolean mCouldDouble, mIsPlaying;
+    private boolean mCouldDouble, mIsPlaying, mShouldResetClock, mTimedMatch;
     private Timer mAnimLoop, mRefresher, mClockTimer;
     private AnimationCoordinator mAnimator;
+    private long lastTimeStamp;
 
-    private int mTimeLeftMs;
+    private int mTimeLeftMs, mPivot;
 
     private Button leaveMatchButton;
     private Button submitChatButton;
@@ -59,7 +63,7 @@ public class InGameActivity extends AppCompatActivity {
         mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
         mUsername = getIntent().getStringExtra(USERNAME);
 
-        int refreshPause = (mIsPlaying)? 1500: 2000 ;
+        int refreshPause = (mIsPlaying)? 1500 : 2000 ;
 
         mRefresher = new Timer();
         mRefresher.scheduleAtFixedRate(new TimerTask() {
@@ -69,6 +73,11 @@ public class InGameActivity extends AppCompatActivity {
             }
         }, 1500 ,refreshPause);
 
+        if(mIsPlaying)
+        {
+            mAnimator = AnimationCoordinator.buildNewBoard();
+            (new NetworkingTask("initMatch")).execute();
+        }
     }
 
 
@@ -91,20 +100,21 @@ public class InGameActivity extends AppCompatActivity {
             (new NetworkingTask("pivot")).execute(pos+"");
             //lýsa aftur upp hvíta reiti
         }
-
     }
 
 
     private void onEndTurnClicked()
     {
         (new NetworkingTask("endTurn")).execute();
-        //aflita alla græna eða hvíta, stilla mPivot rétt
+        mPivot = -1;
+        mAnimator.unHighlightAll();
+        //invalidate kall
     }
 
     private void onDoublingClicked()
     {
         (new NetworkingTask("cube")).execute();
-        //fela alla takka
+        //TODO ÞÞ: Fela takkana
     }
 
     private void onThrowDiceClicked()
@@ -113,15 +123,36 @@ public class InGameActivity extends AppCompatActivity {
         //fela alla takka
     }
 
+    //TODO AE: Hvaða skilaboð eiga að valda því að klukkan fer aftur af stað?
+    //Láta dice thrower fylgja með og setja klukku í gang eftir diceRoll er búið?
+
     private void onTimeRunningOut()
     {
         (new NetworkingTask("timeOut")).execute();
-        //aflita alla, skipta um pivot, senda toast
+        mAnimator.unHighlightAll();
+        mTimeLeftMs = 0;
+        mClockTimer.cancel();
+
+        //TODO ÞÞ: Láta klukku element fá gildið 0
+        Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG);
     }
 
     private void onLeaveMatch()
     {
 
+    }
+
+    private void startAnimLoop()
+    {
+        mAnimLoop = new Timer();
+        mAnimLoop.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                boolean animFinished = updateAnimator(16);
+                //Kallað á invalidate()
+                if(animFinished) this.cancel();
+            }
+        }, 20, 20);
     }
 
     /*
@@ -130,6 +161,9 @@ public class InGameActivity extends AppCompatActivity {
 
     private void startAnimation(HashMap<String, String> animInfo)
     {
+        if(!mAnimator.isAnimating())
+            startAnimLoop();
+
         animInfo.remove("action");
         ArrayList<HashMap<String, Integer>> animMoves = new ArrayList<>();
         for(int i = 0; i < animInfo.size()/3; i++)
@@ -144,8 +178,16 @@ public class InGameActivity extends AppCompatActivity {
             animMoves.add(singleAnim);
         }
 
-        //TODO AE: Hvernig virkar leikjalykkjan? Hvað með þegar moves.length = 0?
-        mAnimator.initPawnAnimation(animMoves);
+        if(animMoves.size() > 0)
+        {
+            if(!mAnimator.arePawnsMoving())
+                mAnimator.initPawnAnimation(animMoves);
+            else
+                mAnimator.storeDelayedMoves(animMoves);
+        }
+        else
+            Toast.makeText(InGameActivity.this, "Your opponent had no moves available!", Toast.LENGTH_SHORT).show();
+
     }
 
     private void performInTurnMoves(HashMap<String, String> moveInfo)
@@ -170,8 +212,10 @@ public class InGameActivity extends AppCompatActivity {
     private void startDiceRoll(int first, int second, int team)
     {
         mAnimator.startDiceRoll(first, second, team);
-        //TODO AE: isAnimating = true, meðal annars til að blokka birtingu hvítra reita.
-        //Koma leikjalykkju af stað
+        String thrower = "derp";
+        if(thrower.equals(mUsername) && mTimedMatch)
+            mShouldResetClock = true;
+
         //TODO AE: Láta klukkuna fara af stað ef leikurinn er timed, eftir að teningar hafa rúllað HJÁ spilara
     }
 
@@ -202,18 +246,57 @@ public class InGameActivity extends AppCompatActivity {
         mAnimator.render(new Canvas());
     }
 
-    //Líklega best að láta acitivity kalla á finish delayed og síðan á onDraw()
+    //TODO AE: Takkar verða að koma á eftir animate skilaboðum
     private void showButtonsIfPossible(boolean canDouble)
     {
-        if(!mAnimator.pawnsAreMoving)
+        if(!mAnimator.arePawnsMoving())
             showButtons(canDouble);
         else
             mCouldDouble = canDouble;
     }
 
-    public void updateAnimator(int deltaMs)
+    public boolean updateAnimator(int deltaMs)
     {
+        boolean wasMovingPawns = mAnimator.arePawnsMoving();
+        if(deltaMs > 30) deltaMs = 16;
 
+        mAnimator.updatePawns(deltaMs);
+        mAnimator.updateCube(deltaMs);
+        mAnimator.updateDice(deltaMs);
+
+        if(wasMovingPawns != mAnimator.arePawnsMoving() && mAnimator.areMovesStored())
+        {
+            mAnimator.initPawnAnimation(mAnimator.getStoredMoves());
+            mAnimator.emptyStorage();
+        }
+
+        if(wasMovingPawns != mAnimator.arePawnsMoving())
+            showButtons(mCouldDouble);
+
+        if(!mAnimator.isAnimating() && mShouldResetClock)
+        {
+            resetGameClock();
+            mShouldResetClock = false;
+        }
+
+        return mAnimator.isAnimating();
+    }
+
+    private void resetGameClock()
+    {
+        lastTimeStamp = System.currentTimeMillis();
+        mClockTimer = new Timer();
+        mClockTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                long timeNow = System.currentTimeMillis();
+                long delta = timeNow - lastTimeStamp;
+                lastTimeStamp = timeNow;
+                mTimeLeftMs -= delta;
+                if(mTimeLeftMs <= 0)
+                    onTimeRunningOut();
+            }
+        }, 25 , 50);
     }
 
     private void showButtons(boolean canDouble)
@@ -233,7 +316,6 @@ public class InGameActivity extends AppCompatActivity {
         //TODO ÞÞ: uppfæra klukkuna með gildinu í secondsOnClock
     }
 
-    //Á þessum tímapunkti þarf að koma
     private void presentStartingMatch(String playerOne, String playerTwo)
     {
         //TODO ÞÞ: Seinni tíma vandamál að láta match presentation birtast hér
@@ -258,11 +340,9 @@ public class InGameActivity extends AppCompatActivity {
         else if(multiplier.equals("3")) wonBy = "Won By Backgammon!!!";
 
         int totalPoints = Integer.parseInt(multiplier) * Integer.parseInt(cube);
-        //TODO ÞÞ: Notast við winner, wonBy, cube, totalPoints og winType til að búa til kynningu á lok leiks
+        //TODO ÞÞ: Notast við winner, wonBy, cube, totalPoints og winType til að búa til kynningu í lok leiks
         //Líklega best að láta kynningu vera ofan á canvas, þar sem match er EKKI lokið hér
 
-        //TODO AE: Hvernig má útfæra það að notandinn sæki gögn fyrir nýjan leik eftir að kynningu lýkur?
-        //Þessi skilaboð geta borist fyrir nokkur HTTP Requests. Delayed postbox á server? Láta teninga rúlla í bakgrunni?
     }
 
     private void setUpWholeBoard(HashMap<String, String> boardDescription)
@@ -347,6 +427,8 @@ public class InGameActivity extends AppCompatActivity {
                         return Utils.JSONToMapList(InGameNetworking.endTurn(mUsername));
                     case "timeOut":
                         return Utils.JSONToMapList(InGameNetworking.timeOut(mUsername));
+                    case "initMatch":
+                        return Utils.JSONToMapList(InGameNetworking.initMatch(mUsername));
                 }
                 return null;
             }

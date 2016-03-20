@@ -1,6 +1,8 @@
-package school.throstur.backgammonandroid;
+package school.throstur.backgammonandroid.GameBoard;
 
 import java.util.ArrayList;
+
+import school.throstur.backgammonandroid.Utility.Utils;
 
 /**
  * Created by Aðalsteinn on 15.3.2016.

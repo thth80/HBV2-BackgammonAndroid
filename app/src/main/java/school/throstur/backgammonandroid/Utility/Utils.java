@@ -1,4 +1,4 @@
-package school.throstur.backgammonandroid;
+package school.throstur.backgammonandroid.Utility;
 
 import org.json.JSONArray;
 import org.json.JSONException;

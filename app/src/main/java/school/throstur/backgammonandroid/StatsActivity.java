@@ -6,12 +6,13 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import school.throstur.backgammonandroid.Utility.TrophyStatsNetworking;
 
 public class StatsActivity extends AppCompatActivity {
     private static final String SENT_USERNAME = "usernameSent";

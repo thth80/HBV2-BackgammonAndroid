@@ -1,16 +1,17 @@
-package school.throstur.backgammonandroid;
+package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Canvas;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+
+import school.throstur.backgammonandroid.Utility.Utils;
 
 public class AnimationCoordinator {
     public static final int NOT_AN_ID = -1;
 
     private BoardManager board;
-    private ArrayList<HashMap<String, Integer>> moves;
+    private ArrayList<HashMap<String, Integer>> moves, delayedMoves;
     private int currAnimIndex;
     private int[] lastWhiteLighted;
     boolean isSequential, pawnsAreMoving, diceAreRolling, isDelaying, cubeIsFlipping;
@@ -37,6 +38,21 @@ public class AnimationCoordinator {
         AnimationCoordinator existingBoard = new AnimationCoordinator();
         existingBoard.board = BoardManager.buildExistingBoard(teams, counts, diceVals, cube);
         return existingBoard;
+    }
+
+    public boolean arePawnsMoving()
+    {
+        return pawnsAreMoving;
+    }
+
+    public boolean isDiceRolling()
+    {
+        return diceAreRolling;
+    }
+
+    public boolean isAnimating()
+    {
+        return pawnsAreMoving || cubeIsFlipping || diceAreRolling;
     }
 
     public void startDiceRoll(int first, int second, int team)
@@ -69,16 +85,21 @@ public class AnimationCoordinator {
         return cubeIsFlipping;
     }
 
+    public void storeDelayedMoves(ArrayList<HashMap<String, Integer>> delayed)
+    {
+        delayedMoves = delayed;
+    }
+
     public void initPawnAnimation(ArrayList<HashMap<String, Integer>> moves)
     {
         pawnsAreMoving = true;
+        currAnimIndex = 0;
         this.moves = moves;
         isSequential = isSequenceNeeded();
 
         if(isSequential)
         {
             board.resetMovementSettings(true);
-            currAnimIndex = 0;
             HashMap<String, Integer> nextMove = getCurrentMove();
             board.setUpNextMove(nextMove.get("from"),nextMove.get("to"), nextMove.get("killMove"), currAnimIndex);
         }
@@ -90,7 +111,6 @@ public class AnimationCoordinator {
                     board.setUpNextMove(move.get("from"), move.get("to"), move.get("killMove"), currAnimIndex);
         }
 
-        pawnsAreMoving = true;
     }
 
     public void performInTurnMoves(ArrayList<HashMap<String, Integer>> moves)
@@ -130,6 +150,21 @@ public class AnimationCoordinator {
     public void updateCube(int deltaMs)
     {
         cubeIsFlipping = board.updateCube(deltaMs);
+    }
+
+    public ArrayList<HashMap<String, Integer>> getStoredMoves()
+    {
+        return delayedMoves;
+    }
+
+    public boolean areMovesStored()
+    {
+        return delayedMoves != null;
+    }
+
+    public void emptyStorage()
+    {
+        delayedMoves = null;
     }
 
     public void render(Canvas canvas)
@@ -176,7 +211,6 @@ public class AnimationCoordinator {
             if(finished == 0) pawnsAreMoving = true;
         }
 
-        //Ef pawnsAreMoving = false og storedMoves != null þá eru þau move keyrð og pawnsAreMoving = true
     }
 
     //TODO AE: Sannreyna að þessi aðferð virki sem skildi

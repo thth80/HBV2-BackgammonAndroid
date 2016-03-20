@@ -3,8 +3,6 @@ package school.throstur.backgammonandroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 
 import android.net.Uri;
@@ -12,8 +10,6 @@ import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,13 +20,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static android.Manifest.permission.READ_CONTACTS;
+import school.throstur.backgammonandroid.Utility.Utils;
 
 public class LoginActivity extends AppCompatActivity {
 
