@@ -1,8 +1,7 @@
-package school.throstur.backgammonandroid;
+package school.throstur.backgammonandroid.Adapters;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +11,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import school.throstur.backgammonandroid.Utility.LobbyNetworking;
 
 /**
  * Created by Aðalsteinn on 25.3.2016.
@@ -59,6 +56,7 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
     {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         //View view = inflater.inflate(R.layout.list_item_tvseries, parent, false);
+        //Hérna að ofan gerast töfrarnir þegar layout fyrir entry er tengt við view
         View view = new View(mContext);
         return new ListEntryHolder(view);
     }
@@ -85,9 +83,6 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
 
     public class ListEntryHolder extends RecyclerView.ViewHolder
     {
-        private static final String TAG = "TvSeriesHolder";
-        private boolean onBind;
-
         private TextView mPlayerOneTextView;
         private TextView mPlayerTwoTextView;
         private TextView mPointsTextView;
@@ -105,7 +100,7 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         public ListEntryHolder(View view)
         {
             super(view);
-            //TODO ÞÞ: TEngja þessi element við actual UI element í gegnum ID
+            //TODO ÞÞ: TEngja þessi element við actual UI element í gegnum ID. Notast skal við færibreytuna view.
             mPlayerOneTextView = (TextView)new View(mContext);
             mPlayerTwoTextView = (TextView)new View(mContext);
             mPointsTextView = (TextView)new View(mContext);
