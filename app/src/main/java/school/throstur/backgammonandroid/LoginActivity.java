@@ -18,20 +18,23 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import school.throstur.backgammonandroid.Utility.Utils;
 
-public class LoginActivity extends AppCompatActivity {
+    public class LoginActivity extends AppCompatActivity {
 
-    private AutoCompleteTextView mUsernameView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+        private AutoCompleteTextView mUsernameView;
+        private EditText mPasswordView;
+        private View mProgressView;
+        private View mLoginFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
 
         //TODO ÞÞ: Default lógíkin hér að neðan er í ruglinu, það sem á að gerast
-        //TODO ÞÞ: er að annað hvort attemptSignup eða attemptLogin er kallað þegar
-        //ýtt er á takkana 2 á skjánum
+        //TODO ÞÞ: er að annað hvort attemptSignup eða attemptLogin er kallað þegar ýtt er á takkana 2 á skjánum
 
         mPasswordView = (EditText) findViewById(R.id.login_password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -65,11 +67,6 @@ public class LoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-    }
-
-    public void goToLobby(String username)
-    {
-        startActivity(LobbyActivity.usernameIntent(LoginActivity.this, username));
     }
 
     private void attemptLogin() {
@@ -175,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public class UserLoginTask extends AsyncTask<Void, Void, List<HashMap<String, String>>> {
+    public class UserLoginTask extends AsyncTask<Void, Void, ArrayList<HashMap<String, String>>> {
 
         private final String mUsername;
         private final String mPassword;
@@ -188,7 +185,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         @Override
-        protected List<HashMap<String, String>> doInBackground(Void... params)
+        protected ArrayList<HashMap<String, String>> doInBackground(Void... params)
         {
             try
             {
@@ -205,18 +202,23 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(final List<HashMap<String, String>> msgs) {
+        protected void onPostExecute(final ArrayList<HashMap<String, String>> msgs) {
             showProgress(false);
 
             for(HashMap<String, String> msg: msgs)
             {
                 if(msg.get("action").equals("legalSignup"))
-                    goToLobby(msg.get("username"));
-                else
+                {
+                    String username = msg.get("username");
+                    msgs.remove(msg);
+
+                    startActivity(LobbyActivity.initLobbyIntent(LoginActivity.this, username, msgs));
+                }
+                else if(msg.get("action").equals("explain"))
                 {
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();
-                    //TODO ÞÞ: Henda í eitt TOAST nema þessar 2 línur hér að ofan geri eitthvað sniðugt
+                    Toast.makeText(LoginActivity.this, msg.get("explain"), Toast.LENGTH_LONG);
                 }
             }
         }

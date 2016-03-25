@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,11 @@ public class StatsActivity extends AppCompatActivity {
                 (new NetworkingTask(mUsername, "checkForMatch")).execute();
             }
         }, 0, 5000);
+    }
+
+    public void makeToast(String toast)
+    {
+        Toast.makeText(StatsActivity.this, toast, Toast.LENGTH_LONG);
     }
 
     private void appendToStatsList(String currUser, String opponent, String currPoints, String oppoPoints, String currPawns, String oppoPawns)
