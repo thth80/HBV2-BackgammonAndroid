@@ -26,12 +26,12 @@ import java.util.List;
 
 import school.throstur.backgammonandroid.Utility.Utils;
 
-public class LoginActivity extends AppCompatActivity {
+    public class LoginActivity extends AppCompatActivity {
 
-    private AutoCompleteTextView mUsernameView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+        private AutoCompleteTextView mUsernameView;
+        private EditText mPasswordView;
+        private View mProgressView;
+        private View mLoginFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
