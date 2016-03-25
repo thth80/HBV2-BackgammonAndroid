@@ -5,6 +5,7 @@ import android.net.Uri;
 import org.json.JSONArray;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import school.throstur.backgammonandroid.Utility.Utils;
  */
 public class LobbyNetworking {
 
-    public static List<HashMap<String, String>> removeWaitEntry(String waitId ) throws IOException
+    public static ArrayList<HashMap<String, String>> removeWaitEntry(String waitId ) throws IOException
     {
         try
         {
@@ -33,7 +34,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> startBotMatch(String name, String points, String clock, String addedTime ) throws IOException
+    public static ArrayList<HashMap<String, String>> startBotMatch(String name, String points, String addedTime, String botDiff ) throws IOException
     {
         try
         {
@@ -41,7 +42,7 @@ public class LobbyNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("points", points)
-                    .appendQueryParameter("clock", clock)
+                    .appendQueryParameter("diff", botDiff)
                     .appendQueryParameter("addedTime", addedTime)
                     .build().toString();
 
@@ -54,7 +55,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> addWaitEntry(String name, String points, String clock ) throws IOException
+    public static ArrayList<HashMap<String, String>> addWaitEntry(String name, String points, String clock ) throws IOException
     {
         try
         {
@@ -73,7 +74,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> joinHumanMatch(String user, String id ) throws IOException
+    public static ArrayList<HashMap<String, String>> joinHumanMatch(String user, String id ) throws IOException
     {
         try
         {
@@ -91,7 +92,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> submitLobbyChat(String chatter, String chatEntry ) throws IOException
+    public static ArrayList<HashMap<String, String>> submitLobbyChat(String chatter, String chatEntry ) throws IOException
     {
         try
         {
@@ -109,7 +110,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> observeMatch(String username, String matchId ) throws IOException
+    public static ArrayList<HashMap<String, String>> observeMatch(String username, String matchId ) throws IOException
     {
         try
         {
@@ -128,7 +129,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> refresh(String username ) throws IOException
+    public static ArrayList<HashMap<String, String>> refresh(String username ) throws IOException
     {
         try
         {
@@ -146,7 +147,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> goToTrophy(String username ) throws IOException
+    public static ArrayList<HashMap<String, String>> goToTrophy(String username ) throws IOException
     {
         try
         {
@@ -164,7 +165,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> leaveApp(String username ) throws IOException
+    public static ArrayList<HashMap<String, String>> leaveApp(String username ) throws IOException
     {
         try
         {
@@ -182,7 +183,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> goToStats(String username ) throws IOException
+    public static ArrayList<HashMap<String, String>> goToStats(String username ) throws IOException
     {
         try
         {
@@ -200,7 +201,7 @@ public class LobbyNetworking {
         }
     }
 
-    public static List<HashMap<String, String>> initLobby(String username ) throws IOException
+    public static ArrayList<HashMap<String, String>> initLobby(String username ) throws IOException
     {
         try
         {

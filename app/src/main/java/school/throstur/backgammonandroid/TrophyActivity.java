@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -16,12 +17,14 @@ import school.throstur.backgammonandroid.Utility.Utils;
 
 public class TrophyActivity extends AppCompatActivity {
     private static final String SENT_USERNAME = "usernameSent";
+    private static final String SENT_TROPHIES = "trrrrrrrrrophies";
     private String mUsername;
 
-    public static Intent usernameIntent(Context packageContext, String username)
+    public static Intent trophyDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> trophies)
     {
         Intent i = new Intent(packageContext, LobbyActivity.class);
         i.putExtra(SENT_USERNAME, username);
+        i.putExtra(SENT_TROPHIES, trophies);
         return i;
     }
 

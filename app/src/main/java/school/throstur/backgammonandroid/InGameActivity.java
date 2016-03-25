@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import school.throstur.backgammonandroid.Fragments.CanvasFragment;
+import school.throstur.backgammonandroid.Fragments.PresentMatchFragment;
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
 import school.throstur.backgammonandroid.Utility.InGameNetworking;
 import school.throstur.backgammonandroid.Utility.Utils;
@@ -24,6 +26,8 @@ public class InGameActivity extends AppCompatActivity {
 
     private static final String USERNAME = "nameOfUser";
     private static final String IS_PLAYING = "canPlay";
+    private static final String PRESENT_DATA = "PresentingTHeMAtch";
+    private static final String CURRENT_BOARD = "currentStateOfTheBoardForNewcomers";
 
     private String mUsername;
     private boolean mCouldDouble, mIsPlaying, mShouldResetClock, mTimedMatch;
@@ -31,25 +35,26 @@ public class InGameActivity extends AppCompatActivity {
     private AnimationCoordinator mAnimator;
     private long lastTimeStamp;
 
+    private CanvasFragment mCanvasFrag;
     private int mTimeLeftMs, mPivot;
 
     private Button leaveMatchButton;
-    private Button submitChatButton;
 
-
-    public static Intent playingUserIntent(Context packageContext, String username)
+    public static Intent playingUserIntent(Context packageContext, String username, HashMap<String, String> matchPresent)
     {
         Intent i = new Intent(packageContext, InGameActivity.class);
         i.putExtra(USERNAME, username);
         i.putExtra(IS_PLAYING, true);
+        i.putExtra(PRESENT_DATA, matchPresent);
         return i;
     }
 
-    public static Intent obersvingUserIntent(Context packageContext, String username)
+    public static Intent obersvingUserIntent(Context packageContext, String username, HashMap<String, String> wholeBoard)
     {
         Intent i = new Intent(packageContext, InGameActivity.class);
         i.putExtra(USERNAME, username);
         i.putExtra(IS_PLAYING, false);
+        i.putExtra(CURRENT_BOARD, wholeBoard);
         return i;
     }
 
@@ -60,10 +65,28 @@ public class InGameActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_in_game);
 
-        mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
         mUsername = getIntent().getStringExtra(USERNAME);
+        mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
+        int timeUntilFirst = 1500;
 
-        int refreshPause = (mIsPlaying)? 1500 : 2000 ;
+        if(mIsPlaying)
+        {
+            mAnimator = AnimationCoordinator.buildNewBoard();
+
+            HashMap<String, String> pres = (HashMap<String, String>)getIntent().getSerializableExtra(PRESENT_DATA);
+            PresentMatchFragment presentFrag = new PresentMatchFragment();
+            presentFrag.setMatchData(pres.get("playerOne"), pres.get("playerTwo"), pres.get("points"), pres.get("addedTime"));
+            timeUntilFirst = 5000;
+        }
+        else
+        {
+            HashMap<String, String> wholeBoard = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
+            mAnimator = buildCurrentBoard(wholeBoard);
+
+            mCanvasFrag = new CanvasFragment();
+            //TODO: Kalla á invalidate til að skjárinn sé teiknaður upp á nýtt
+            mAnimator.render(new Canvas());
+        }
 
         mRefresher = new Timer();
         mRefresher.scheduleAtFixedRate(new TimerTask() {
@@ -71,13 +94,7 @@ public class InGameActivity extends AppCompatActivity {
             public void run() {
                 (new NetworkingTask("refresh")).execute();
             }
-        }, 1500 ,refreshPause);
-
-        if(mIsPlaying)
-        {
-            mAnimator = AnimationCoordinator.buildNewBoard();
-            (new NetworkingTask("initMatch")).execute();
-        }
+        }, timeUntilFirst, 1500);
     }
 
 
@@ -335,17 +352,27 @@ public class InGameActivity extends AppCompatActivity {
 
     private void presentFinishedGame(String winner, String multiplier, String cube, String winType)
     {
+        //TODO AE: Toast vs Heilt Fragment hérna? Mun auðveldara að notast við Toast eða jafnvel spjallið?
         String wonBy = "Regular Win";
         if(multiplier.equals("2")) wonBy = "Won By Gammon!";
         else if(multiplier.equals("3")) wonBy = "Won By Backgammon!!!";
 
         int totalPoints = Integer.parseInt(multiplier) * Integer.parseInt(cube);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                mAnimator = AnimationCoordinator.buildNewBoard();
+                (new NetworkingTask("startNewGame")).execute();
+            }
+        }, 3000);
+
         //TODO ÞÞ: Notast við winner, wonBy, cube, totalPoints og winType til að búa til kynningu í lok leiks
         //Líklega best að láta kynningu vera ofan á canvas, þar sem match er EKKI lokið hér
 
     }
 
-    private void setUpWholeBoard(HashMap<String, String> boardDescription)
+    private AnimationCoordinator buildCurrentBoard(HashMap<String, String> boardDescription)
     {
         int[] counts = new int[28];
         int[] teams = new int[28];
@@ -360,8 +387,8 @@ public class InGameActivity extends AppCompatActivity {
         for(int i = 0; i < 4; i++)
             diceVals[i] = Integer.parseInt(boardDescription.get("d" + i));
 
-        mAnimator.buildExistingBoard(teams, counts, diceVals, cubeValue);
-        mAnimator.render(new Canvas());
+        AnimationCoordinator animator = AnimationCoordinator.buildExistingBoard(teams, counts, diceVals, cubeValue);
+        return animator;
     }
 
     private void presentTrophy(int id)
@@ -427,8 +454,8 @@ public class InGameActivity extends AppCompatActivity {
                         return Utils.JSONToMapList(InGameNetworking.endTurn(mUsername));
                     case "timeOut":
                         return Utils.JSONToMapList(InGameNetworking.timeOut(mUsername));
-                    case "initMatch":
-                        return Utils.JSONToMapList(InGameNetworking.initMatch(mUsername));
+                    case "startNewGame":
+                        return Utils.JSONToMapList(InGameNetworking.startNewGame(mUsername));
                 }
                 return null;
             }
@@ -487,12 +514,6 @@ public class InGameActivity extends AppCompatActivity {
                         break;
                     case "playerDoubled":
                         playerDoubled(msg.get("doubler"), msg.get("decider"), msg.get("stakes"));
-                        break;
-                    case "presentMatch":
-                        presentStartingMatch(msg.get("playerOne"), msg.get("playerTwo"));
-                        break;
-                    case "wholeBoard":
-                        setUpWholeBoard(msg);
                         break;
                 }
             }

@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -16,17 +17,26 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import school.throstur.backgammonandroid.Adapters.ChatAdapter;
+import school.throstur.backgammonandroid.Fragments.ListsFragment;
+import school.throstur.backgammonandroid.Fragments.SetupMatchFragment;
 import school.throstur.backgammonandroid.Utility.LobbyNetworking;
+import school.throstur.backgammonandroid.Utility.Utils;
 
 public class LobbyActivity extends AppCompatActivity {
     private static final String USERNAME_FROM_LOGIN = "usernameExtra";
     private static final String INIT_DATA_FROM_LOGIN = "hhhherrrrrrrrppppderrrrppp";
 
     private String mUsername;
-    private Button mSetupMatchButton;
     private Button mSubmitChatButton;
     private Button mToTrophyButton;
     private Button mToStatsButton;
+
+    private SetupMatchFragment mMatchSetupFragment;
+    private ListsFragment mListsFragment;
+
+    private RecyclerView mChatRecycler;
+    private ChatAdapter mChatAdapter;
 
     private Timer mRefresher;
 
@@ -45,17 +55,12 @@ public class LobbyActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_lobby);
 
-        mSetupMatchButton = (Button)new View(LobbyActivity.this); //setup_match
         mSubmitChatButton = (Button)new View(LobbyActivity.this); //submit_chat
         mToTrophyButton = (Button)new View(LobbyActivity.this);  //to_trophy
         mToStatsButton = (Button)new View(LobbyActivity.this);   //to_stats
 
-        mSetupMatchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setupNewMatch();
-            }
-        });
+        mChatRecycler = (RecyclerView) new View(LobbyActivity.this); //chat_list
+
         mSubmitChatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,6 +93,35 @@ public class LobbyActivity extends AppCompatActivity {
         ArrayList<HashMap<String, String>> initialData =
                 (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(INIT_DATA_FROM_LOGIN);
 
+        mChatAdapter = new ChatAdapter(LobbyActivity.this, this);
+        mChatRecycler.setAdapter(mChatAdapter);
+
+        processInitialData(initialData);
+    }
+
+    private void processInitialData(ArrayList<HashMap<String, String>> messages)
+    {
+        for(HashMap<String, String> msg: messages)
+        {
+            switch (msg.get("action"))
+            {
+                case "chatBatch":
+                    addChatBatch(msg);
+                    break;
+                case "waitEntry":
+                    addWaitEntry(msg);
+                    break;
+                case "ongoingEntry":
+                    addOngoingEntry(msg);
+                    break;
+                case "deletedEntries":
+                    removeListEntries(msg);
+                    break;
+                case "deletedEntry":
+                    removeListEntry(msg.get("id"));
+                    break;
+            }
+        }
     }
 
      /*
@@ -105,18 +139,12 @@ public class LobbyActivity extends AppCompatActivity {
             (new NetworkingTask("newLobbyChat")).execute(chatEntry);
     }
 
-    //TODO ÞÞ: Þetta þarf að senda sem HTTP, því Strings en ekki ints. Hér þarf að extract-a gögn úr RadioGroup og setja í breyturnar 4.
-    private void setupNewMatch()
+    public void setupNewMatch(String points, String addedTime,String botDiff ,boolean isHumanMatch)
     {
-        String points = "999";
-        String clock = "true";
-        String addedTime = "15";
-        boolean isHumanMatch = true;
-
         if(isHumanMatch)
-            (new NetworkingTask("waitingEntry")).execute(points, clock, addedTime);
+            (new NetworkingTask("addWaitEntry")).execute(points, addedTime);
         else
-            (new NetworkingTask("startBotMatch")).execute(points, clock, addedTime);
+            (new NetworkingTask("startBotMatch")).execute(points, addedTime, botDiff);
     }
 
     /*
@@ -125,61 +153,44 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void appendChatEntry(String chatEntry, String chatType)
     {
-        //TODO ÞÞ: Bæta textanum í chatEntry aftast í chat UI. chatType skiptir ekki máli sem stendur
+        mChatAdapter.appendEntry(chatEntry);
+        mChatAdapter.notifyItemInserted(mChatAdapter.latestIndex());
     }
 
     private void addChatBatch(HashMap<String, String> chats)
     {
         chats.remove("action");
         for(int i = 0; i < chats.size(); i++)
-            appendChatEntry(chats.get("" + i), "regular");
+            mChatAdapter.appendEntry(chats.get("" + i));
+        mChatAdapter.notifyDataSetChanged();
     }
 
-    private void addWaitEntry(String waiter, String points, String addedTime, String id)
+    public void attemptObservingMatch(String id)
     {
-        //TODO ÞÞ: Búa til grafískt wait entry úr upplýsingum og bæta aftan á waiting entry listann. Tengja ID við takkann eða foreldrið
-        //clock = True/false breytan var redundant. Það er tími á leiknum ef (int)addedTime > 0
-
-        Button cancelOrJoin = (Button) new View(LobbyActivity.this);
-        if(waiter.equals(mUsername))
-        {
-            //Case CANCEL
-            cancelOrJoin.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String id = "ná í gegnum view?";
-                    (new NetworkingTask("removeWaitEntry")).execute(id);
-                }
-            });
-        }
-        else
-        {
-            //Case JOIN
-            cancelOrJoin.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String id = "ná í gegnum view?";
-                    (new NetworkingTask("joinHumanMatch")).execute(id);
-                }
-            });
-        }
+        (new NetworkingTask("observeMatch")).execute(id);
     }
 
-    private void addOngoingEntry(String playerOne, String playerTwo, String points, String addedTime, String id)
+    public void attemptJoiningMatch(String id)
     {
-        //TODO ÞÞ: Mjög svipað og í addWaitEntry. Búinn til grafískur entry og honum er appendað við entry listann. Tengja ID við observe takka.
-
-        boolean timedMatch = !addedTime.equals("0");
-        Button observe = (Button)new View(LobbyActivity.this);
-
-        observe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String id = "ná í gegnum view?";
-                (new NetworkingTask("observeMatch")).execute(id);
-            }
-        });
+        (new NetworkingTask("joinHumanMatch")).execute(id);
     }
+
+    public void cancelWaitEntry(String id)
+    {
+        (new NetworkingTask("cancel")).execute(id);
+    }
+
+    private void addOngoingEntry(HashMap<String, String> entry)
+    {
+        mListsFragment.addOngoingEntry(entry);
+    }
+
+    private void addWaitEntry(HashMap<String, String> entry)
+    {
+        boolean canCancel = entry.get("playerOne").equals(mUsername);
+        mListsFragment.addWaitingEntry(entry, canCancel);
+    }
+
 
     private void removeListEntries(HashMap<String, String> deleteIds)
     {
@@ -187,18 +198,18 @@ public class LobbyActivity extends AppCompatActivity {
         for(int i = 0; i < deleteIds.size(); i++)
         {
             String idToDelete = deleteIds.get("" + i);
-
-            //TODO ÞÞ: Finna lista entry(waiting eða ongoing) sem er bendlað við þetta id og fjarlægja
-            //TODO ÞÞ: Entry í heild sinni. Líklega hægt að finna takkann sem er bendlaður við ID og eyða foreldri
+            mListsFragment.removeListEntry(idToDelete);
         }
+        mListsFragment.refreshList();
     }
 
     private void removeListEntry(String id)
     {
-        //TODO ÞÞ: Sama og í entries hér að ofan
+        mListsFragment.removeListEntry(id);
+        mListsFragment.refreshList();
     }
 
-    public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
+    public class NetworkingTask extends AsyncTask<String, Void, ArrayList<HashMap<String, String>>> {
 
         private final String mUsername;
         private final String mPath;
@@ -212,7 +223,7 @@ public class LobbyActivity extends AppCompatActivity {
             HTTP REQUESTS
          */
         @Override
-        protected List<HashMap<String, String>> doInBackground(String... params)
+        protected ArrayList<HashMap<String, String>> doInBackground(String... params)
         {
             try
             {
@@ -250,16 +261,23 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(final List<HashMap<String, String>> messages)
+        protected void onPostExecute(final ArrayList<HashMap<String, String>> messages)
         {
-            //Þau tilfelli þegar vitað er að yfirgefa þarf Lobby. Tryggja þarf að /goToTrophy skili EKKI new match
-
-            if(mPath.equals("startBotMatch"))
-                startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername));
-            else if(mPath.equals("goToTrophy"))
-                startActivity(TrophyActivity.usernameIntent(LobbyActivity.this, mUsername));
-            else if(mPath.equals("goToStats"))
-                startActivity(TrophyActivity.usernameIntent(LobbyActivity.this, mUsername));
+            boolean goToTrophyRoomAfterProcessing = false;
+            boolean goToStatsAfterProcessing = false;
+            boolean startMatchAfterProcessing = false;
+            boolean observeMatchAfterProcessing = false;
+            switch (mPath)
+            {
+                case "startBotMatch":
+                    startMatchAfterProcessing = true;
+                    break;
+                case "goToTrophy":
+                    goToTrophyRoomAfterProcessing = true;
+                    break;
+                case "goToStats":
+                    goToStatsAfterProcessing = true;
+            }
 
             for(HashMap<String, String> msg: messages)
             {
@@ -272,16 +290,11 @@ public class LobbyActivity extends AppCompatActivity {
                         addChatBatch(msg);
                         break;
                     case "waitEntry":
-                        addWaitEntry(msg.get("playerOne"), msg.get("points"), msg.get("addedTime"), msg.get("id"));
+                        addWaitEntry(msg);
                         break;
                     case "ongoingEntry":
-                        addOngoingEntry(msg.get("playerOne"), msg.get("playerTwo"), msg.get("points"), msg.get("addedTime"), msg.get("id"));
+                        addOngoingEntry(msg);
                         break;
-                    case "matchAvailable":
-                        if(mPath.equals("joinHumanMatch"))
-                            startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername));
-                        else if(mPath.equals("observeMatch"))
-                            startActivity(InGameActivity.obersvingUserIntent(LobbyActivity.this, mUsername));
                     case "deletedEntries":
                         removeListEntries(msg);
                         break;
@@ -290,8 +303,37 @@ public class LobbyActivity extends AppCompatActivity {
                         break;
                     case "explain":
                         Toast.makeText(LobbyActivity.this, msg.get("explain"), Toast.LENGTH_SHORT);
+                        break;
+                    case "matchAvailable":
+                        if(mPath.equals("joinHumanMatch"))
+                            startMatchAfterProcessing = true;
+                        else if(mPath.equals("observeMatch"))
+                            observeMatchAfterProcessing = true;
                 }
             }
+
+            if(startMatchAfterProcessing)
+            {
+                HashMap<String, String> matchPresentation = Utils.extractSpecificAction(messages, "presentMatch");
+                startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation));
+            }
+            else if(observeMatchAfterProcessing)
+            {
+                HashMap<String, String> currentBoardState = Utils.extractSpecificAction(messages, "wholeBoard");
+                startActivity(InGameActivity.obersvingUserIntent(LobbyActivity.this, mUsername, currentBoardState));
+            }
+            else if(goToTrophyRoomAfterProcessing)
+            {
+                ArrayList<HashMap<String, String>> trophyMessages = Utils.extractSpecificActions(messages, "trophyEntry");
+                startActivity(TrophyActivity.trophyDataIntent(LobbyActivity.this, mUsername, trophyMessages));
+            }
+            else if(goToStatsAfterProcessing)
+            {
+                ArrayList<HashMap<String, String>> statsMessages = Utils.extractSpecificActions(messages, "versusStats");
+                HashMap<String, String> overallEntry = Utils.extractSpecificAction(messages, "overallStats");
+                startActivity(StatsActivity.statsDataIntent(LobbyActivity.this, mUsername, statsMessages, overallEntry));
+            }
+
         }
     }
 }

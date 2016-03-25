@@ -64,11 +64,12 @@ public class InGameNetworking {
         }
     }
 
-    public static JSONArray initMatch(String name) throws IOException
+
+    public static JSONArray startNewGame(String name) throws IOException
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/initMatch")
+            String url = Uri.parse("http://localhost:9090/startNewGame")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();

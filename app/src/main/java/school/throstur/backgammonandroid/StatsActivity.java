@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -17,12 +18,17 @@ import school.throstur.backgammonandroid.Utility.TrophyStatsNetworking;
 
 public class StatsActivity extends AppCompatActivity {
     private static final String SENT_USERNAME = "usernameSent";
+    private static final String SENT_VERSUS = "xxxxxxdfdsf";
+    private static final String SENT_OVERALL = "derrrrrrrrpppppp";
     private String mUsername;
 
-    public static Intent usernameIntent(Context packageContext, String username)
+    public static Intent statsDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> versusEntries,
+                                         HashMap<String, String> overallEntry)
     {
         Intent i = new Intent(packageContext, LobbyActivity.class);
         i.putExtra(SENT_USERNAME, username);
+        i.putExtra(SENT_VERSUS, versusEntries);
+        i.putExtra(SENT_OVERALL, overallEntry);
         return i;
     }
 

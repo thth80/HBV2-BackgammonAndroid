@@ -12,18 +12,27 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import school.throstur.backgammonandroid.Fragments.ListsFragment;
+
 /**
  * Created by Aðalsteinn on 25.3.2016.
  */
 public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.ListEntryHolder>{
     private ArrayList<HashMap<String, String>> mEntryList;
     private Context mContext;
-    private Fragment mParent;
+    private ListsFragment mParent;
 
-    public LobbyListAdapter(Context context, ArrayList<HashMap<String, String>> entryList, Fragment parent) {
+    public LobbyListAdapter(Context context, ArrayList<HashMap<String, String>> entryList, ListsFragment parent) {
         mContext = context;
         mEntryList = entryList;
         mParent = parent;
+    }
+
+    public LobbyListAdapter(Context context, ListsFragment parent)
+    {
+        mContext = context;
+        mParent = parent;
+        mEntryList = new ArrayList<>();
     }
 
     @Override
@@ -38,8 +47,8 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
     public void appendEntry(HashMap<String, String> entry)
     {
         mEntryList.add(entry);
-        notifyItemInserted(mEntryList.size() - 1);
     }
+
     public void prependEntry(HashMap<String, String> entry)
     {
         ArrayList<HashMap<String, String>> newList = new ArrayList();
@@ -68,7 +77,7 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         holder.bindEntryData(entryData);
     }
 
-    private int removeEntryById(String id) {;
+    public int removeEntryById(String id) {;
         for (int i = 0; i < mEntryList.size(); i++)
         {
             HashMap<String, String> listEntry = mEntryList.get(i);
@@ -111,28 +120,26 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
                 @Override
                 public void onClick(View v)
                 {
-                    //TODO AE: Hvert get ég sent upplýsingar héðan? Til að byrja með köllum við bara á server-inn og eyðum ef cancel
+
                     switch(mButtonType)
                     {
                         case "cancel":
                             int position = removeEntryById(mId);
                             if(position != -1)
                                 notifyItemRemoved(position);
-                            //mParent.cancelWasClicked(mId)
+                            mParent.cancelWasClicked(mId);
                             break;
                         case "observe":
-                            //mParent.observeWasClicked(mId)
+                            mParent.observeWasClicked(mId);
                             break;
                         case "join":
-                            //mParent.joinWasCliked(mId)
-                            break;
+                            mParent.joinWasClicked(mId);
                     }
                 }
             });
 
         }
 
-        //TODO AE; Treysta þarf á að sá sem fyllir listann láti PENDING eða álíka í playerTwo, einnig type
         public void bindEntryData(HashMap<String, String> entryData)
         {
             mPlayerOneTextView.setText(entryData.get("playerOne"));;

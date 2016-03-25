@@ -129,4 +129,22 @@ public class Utils {
 
         return messages;
     }
+
+    public static HashMap<String, String> extractSpecificAction(ArrayList<HashMap<String, String>> allMsgs, String action)
+    {
+        for(HashMap<String, String> msg: allMsgs)
+            if(msg.get("action").equals(action))
+                return msg;
+        return null;
+    }
+
+    public static ArrayList<HashMap<String, String>> extractSpecificActions(ArrayList<HashMap<String, String>> allMsgs, String action)
+    {
+        ArrayList<HashMap<String, String>> onlyAction = new ArrayList<>();
+        for(HashMap<String, String> msg: allMsgs)
+            if(msg.get("action").equals(action))
+                onlyAction.add(msg);
+
+        return onlyAction;
+    }
 }

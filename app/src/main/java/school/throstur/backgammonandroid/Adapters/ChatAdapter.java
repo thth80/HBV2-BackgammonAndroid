@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import school.throstur.backgammonandroid.LobbyActivity;
+
 /**
  * Created by Aðalsteinn on 25.3.2016.
  */
@@ -18,10 +20,17 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     private Context mContext;
     private Activity mParent;
 
-    public ChatAdapter(Context context, ArrayList<String> chatList, Activity parent)
+    public ChatAdapter(Context context, ArrayList<String> chatList, LobbyActivity parent)
     {
         mContext = context;
         mChatList = chatList;
+        mParent = parent;
+    }
+
+    public ChatAdapter(Context context, LobbyActivity parent)
+    {
+        mContext = context;
+        mChatList = new ArrayList<>();
         mParent = parent;
     }
 
@@ -37,7 +46,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     public void appendEntry(String entry)
     {
         mChatList.add(entry);
-        notifyItemInserted(mChatList.size() - 1);
     }
 
     @Override
@@ -55,6 +63,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     {
         String chatEntry = mChatList.get(index);
         holder.bindEntryData(chatEntry);
+    }
+
+    public int latestIndex()
+    {
+        return mChatList.size() - 1;
     }
 
     public class ChatHolder extends RecyclerView.ViewHolder
