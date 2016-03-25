@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -18,7 +19,8 @@ import java.util.TimerTask;
 import school.throstur.backgammonandroid.Utility.LobbyNetworking;
 
 public class LobbyActivity extends AppCompatActivity {
-    private static final String SENT_FROM_LOGIN = "usernameExtra";
+    private static final String USERNAME_FROM_LOGIN = "usernameExtra";
+    private static final String INIT_DATA_FROM_LOGIN = "hhhherrrrrrrrppppderrrrppp";
 
     private String mUsername;
     private Button mSetupMatchButton;
@@ -28,10 +30,11 @@ public class LobbyActivity extends AppCompatActivity {
 
     private Timer mRefresher;
 
-    public static Intent usernameIntent(Context packageContext, String username)
+    public static Intent initLobbyIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> initData)
     {
         Intent i = new Intent(packageContext, LobbyActivity.class);
-        i.putExtra(SENT_FROM_LOGIN, username);
+        i.putExtra(USERNAME_FROM_LOGIN, username);
+        i.putExtra(INIT_DATA_FROM_LOGIN, initData);
         return i;
     }
 
@@ -46,10 +49,6 @@ public class LobbyActivity extends AppCompatActivity {
         mSubmitChatButton = (Button)new View(LobbyActivity.this); //submit_chat
         mToTrophyButton = (Button)new View(LobbyActivity.this);  //to_trophy
         mToStatsButton = (Button)new View(LobbyActivity.this);   //to_stats
-
-        mUsername = getIntent().getStringExtra(SENT_FROM_LOGIN);
-        NetworkingTask initLobby = new NetworkingTask("initLobby");
-        initLobby.execute();
 
         mSetupMatchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +82,12 @@ public class LobbyActivity extends AppCompatActivity {
                 (new NetworkingTask("refresh")).execute();
             }
         }, 1500, 1500);
+
+
+        mUsername = getIntent().getStringExtra(USERNAME_FROM_LOGIN);
+        ArrayList<HashMap<String, String>> initialData =
+                (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(INIT_DATA_FROM_LOGIN);
+
     }
 
      /*

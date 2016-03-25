@@ -103,10 +103,10 @@ public class Utils {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public static List<HashMap<String, String>> JSONToMapList(JSONArray jsonArray)
+    public static ArrayList<HashMap<String, String>> JSONToMapList(JSONArray jsonArray)
     {
         @SuppressWarnings("unchecked")
-        List<HashMap<String, String>> messages = new ArrayList <HashMap<String, String>>();
+        ArrayList<HashMap<String, String>> messages = new ArrayList <HashMap<String, String>>();
         for(int i = 0; i < jsonArray.length(); i++)
         {
             JSONObject msg = null;
