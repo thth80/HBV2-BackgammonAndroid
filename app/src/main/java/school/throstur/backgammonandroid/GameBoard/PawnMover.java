@@ -184,6 +184,11 @@ public class PawnMover {
 
     public void render(Canvas canvas)
     {
+        canvas.save();
+        canvas.scale((float)movingPawn.getZ(), (float)movingPawn.getZ());
+
         movingPawn.render(canvas);
+
+        canvas.restore();
     }
 }

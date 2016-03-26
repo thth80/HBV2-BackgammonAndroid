@@ -68,7 +68,7 @@ public class InGameActivity extends AppCompatActivity {
 
         if(mIsPlaying)
         {
-            AnimationCoordinator animator = AnimationCoordinator.buildNewBoard();
+            AnimationCoordinator animator = AnimationCoordinator.buildNewBoard(InGameActivity.this);
             mCanvas = new CanvasFragment();
             mCanvas.setAnimator(animator);
 
@@ -273,7 +273,7 @@ public class InGameActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                AnimationCoordinator animator = AnimationCoordinator.buildNewBoard();
+                AnimationCoordinator animator = AnimationCoordinator.buildNewBoard(InGameActivity.this);
                 mCanvas.setAnimator(animator);
                 (new NetworkingTask("startNewGame")).execute();
             }

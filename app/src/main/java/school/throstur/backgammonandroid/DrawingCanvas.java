@@ -23,6 +23,14 @@ public class DrawingCanvas extends View {
         this.context = context;
     }
 
+    public int getCanvasWidth()
+    {
+        return mWidth;
+    }
+    public int getCanvasHeight()
+    {
+        return mHeight;
+    }
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);

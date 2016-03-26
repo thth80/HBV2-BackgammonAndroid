@@ -1,15 +1,21 @@
 package school.throstur.backgammonandroid.GameBoard;
 
+import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import school.throstur.backgammonandroid.R;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class AnimationCoordinator {
     public static final int NOT_AN_ID = -1;
     public static int WIDTH, HEIGHT;
+    public static Drawable BLACK_PAWN, WHITE_PAWN, SHINY_HUE, GAME_BOARD, RED_DICE;
+    public static Context ctx;
 
     private BoardManager board;
     private ArrayList<HashMap<String, Integer>> moves, delayedMoves;
@@ -17,7 +23,8 @@ public class AnimationCoordinator {
     private int[] lastWhiteLighted;
     boolean isSequential, pawnsAreMoving, diceAreRolling, isDelaying, cubeIsFlipping;
 
-    public AnimationCoordinator()
+    //TODO AE: Hvernig skal geyma WIDTH og HEIGHT? Virðist best að geyma þessi gögn bara í DrawingCanvas
+    private AnimationCoordinator(Context context)
     {
         moves = null;
         currAnimIndex = 0;
@@ -25,18 +32,26 @@ public class AnimationCoordinator {
         pawnsAreMoving = false;
         diceAreRolling = false;
         cubeIsFlipping = false;
+
+        BLACK_PAWN = ContextCompat.getDrawable(context, R.drawable.black);
+        WHITE_PAWN = ContextCompat.getDrawable(context, R.drawable.white);
+        SHINY_HUE =  ContextCompat.getDrawable(context, R.drawable.shine);
+        GAME_BOARD =  ContextCompat.getDrawable(context, R.drawable.game_board);
+
+        ctx = context;
+
     }
 
-    public static AnimationCoordinator buildNewBoard()
+    public static AnimationCoordinator buildNewBoard(Context context)
     {
-        AnimationCoordinator newBoard = new AnimationCoordinator();
+        AnimationCoordinator newBoard = new AnimationCoordinator(context);
         newBoard.board = BoardManager.newStartingBoard();
         return newBoard;
     }
 
-    public static AnimationCoordinator buildExistingBoard(int[] teams, int[] counts, int[] diceVals, int cube)
+    public static AnimationCoordinator buildExistingBoard(int[] teams, int[] counts, int[] diceVals, int cube, Context context)
     {
-        AnimationCoordinator existingBoard = new AnimationCoordinator();
+        AnimationCoordinator existingBoard = new AnimationCoordinator(context);
         existingBoard.board = BoardManager.buildExistingBoard(teams, counts, diceVals, cube);
         return existingBoard;
     }

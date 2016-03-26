@@ -1,6 +1,8 @@
 package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 
 import java.util.ArrayList;
 
@@ -11,10 +13,12 @@ import school.throstur.backgammonandroid.Utility.Utils;
  */
 public class Square {
     private static final double HEIGHT = 450;
+    private static final Rect BOUNDS = new Rect((int)(-Utils.SQUARE_WIDTH/2),(int)(-Utils.SQUARE_HEIGHT/2),
+                        (int)(Utils.SQUARE_WIDTH/2), (int)(Utils.SQUARE_HEIGHT/2));
 
     private ArrayList<Pawn> pawns;
-    private int position, count, highlighting;
-    private double cx, bottomY;
+    private int position, highlighting;
+    private double cx, bottomY, cy;
     private boolean pointsDown;
 
     public Square(int pos, double cx)
@@ -24,6 +28,9 @@ public class Square {
         this.cx = cx;
         pointsDown = (pos < 13);
         bottomY = (pointsDown)? HEIGHT*0.039 : HEIGHT*0.961;
+
+        this.cy = (pointsDown)? bottomY + Utils.SQUARE_HEIGHT/2 : bottomY - Utils.SQUARE_HEIGHT/2 ;
+
         highlighting = Utils.NO_LIGHT;
     }
 
@@ -37,7 +44,7 @@ public class Square {
 
     public void addPawn(Pawn pawn)
     {
-        if(count == 1 && pawn.getTeam() == getFirstPawn().getTeam())
+        if(getCount() == 1 && pawn.getTeam() == getFirstPawn().getTeam())
             pawns.remove(0);
 
         double availSpotCY = getAvailableSpot();
@@ -109,9 +116,25 @@ public class Square {
         for(Pawn pawn: pawns)
             pawn.render(canvas);
 
-        if(highlighting != Utils.NO_LIGHT)
+        if(highlighting == Utils.GREEN_LIGHT)
         {
-            //Lýsa upp reitinn
+            Paint paint = new Paint();
+            paint.setARGB(110, 0, 255, 0);
+
+            canvas.save();
+            canvas.translate((float)cx, (float)cy);
+            canvas.drawRect(BOUNDS, paint);
+            canvas.restore();
+        }
+        else if(highlighting == Utils.WHITE_LIGHT)
+        {
+            Paint paint = new Paint();
+            paint.setARGB(110, 255, 255, 255);
+
+            canvas.save();
+            canvas.translate((float)cx, (float)cy);
+            canvas.drawRect(BOUNDS, paint);
+            canvas.restore();
         }
     }
 

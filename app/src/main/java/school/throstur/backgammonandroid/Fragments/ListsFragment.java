@@ -22,7 +22,7 @@ public class ListsFragment extends Fragment {
         //TODO ÞÞ: Tengja recyclerinn rétt
         mListRecycler = (RecyclerView)new View(getActivity());
         mListAdapter = new LobbyListAdapter(getActivity(), this);
-
+        mListRecycler.setAdapter(mListAdapter);
     }
 
     public void addWaitingEntry(HashMap<String, String> waitEntry, boolean canCancel)

@@ -1,21 +1,33 @@
 package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+
+import school.throstur.backgammonandroid.Utility.Utils;
 
 /**
  * Created by Aðalsteinn on 15.3.2016.
  */
 public class Pawn {
-    private int imageId, team;
+    public static final double PAWN_RADIUS = 0.2;
+    public static final int LEFT = (int)(-PAWN_RADIUS * AnimationCoordinator.WIDTH);
+    public static final int RIGHT = (int)(PAWN_RADIUS * AnimationCoordinator.WIDTH);
+    public static final int TOP = (int)(-PAWN_RADIUS * AnimationCoordinator.HEIGHT);
+    public static final int BOTTOM = (int)(PAWN_RADIUS * AnimationCoordinator.HEIGHT);
+
+    private int  team;
     private double cx, cy, z;
     private double xVel, yVel, zVel;
+    private Drawable pawnImage, hue;
 
     public Pawn(int team)
     {
-        //TODO ÞÞ: Núna er ég leiðinlegur :D Það þarf að bæta myndunum rétt í res/images? og tengja imageId rétt
-        imageId = 666;
-
         this.team = team;
+        if(this.team == Utils.TEAM_BL)
+            pawnImage = AnimationCoordinator.BLACK_PAWN;
+
+        hue = AnimationCoordinator.SHINY_HUE;
+
         this.cx = cx;
         this.cy = cy;
         this.z = 1.0;
@@ -94,8 +106,15 @@ public class Pawn {
 
     public void render(Canvas canvas)
     {
-        //Teikna mynd af peði
-        //Teikna mynd af shine ofan á peðið
+        //Það þarf líka alls ekki að endurtaka þetta
+        pawnImage.setBounds(LEFT, TOP, RIGHT, BOTTOM );
+        hue.setBounds(LEFT, TOP, RIGHT, BOTTOM);
+
+        canvas.save();
+        canvas.translate((float) cx, (float) cy);
+        pawnImage.draw(canvas);
+        hue.draw(canvas);
+        canvas.restore();
     }
 
 }

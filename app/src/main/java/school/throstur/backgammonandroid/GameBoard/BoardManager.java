@@ -1,6 +1,7 @@
 package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 
@@ -186,7 +187,10 @@ public class BoardManager {
 
     public void render(Canvas canvas)
     {
-        //teikna borð
+        Drawable board = (AnimationCoordinator.GAME_BOARD);
+        board.setBounds(0, 0, Utils.WIDTH, Utils.HEIGHT);
+        board.draw(canvas);
+
         for(Square square: squares)
                 square.render(canvas);
 
