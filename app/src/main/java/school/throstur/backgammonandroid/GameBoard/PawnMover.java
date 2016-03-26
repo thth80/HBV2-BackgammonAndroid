@@ -1,5 +1,6 @@
 package school.throstur.backgammonandroid.GameBoard;
 
+import android.graphics.Canvas;
 import android.graphics.Point;
 
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
@@ -181,8 +182,8 @@ public class PawnMover {
         return isActive;
     }
 
-    public void render(String ctx)
+    public void render(Canvas canvas)
     {
-        movingPawn.render(ctx);
+        movingPawn.render(canvas);
     }
 }

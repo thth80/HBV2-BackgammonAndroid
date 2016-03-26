@@ -1,5 +1,7 @@
 package school.throstur.backgammonandroid.GameBoard;
 
+import android.graphics.Canvas;
+
 import java.util.ArrayList;
 
 import school.throstur.backgammonandroid.Utility.Utils;
@@ -102,10 +104,10 @@ public class Square {
         return pawns.get(0);
     }
 
-    public void render(String ctx)
+    public void render(Canvas canvas)
     {
         for(Pawn pawn: pawns)
-            pawn.render(ctx);
+            pawn.render(canvas);
 
         if(highlighting != Utils.NO_LIGHT)
         {

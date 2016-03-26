@@ -9,6 +9,7 @@ import school.throstur.backgammonandroid.Utility.Utils;
 
 public class AnimationCoordinator {
     public static final int NOT_AN_ID = -1;
+    public static int WIDTH, HEIGHT;
 
     private BoardManager board;
     private ArrayList<HashMap<String, Integer>> moves, delayedMoves;
@@ -241,6 +242,11 @@ public class AnimationCoordinator {
                     return true;
 
         return false;
+    }
+
+    public int[] getLastWhiteLighted()
+    {
+        return lastWhiteLighted;
     }
 
     public void greenLightSquares(int[] positions)

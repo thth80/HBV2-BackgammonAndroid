@@ -1,5 +1,7 @@
 package school.throstur.backgammonandroid.GameBoard;
 
+import android.graphics.Canvas;
+
 /**
  * Created by Aðalsteinn on 15.3.2016.
  */
@@ -90,7 +92,7 @@ public class Pawn {
         return z;
     }
 
-    public void render(String ctx)
+    public void render(Canvas canvas)
     {
         //Teikna mynd af peði
         //Teikna mynd af shine ofan á peðið

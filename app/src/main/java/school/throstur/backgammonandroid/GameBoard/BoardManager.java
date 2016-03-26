@@ -1,5 +1,7 @@
 package school.throstur.backgammonandroid.GameBoard;
 
+import android.graphics.Canvas;
+
 import java.util.ArrayList;
 
 import school.throstur.backgammonandroid.Utility.Utils;
@@ -182,15 +184,19 @@ public class BoardManager {
             mover.setToTeleport();
     }
 
-    public void render(String ctx)
+    public void render(Canvas canvas)
     {
         //teikna borð
-        //teikna squares(peðin)
-        //teikna teningapör
-        //teikna cube
+        for(Square square: squares)
+                square.render(canvas);
+
+        whiteDice.render(canvas);
+        blackDice.render(canvas);
+        doublingCube.render(canvas);
+
         for(PawnMover mover: pawnMovers)
             if(mover.isActive())
-                mover.render(ctx);
+                mover.render(canvas);
     }
 
 

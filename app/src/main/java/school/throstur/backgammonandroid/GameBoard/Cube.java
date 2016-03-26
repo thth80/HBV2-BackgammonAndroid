@@ -1,5 +1,7 @@
 package school.throstur.backgammonandroid.GameBoard;
 
+import android.graphics.Canvas;
+
 /**
  * Created by Aðalsteinn on 20.3.2016.
  */
@@ -17,7 +19,7 @@ public class Cube {
         cubeVal = newVal;
     }
 
-    public void render()
+    public void render(Canvas canvas)
     {
 
     }

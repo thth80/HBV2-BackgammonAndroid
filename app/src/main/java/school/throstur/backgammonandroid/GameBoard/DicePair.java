@@ -1,5 +1,7 @@
 package school.throstur.backgammonandroid.GameBoard;
 
+import android.graphics.Canvas;
+
 import school.throstur.backgammonandroid.Utility.Utils;
 
 /**
@@ -76,7 +78,7 @@ public class DicePair {
         second = val;
     }
 
-    public void render(String ctx)
+    public void render(Canvas canvas)
     {
 
     }

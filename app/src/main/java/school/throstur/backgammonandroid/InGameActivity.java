@@ -28,7 +28,6 @@ public class InGameActivity extends AppCompatActivity {
     private static final String PRESENT_DATA = "PresentingTHeMAtch";
     private static final String CURRENT_BOARD = "currentStateOfTheBoardForNewcomers";
 
-
     private String mUsername;
     private boolean mCouldDouble, mIsPlaying, mShouldResetClock, mTimedMatch;
     private Timer  mRefresher, mClockTimer;
@@ -112,17 +111,32 @@ public class InGameActivity extends AppCompatActivity {
 
     }
 
+    public void greenWasClicked(int pos)
+    {
+        (new NetworkingTask("green")).execute(""+pos);
+    }
+
+    public void whiteWasClicked(int pos)
+    {
+        (new NetworkingTask("white")).execute(""+pos);
+    }
+
+    public void pivotWasClicked()
+    {
+        (new NetworkingTask("pivot")).execute();
+    }
+
     public void endTurnWasClicked()
     {
         (new NetworkingTask("endTurn")).execute();
     }
 
-    private void cubeWasFlipped()
+    public void cubeWasFlipped()
     {
         (new NetworkingTask("cube")).execute();
     }
 
-    private void diceWasThrown()
+    public void diceWasThrown()
     {
         (new NetworkingTask("dice")).execute();
     }
@@ -147,11 +161,9 @@ public class InGameActivity extends AppCompatActivity {
 
     }
 
-
     /*
         HTTP RESPONSE aðferðir
-     */
-
+    */
     private void startAnimation(HashMap<String, String> animInfo)
     {
         ArrayList<HashMap<String, Integer>> animMoves = Utils.convertToAnimationMoves(animInfo);
@@ -185,7 +197,6 @@ public class InGameActivity extends AppCompatActivity {
         if(thrower.equals(mUsername) && mTimedMatch)
             mShouldResetClock = true;
 
-        //TODO AE: Láta klukkuna fara af stað ef leikurinn er timed, eftir að teningar hafa rúllað HJÁ spilara
     }
 
     private void whiteLightSquares(HashMap<String, String> positions)
@@ -227,6 +238,7 @@ public class InGameActivity extends AppCompatActivity {
             public void run() {
                 long timeNow = System.currentTimeMillis();
                 long delta = timeNow - mLastGameClockTime;
+
                 mLastGameClockTime = timeNow;
                 mTimeLeftMs -= delta;
                 if(mTimeLeftMs <= 0)
@@ -251,7 +263,7 @@ public class InGameActivity extends AppCompatActivity {
 
     private void presentFinishedGame(String winner, String multiplier, String cube, String winType)
     {
-        //TODO AE: Notumst við Toast og spjallskilaboð hér
+        //TODO AE: Notumst við Toast hérna
         String wonBy = "Regular Win";
         if(multiplier.equals("2")) wonBy = "Won By Gammon!";
         else if(multiplier.equals("3")) wonBy = "Won By Backgammon!!!";

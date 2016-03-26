@@ -23,6 +23,9 @@ import school.throstur.backgammonandroid.R;
 
 public class CanvasFragment extends Fragment {
     private static int NO_PIVOT = -1;
+    private static int GREEN_SQUARE = 0;
+    private static int WHITE_SQUARE = 1;
+    private static int PIVOT_SQUARE = 2;
 
     private DrawingCanvas mDrawingCanvas;
     private Button mEndTurnButton;
@@ -34,6 +37,9 @@ public class CanvasFragment extends Fragment {
     private Timer mAnimLoop;
     private boolean mCouldDouble;
 
+    private float firstX, firstY;
+    private InGameActivity mParentGame;
+
     public CanvasFragment()
     {
         //TODO ÞÞ: Tengja þessi element við rétt UI element
@@ -42,6 +48,9 @@ public class CanvasFragment extends Fragment {
         mThrowDiceButton = (Button)new View(getActivity());
         mFlipCubeButton = (Button)new View(getActivity());
         mDrawingCanvas = (DrawingCanvas)new View(getActivity());
+
+        //TODO AE: Breyta þessu
+        mParentGame = (InGameActivity)getActivity();
 
         mEndTurnButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,23 +69,52 @@ public class CanvasFragment extends Fragment {
         mThrowDiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                hideButtons();
+                InGameActivity game = (InGameActivity)getActivity();
+                game.diceWasThrown();
             }
         });
 
         mFlipCubeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                hideButtons();
+                InGameActivity game = (InGameActivity)getActivity();
+                game.cubeWasFlipped();
             }
         });
 
         mDrawingCanvas.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public boolean onTouch(View v, MotionEvent event)
+            {
+
+                //TODO AE: Spyrja mAnimator hvort klikkað hafi verið á grænan, hvítan eða pivot
+
+                String whatHappened = "TODO";
+                if(whatHappened.equals("greenClick"))
+                {
+                    mAnimator.unHighlightAll();
+                    mParentGame.greenWasClicked(666);
+                    mDrawingCanvas.invalidate();
+                    //Held að lastWhiteLighted update-i automatic og rétt, þegar nýr skammtur af whitelighted kemur frá server
+                }
+                else if(whatHappened.equals("whiteClick"))
+                {
+                    mAnimator.unHighlightAll();
+                    mParentGame.whiteWasClicked(666);
+                    mPivot = 666;
+                    mDrawingCanvas.invalidate();
+                }
+                else if(whatHappened.equals("pivotClick"))
+                {
+                    mAnimator.whiteLightSquares(mAnimator.getLastWhiteLighted());
+                    mParentGame.pivotWasClicked();
+                }
                 return false;
             }
         });
+
     }
 
     public void setCouldDouble(boolean couldDouble)
@@ -111,7 +149,8 @@ public class CanvasFragment extends Fragment {
                 if(!mAnimator.isAnimating() && game.shouldResetClock())
                     game.resetGameClock();
 
-                if (animFinished) this.cancel();
+                if (animFinished)
+                    this.cancel();
             }
         }, 20, 20);
     }
@@ -133,6 +172,7 @@ public class CanvasFragment extends Fragment {
 
         if(wasMovingPawns != mAnimator.arePawnsMoving())
         {
+            //TODO AE: Ekki rétt lógík, ekki víst að þessi megi sjá takkana
             showThrowDice();
             if(mCouldDouble)
                 showFlipCube();
@@ -150,7 +190,6 @@ public class CanvasFragment extends Fragment {
     public void startDiceRoll(int first, int second, int team)
     {
         mAnimator.startDiceRoll(first, second, team);
-        //TODO AE: Láta klukkuna fara af stað ef leikurinn er timed, eftir að teningar hafa rúllað HJÁ spilara
     }
 
     public void timeRanOut()
