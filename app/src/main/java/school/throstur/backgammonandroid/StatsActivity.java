@@ -6,21 +6,28 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import school.throstur.backgammonandroid.Adapters.StatsAdapter;
 import school.throstur.backgammonandroid.Utility.TrophyStatsNetworking;
 
 public class StatsActivity extends AppCompatActivity {
     private static final String SENT_USERNAME = "usernameSent";
     private static final String SENT_VERSUS = "xxxxxxdfdsf";
     private static final String SENT_OVERALL = "derrrrrrrrpppppp";
+
     private String mUsername;
+    private StatsAdapter mAdapter;
+    private RecyclerView mStatRecycler;
 
     public static Intent statsDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> versusEntries,
                                          HashMap<String, String> overallEntry)
@@ -39,13 +46,23 @@ public class StatsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_stats);
 
         mUsername = getIntent().getStringExtra(SENT_USERNAME);
-        NetworkingTask initStats = new NetworkingTask(mUsername, "initStats");
-        initStats.execute();
+        ArrayList<HashMap<String, String>> versusStats = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_VERSUS);
+        HashMap<String, String> overallStats = (HashMap<String, String>) getIntent().getSerializableExtra(SENT_OVERALL);
+
+        mStatRecycler = (RecyclerView) new View(StatsActivity.this);
+        mAdapter = new StatsAdapter(StatsActivity.this, versusStats, this);
+        mStatRecycler.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+
+        String pointsFor = overallStats.get("pointsFor");
+        String pointsAgainst = overallStats.get("pointsAgainst");
+
+        //TODO ÞÞ AE: Tengja recycler rétt, tengja pointsFor og pointsAgainst við static UI element sem er alltaf efst á skjánum.
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                (new NetworkingTask(mUsername, "checkForMatch")).execute();
+                (new NetworkingTask(mUsername)).execute();
             }
         }, 0, 5000);
     }
@@ -55,25 +72,14 @@ public class StatsActivity extends AppCompatActivity {
         Toast.makeText(StatsActivity.this, toast, Toast.LENGTH_LONG);
     }
 
-    private void appendToStatsList(String currUser, String opponent, String currPoints, String oppoPoints, String currPawns, String oppoPawns)
-    {
-        //TODO ÞÞ: Gegn tilteknum spilara. Entry fer aftast í listann.
-    }
-
-    private void prependToStatsList(String userPoints, String othersPoints)
-    {
-        //TODO ÞÞ: Overall stats- entry, fer fremst/efst í listann.
-    }
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
 
         private final String mUsername;
-        private final String mPath;
 
-        NetworkingTask(String username, String path)
+        NetworkingTask(String username)
         {
             mUsername = username;
-            mPath = path;
         }
 
         @Override
@@ -81,10 +87,7 @@ public class StatsActivity extends AppCompatActivity {
         {
             try
             {
-                if(mPath.equals("initStats"))
-                    return TrophyStatsNetworking.initStats(mUsername);
-                else
-                    return TrophyStatsNetworking.checkForJoinedMatch(mUsername);
+                return TrophyStatsNetworking.checkForJoinedMatch(mUsername);
             }
             catch (Exception e)
             {
@@ -96,15 +99,10 @@ public class StatsActivity extends AppCompatActivity {
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
             for(HashMap<String, String> msg: messages)
-            {
-                if(msg.get("action").equals("versusStats"))
-                    appendToStatsList(msg.get("playerOne"), msg.get("playerTwo"), msg.get("pointsOne"), msg.get("pointsTwo"),
-                            msg.get("pawnsOne"), msg.get("pawnsTwo"));
-                else if(msg.get("action").equals("overallStats"))
-                    prependToStatsList(msg.get("pointsFor"), msg.get("pointsAgainst"));
-                else if(msg.get("action").equals("matchJoined"))
-                    ;
-            }
+                if(msg.get("action").equals("matchJoined"))
+                {
+
+                }
         }
     }
 }

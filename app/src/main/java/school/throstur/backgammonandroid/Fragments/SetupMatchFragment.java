@@ -42,12 +42,12 @@ public class SetupMatchFragment extends Fragment {
                 //TODO ÞÞ: Extracta gildin úr RadioGroups og setja í breyturnar
 
                 String points = "9"; //1, 3, 5, 7 eða 9
-                String addedTime = "15";
-                String botDifficulty = "1";
+                String addedTime = "15"; //0, 15, 30, 45
+                String botDifficulty = "1"; //1, 2, 3
                 boolean isHumanMatch = true;
 
-                LobbyActivity parent = (LobbyActivity) getActivity();
-                parent.setupNewMatch(points, addedTime, botDifficulty ,isHumanMatch);
+                LobbyActivity lobby = (LobbyActivity) getActivity();
+                lobby.setupNewMatch(points, addedTime, botDifficulty, isHumanMatch);
             }
         });
 

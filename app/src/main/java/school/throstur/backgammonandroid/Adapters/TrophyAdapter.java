@@ -22,22 +22,16 @@ import java.util.HashMap;
 public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHolder> {
     private ArrayList<HashMap<String, String>> mTrophyList;
     private Context mContext;
-    private Activity mParent;
 
-    public TrophyAdapter(Context context, ArrayList<HashMap<String, String>>chatList, Activity parent)
+    public TrophyAdapter(Context context, ArrayList<HashMap<String, String>> trophyList)
     {
         mContext = context;
-        mTrophyList = chatList;
-        mParent = parent;
+        mTrophyList = trophyList;
     }
 
     @Override
     public int getItemCount() {
         return mTrophyList.size();
-    }
-
-    public void setEntryList(ArrayList<HashMap<String, String>> trophyList) {
-        mTrophyList = trophyList;
     }
 
     @Override

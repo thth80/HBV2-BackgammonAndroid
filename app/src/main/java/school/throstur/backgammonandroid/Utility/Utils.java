@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
+
 /**
  * Created by Aðalsteinn on 14.3.2016.
  */
@@ -128,6 +130,54 @@ public class Utils {
         }
 
         return messages;
+    }
+
+    public static ArrayList<HashMap<String, Integer>> convertToAnimationMoves(HashMap<String, String> moveInfo)
+    {
+        moveInfo.remove("action");
+
+        ArrayList<HashMap<String, Integer>> animMoves = new ArrayList<>();
+        for(int i = 0; i < moveInfo.size()/3; i++)
+        {
+            HashMap<String, Integer> singleAnim = new HashMap<>();
+            singleAnim.put("from", Integer.parseInt(moveInfo.get("from" + i)));
+            singleAnim.put("to", Integer.parseInt(moveInfo.get("to" + i)));
+
+            int killMove = moveInfo.get("kill" + i).equals("true")? 1 : 0;
+            singleAnim.put("killMove",killMove ) ;
+            singleAnim.put("finished", 0);
+            animMoves.add(singleAnim);
+        }
+
+        return animMoves;
+    }
+
+    public static AnimationCoordinator buildBoardFromDescription(HashMap<String, String> description)
+    {
+        int[] counts = new int[28];
+        int[] teams = new int[28];
+        int[] diceVals = new int[4];
+        int cubeValue = Integer.parseInt(description.get("cube"));
+
+        for(int i = 0; i < 28; i++)
+        {
+            counts[i] = Integer.parseInt(description.get("c" + i));
+            teams[i] = Integer.parseInt(description.get("t" + i));
+        }
+        for(int i = 0; i < 4; i++)
+            diceVals[i] = Integer.parseInt(description.get("d" + i));
+
+        AnimationCoordinator animator = AnimationCoordinator.buildExistingBoard(teams, counts, diceVals, cubeValue);
+        return animator;
+    }
+
+    public static int[] extractIntsFromPositionMessage(HashMap<String, String> positions)
+    {
+        positions.remove("action");
+        int[] squarePos = new int[positions.size()];
+        for(int i = 0; i < squarePos.length; i++)
+            squarePos[i] = Integer.parseInt(positions.get(""+i));
+        return squarePos;
     }
 
     public static HashMap<String, String> extractSpecificAction(ArrayList<HashMap<String, String>> allMsgs, String action)

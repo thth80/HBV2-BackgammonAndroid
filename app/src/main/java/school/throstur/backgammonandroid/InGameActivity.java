@@ -3,7 +3,6 @@ package school.throstur.backgammonandroid;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -29,14 +28,14 @@ public class InGameActivity extends AppCompatActivity {
     private static final String PRESENT_DATA = "PresentingTHeMAtch";
     private static final String CURRENT_BOARD = "currentStateOfTheBoardForNewcomers";
 
+
     private String mUsername;
     private boolean mCouldDouble, mIsPlaying, mShouldResetClock, mTimedMatch;
-    private Timer mAnimLoop, mRefresher, mClockTimer;
-    private AnimationCoordinator mAnimator;
-    private long lastTimeStamp;
+    private Timer  mRefresher, mClockTimer;
+    private long mLastGameClockTime;
 
-    private CanvasFragment mCanvasFrag;
-    private int mTimeLeftMs, mPivot;
+    private CanvasFragment mCanvas;
+    private int mTimeLeftMs;
 
     private Button leaveMatchButton;
 
@@ -67,77 +66,65 @@ public class InGameActivity extends AppCompatActivity {
 
         mUsername = getIntent().getStringExtra(USERNAME);
         mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
-        int timeUntilFirst = 1500;
 
         if(mIsPlaying)
         {
-            mAnimator = AnimationCoordinator.buildNewBoard();
+            AnimationCoordinator animator = AnimationCoordinator.buildNewBoard();
+            mCanvas = new CanvasFragment();
+            mCanvas.setAnimator(animator);
 
             HashMap<String, String> pres = (HashMap<String, String>)getIntent().getSerializableExtra(PRESENT_DATA);
             PresentMatchFragment presentFrag = new PresentMatchFragment();
             presentFrag.setMatchData(pres.get("playerOne"), pres.get("playerTwo"), pres.get("points"), pres.get("addedTime"));
-            timeUntilFirst = 5000;
+
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    //Skipta um Fragment hér
+
+                    mRefresher = new Timer();
+                    mRefresher.scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            (new NetworkingTask("refresh")).execute();
+                        }
+                    }, 500, 1500);
+                }
+            }, 5000);
         }
         else
         {
             HashMap<String, String> wholeBoard = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
-            mAnimator = buildCurrentBoard(wholeBoard);
+            AnimationCoordinator animator = Utils.buildBoardFromDescription(wholeBoard);
 
-            mCanvasFrag = new CanvasFragment();
-            //TODO: Kalla á invalidate til að skjárinn sé teiknaður upp á nýtt
-            mAnimator.render(new Canvas());
+            mCanvas = new CanvasFragment();
+            mCanvas.setAnimator(animator);
+            mCanvas.drawCanvas();
+
+            mRefresher = new Timer();
+            mRefresher.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    (new NetworkingTask("refresh")).execute();
+                }
+            }, 1500, 1500);
         }
 
-        mRefresher = new Timer();
-        mRefresher.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                (new NetworkingTask("refresh")).execute();
-            }
-        }, timeUntilFirst, 1500);
     }
 
-
-    private void onCanvasClicked(double cx, double cy)
-    {
-        int pos = 15;
-        String event = "derp";
-        if(event == "white")
-        {
-            (new NetworkingTask("white")).execute(pos + "");
-            //aflita hvíta
-        }
-        else if(event == "green")
-        {
-            (new NetworkingTask("green")).execute(pos+"");
-            //aflita alla reiti
-        }
-        else if(event == "pivot")
-        {
-            (new NetworkingTask("pivot")).execute(pos+"");
-            //lýsa aftur upp hvíta reiti
-        }
-    }
-
-
-    private void onEndTurnClicked()
+    public void endTurnWasClicked()
     {
         (new NetworkingTask("endTurn")).execute();
-        mPivot = -1;
-        mAnimator.unHighlightAll();
-        //invalidate kall
     }
 
-    private void onDoublingClicked()
+    private void cubeWasFlipped()
     {
         (new NetworkingTask("cube")).execute();
-        //TODO ÞÞ: Fela takkana
     }
 
-    private void onThrowDiceClicked()
+    private void diceWasThrown()
     {
         (new NetworkingTask("dice")).execute();
-        //fela alla takka
     }
 
     //TODO AE: Hvaða skilaboð eiga að valda því að klukkan fer aftur af stað?
@@ -145,10 +132,11 @@ public class InGameActivity extends AppCompatActivity {
 
     private void onTimeRunningOut()
     {
-        (new NetworkingTask("timeOut")).execute();
-        mAnimator.unHighlightAll();
+        mCanvas.timeRanOut();
         mTimeLeftMs = 0;
         mClockTimer.cancel();
+
+        (new NetworkingTask("timeOut")).execute();
 
         //TODO ÞÞ: Láta klukku element fá gildið 0
         Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG);
@@ -159,18 +147,6 @@ public class InGameActivity extends AppCompatActivity {
 
     }
 
-    private void startAnimLoop()
-    {
-        mAnimLoop = new Timer();
-        mAnimLoop.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                boolean animFinished = updateAnimator(16);
-                //Kallað á invalidate()
-                if(animFinished) this.cancel();
-            }
-        }, 20, 20);
-    }
 
     /*
         HTTP RESPONSE aðferðir
@@ -178,29 +154,17 @@ public class InGameActivity extends AppCompatActivity {
 
     private void startAnimation(HashMap<String, String> animInfo)
     {
-        if(!mAnimator.isAnimating())
-            startAnimLoop();
+        ArrayList<HashMap<String, Integer>> animMoves = Utils.convertToAnimationMoves(animInfo);
 
-        animInfo.remove("action");
-        ArrayList<HashMap<String, Integer>> animMoves = new ArrayList<>();
-        for(int i = 0; i < animInfo.size()/3; i++)
-        {
-            HashMap<String, Integer> singleAnim = new HashMap<>();
-            singleAnim.put("from", Integer.parseInt(animInfo.get("from" + i)));
-            singleAnim.put("to", Integer.parseInt(animInfo.get("to" + i)));
-
-            int killMove = animInfo.get("kill" + i).equals("true")? 1 : 0;
-            singleAnim.put("killMove",killMove ) ;
-            singleAnim.put("finished", 0);
-            animMoves.add(singleAnim);
-        }
+        if(!mCanvas.isAnimating() && animMoves.size() > 0)
+            mCanvas.startAnimLoop();
 
         if(animMoves.size() > 0)
         {
-            if(!mAnimator.arePawnsMoving())
-                mAnimator.initPawnAnimation(animMoves);
+            if(!mCanvas.arePawnsMoving())
+                mCanvas.getAnimator().initPawnAnimation(animMoves);
             else
-                mAnimator.storeDelayedMoves(animMoves);
+                mCanvas.getAnimator().storeDelayedMoves(animMoves);
         }
         else
             Toast.makeText(InGameActivity.this, "Your opponent had no moves available!", Toast.LENGTH_SHORT).show();
@@ -209,27 +173,15 @@ public class InGameActivity extends AppCompatActivity {
 
     private void performInTurnMoves(HashMap<String, String> moveInfo)
     {
-        moveInfo.remove("action");
-        ArrayList<HashMap<String, Integer>> inTurnMoves = new ArrayList<>();
-        for(int i = 0; i < moveInfo.size()/3; i++)
-        {
-            HashMap<String, Integer> singleAnim = new HashMap<>();
-            singleAnim.put("from", Integer.parseInt(moveInfo.get("from" + i)));
-            singleAnim.put("to", Integer.parseInt(moveInfo.get("to" + i)));
+        ArrayList<HashMap<String, Integer>> inTurnMoves = Utils.convertToAnimationMoves(moveInfo);
 
-            int killMove = moveInfo.get("kill" + i).equals("true")? 1 : 0;
-            singleAnim.put("killMove",killMove ) ;
-            inTurnMoves.add(singleAnim);
-        }
-
-        mAnimator.performInTurnMoves(inTurnMoves);
-        mAnimator.render(new Canvas());
+        mCanvas.performInTurnMoves(inTurnMoves);
     }
 
-    private void startDiceRoll(int first, int second, int team)
+    private void startDiceRoll(int first, int second, int team, String thrower)
     {
-        mAnimator.startDiceRoll(first, second, team);
-        String thrower = "derp";
+        mCanvas.startDiceRoll(first, second, team);
+
         if(thrower.equals(mUsername) && mTimedMatch)
             mShouldResetClock = true;
 
@@ -238,92 +190,49 @@ public class InGameActivity extends AppCompatActivity {
 
     private void whiteLightSquares(HashMap<String, String> positions)
     {
-        positions.remove("action");
-        int[] squarePositions = new int[positions.size()];
-        for(int i = 0; i < squarePositions.length; i++)
-            squarePositions[i] = Integer.parseInt(positions.get(""+i));
-
-        if(mAnimator.isRollingDice())
-            mAnimator.delayWhiteLighting(squarePositions);
-        else
-        {
-            mAnimator.whiteLightSquares(squarePositions);
-            mAnimator.render(new Canvas());
-        }
+        int[] squarePositions = Utils.extractIntsFromPositionMessage(positions);
+        mCanvas.whiteLightSquares(squarePositions);
     }
 
     private void greenLightSquares(HashMap<String, String> positions)
     {
-        positions.remove("action");
-        int[] squarePos = new int[positions.size()];
-        for(int i = 0; i < squarePos.length; i++)
-            squarePos[i] = Integer.parseInt(positions.get(""+i));
-
-        mAnimator.greenLightSquares(squarePos);
-        mAnimator.render(new Canvas());
+        int[] squarePositions = Utils.extractIntsFromPositionMessage(positions);
+        mCanvas.greenLightSquares(squarePositions);
     }
 
-    //TODO AE: Takkar verða að koma á eftir animate skilaboðum
     private void showButtonsIfPossible(boolean canDouble)
     {
-        if(!mAnimator.arePawnsMoving())
-            showButtons(canDouble);
+        if(!mCanvas.arePawnsMoving())
+        {
+            mCanvas.showThrowDice();
+            if(canDouble) mCanvas.showFlipCube();
+        }
         else
-            mCouldDouble = canDouble;
+            mCanvas.setCouldDouble(canDouble);
     }
 
-    public boolean updateAnimator(int deltaMs)
+    public boolean shouldResetClock()
     {
-        boolean wasMovingPawns = mAnimator.arePawnsMoving();
-        if(deltaMs > 30) deltaMs = 16;
-
-        mAnimator.updatePawns(deltaMs);
-        mAnimator.updateCube(deltaMs);
-        mAnimator.updateDice(deltaMs);
-
-        if(wasMovingPawns != mAnimator.arePawnsMoving() && mAnimator.areMovesStored())
-        {
-            mAnimator.initPawnAnimation(mAnimator.getStoredMoves());
-            mAnimator.emptyStorage();
-        }
-
-        if(wasMovingPawns != mAnimator.arePawnsMoving())
-            showButtons(mCouldDouble);
-
-        if(!mAnimator.isAnimating() && mShouldResetClock)
-        {
-            resetGameClock();
-            mShouldResetClock = false;
-        }
-
-        return mAnimator.isAnimating();
+        return mShouldResetClock;
     }
 
-    private void resetGameClock()
+    public void resetGameClock()
     {
-        lastTimeStamp = System.currentTimeMillis();
+        mShouldResetClock = false;
+
+        mLastGameClockTime = System.currentTimeMillis();
         mClockTimer = new Timer();
         mClockTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 long timeNow = System.currentTimeMillis();
-                long delta = timeNow - lastTimeStamp;
-                lastTimeStamp = timeNow;
+                long delta = timeNow - mLastGameClockTime;
+                mLastGameClockTime = timeNow;
                 mTimeLeftMs -= delta;
                 if(mTimeLeftMs <= 0)
                     onTimeRunningOut();
             }
         }, 25 , 50);
-    }
-
-    private void showButtons(boolean canDouble)
-    {
-        //TODO ÞÞ: Takkarnir birtast, báðir(double stakes og throw dice) ef canDouble == true, annars bara throwDice
-    }
-
-    private void showEndTurn()
-    {
-        //TODO ÞÞ: End Turn takkinn birtist, verður virkur/enabled
     }
 
     private void addGameTime(int seconds)
@@ -333,26 +242,16 @@ public class InGameActivity extends AppCompatActivity {
         //TODO ÞÞ: uppfæra klukkuna með gildinu í secondsOnClock
     }
 
-    private void presentStartingMatch(String playerOne, String playerTwo)
-    {
-        //TODO ÞÞ: Seinni tíma vandamál að láta match presentation birtast hér
-
-        //TODO AE: Ætti initMatch að senda einungis þessi skilaboð og síðan er rest sótt eftir
-        //nokkrar sekúndur? Hér má græða á því að ástandið er yfirleitt svipað, engin peð hafa
-        //verið hreyfð. Birta þarf teningarúll eftir að present skjárinn hverfur, síðan white Lighting
-    }
-
     private void presentFinishedMatch(String winner, String loser, String winPoints, String lossPoints)
     {
-        //TODO ÞÞ: Búið er til element með þessum upplýsingum. Það er sett inn í stað canvas elements,
-        //þar sem leikurinn(match) er hvort eð er búinn. Ekkert að því heldur að setja yfir canvasinn án þess að eyða canvas.
+        //TODO AE: Henda í Toast hérna. Slökkva á refresh?
 
         mRefresher.cancel();
     }
 
     private void presentFinishedGame(String winner, String multiplier, String cube, String winType)
     {
-        //TODO AE: Toast vs Heilt Fragment hérna? Mun auðveldara að notast við Toast eða jafnvel spjallið?
+        //TODO AE: Notumst við Toast og spjallskilaboð hér
         String wonBy = "Regular Win";
         if(multiplier.equals("2")) wonBy = "Won By Gammon!";
         else if(multiplier.equals("3")) wonBy = "Won By Backgammon!!!";
@@ -362,60 +261,34 @@ public class InGameActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                mAnimator = AnimationCoordinator.buildNewBoard();
+                AnimationCoordinator animator = AnimationCoordinator.buildNewBoard();
+                mCanvas.setAnimator(animator);
                 (new NetworkingTask("startNewGame")).execute();
             }
         }, 3000);
-
-        //TODO ÞÞ: Notast við winner, wonBy, cube, totalPoints og winType til að búa til kynningu í lok leiks
-        //Líklega best að láta kynningu vera ofan á canvas, þar sem match er EKKI lokið hér
-
-    }
-
-    private AnimationCoordinator buildCurrentBoard(HashMap<String, String> boardDescription)
-    {
-        int[] counts = new int[28];
-        int[] teams = new int[28];
-        int[] diceVals = new int[4];
-        int cubeValue = Integer.parseInt(boardDescription.get("cube"));
-
-        for(int i = 0; i < 28; i++)
-        {
-            counts[i] = Integer.parseInt(boardDescription.get("c" + i));
-            teams[i] = Integer.parseInt(boardDescription.get("t" + i));
-        }
-        for(int i = 0; i < 4; i++)
-            diceVals[i] = Integer.parseInt(boardDescription.get("d" + i));
-
-        AnimationCoordinator animator = AnimationCoordinator.buildExistingBoard(teams, counts, diceVals, cubeValue);
-        return animator;
     }
 
     private void presentTrophy(int id)
     {
-        //TODO: tengja löglegt imageId hérna í stað 1
-        displayTrophy(Utils.trophyNames[id], Utils.trophyDesc[id], 1);
-    }
+        //TODO: tengja löglegt imageId hérna
+        String trophyDescript = Utils.trophyDesc[id];
+        String trophyName = Utils.trophyNames[id];
 
-    private void displayTrophy(String name, String descript, int imageId)
-    {
-        //TODO ÞÞ: (Low priority eins og er) Birta element sem inniheldur mynd, lýsingu og nafn á bikar auk þess að hafa takka sem
-        //er tengdur við onClick. Element liggur ofan á canvas
+        //TODO AE: Búa til nytt Fragment. Setja Fragment á stafla. Borta fragment.
+
+        //TODO ÞÞ: Hanna fragmen sem inniheldur mynd, lýsingu og nafn á bikar auk þess að hafa takka til að fjarlægja bikar presentation
     }
 
     private void playerDoubled(String doubler, String decider, String stakes)
     {
         if(doubler.equals(mUsername))
-            Toast.makeText(InGameActivity.this, "You doubled the stakes. "+decider+" is making his decision", Toast.LENGTH_LONG);
+            Toast.makeText(InGameActivity.this, "You doubled the stakes, "+decider+" is making his decision", Toast.LENGTH_LONG);
         else if(decider.equals(mUsername));
             //TODO ÞÞ: Birta ALERT með OK/Cancel eða hvað sem það heitir í Android með texta sem segir að andstæðingurinn dobblaði.
         else
             Toast.makeText(InGameActivity.this, doubler + " doubled the stakes. "+decider+" is making his decision", Toast.LENGTH_LONG);
     }
 
-    //TODO AE: Gerast líklega skrýtnir hlutir þegar observer horfir á bot vs human og 2 sett af hreyfingum koma í röð
-    //TODO AE: Það tilfelli þegar annar spilara getur ekki gert neitt gæti þurft að rannsaka
-    //<String, MSG, MSG>
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>>
     {
         private final String mUsername;
@@ -483,7 +356,7 @@ public class InGameActivity extends AppCompatActivity {
                         break;
                     case "diceThrow":
                         startDiceRoll(Integer.parseInt(msg.get("firstDice")), Integer.parseInt(msg.get("secondDice")),
-                                Integer.parseInt(msg.get("team")));
+                                Integer.parseInt(msg.get("team")), msg.get("thrower"));
                         break;
                     case "whiteLighted":
                         whiteLightSquares(msg);
@@ -495,7 +368,7 @@ public class InGameActivity extends AppCompatActivity {
                         showButtonsIfPossible(Boolean.parseBoolean(msg.get("canDouble")));
                         break;
                     case "mayEndTurn":
-                        showEndTurn();
+                        mCanvas.showEndTurn();
                         break;
                     case "addedTime":
                         addGameTime(Integer.parseInt(msg.get("seconds")));
@@ -517,9 +390,6 @@ public class InGameActivity extends AppCompatActivity {
                         break;
                 }
             }
-
         }
-
     }
-
 }
