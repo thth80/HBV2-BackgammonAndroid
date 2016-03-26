@@ -7,10 +7,12 @@
     <string name="title_activity_stats">Stats</string>
     <string name="title_activity_login">Sign in</string>
 
-    <!-- Strings related to login -->
+    <!-- Strings related to login/signup -->
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
+    <string name="repeat_password">Repeat the password</string>
     <string name="action_sign_in">Sign up for an account</string>
+    <string name="action_log_in">Log in</string>
     <string name="action_sign_in_short">Sign up</string>
     <string name="error_invalid_username">This username is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -20,6 +22,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="suggest_signup">"Don't have an account?"
+    </string>
+    <string name="suggest_login">"Already a user?"
+    </string>
+    <string name="error_password_nomatch">The passwords have to be identical</string>
     <string name="action_log_in_short">Log in</string>
 
     <!-- TODO: Remove or change this placeholder text -->
