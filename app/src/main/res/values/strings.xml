@@ -31,4 +31,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="TEST">Test</string>
+    <string name="clock_image_description">An image of a clock</string>
+    <string name="point_image_description">An image of a point</string>
+    <string name="player_image_description">An image of a player</string>
 </resources>

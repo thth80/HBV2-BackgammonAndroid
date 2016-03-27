@@ -1,14 +1,19 @@
 package school.throstur.backgammonandroid.Fragments;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import java.util.HashMap;
 
 import school.throstur.backgammonandroid.Adapters.LobbyListAdapter;
 import school.throstur.backgammonandroid.LobbyActivity;
+import school.throstur.backgammonandroid.R;
 
 /**
  * Created by Þröstur on 25.3.2016.
@@ -19,8 +24,26 @@ public class ListsFragment extends Fragment {
 
     public ListsFragment()
     {
-        //TODO ÞÞ: Tengja recyclerinn rétt
-        mListRecycler = (RecyclerView)new View(getActivity());
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_lobby_list, container, false);
+
+        //mListRecycler = (RecyclerView)new View(getActivity());
+        mListRecycler = (RecyclerView) view
+                .findViewById(R.id.lobby_recycler_view);
+        mListRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        updateUI();
+
+        return view;
+    }
+
+    // Sets up the ListsFragment user interface
+    private void updateUI() {
         mListAdapter = new LobbyListAdapter(getActivity(), this);
         mListRecycler.setAdapter(mListAdapter);
     }

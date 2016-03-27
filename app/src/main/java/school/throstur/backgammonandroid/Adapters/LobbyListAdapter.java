@@ -7,12 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import school.throstur.backgammonandroid.Fragments.ListsFragment;
+import school.throstur.backgammonandroid.R;
 
 /**
  * Created by Aðalsteinn on 25.3.2016.
@@ -66,7 +68,8 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         LayoutInflater inflater = LayoutInflater.from(mContext);
         //View view = inflater.inflate(R.layout.list_item_tvseries, parent, false);
         //Hérna að ofan gerast töfrarnir þegar layout fyrir entry er tengt við view
-        View view = new View(mContext);
+        //View view = new View(mContext);
+        View view = inflater.inflate(R.layout.list_item_lobby, parent, false);
         return new ListEntryHolder(view);
     }
 
@@ -92,13 +95,18 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
 
     public class ListEntryHolder extends RecyclerView.ViewHolder
     {
+        private ImageView mPlayerOneImgView;
+        private ImageView mPlayerTwoImgView;
         private TextView mPlayerOneTextView;
         private TextView mPlayerTwoTextView;
+        private ImageView mPointsImgView;
         private TextView mPointsTextView;
+        private ImageView mAddedTimeImgView;
         private TextView mAddedTimeTextView;
         private Button mEntryButton;
 
-        //TODO ÞÞ AE: Finna hönnun á entry sem getur bæði verið ongoing match og waiting list. Eini munurinn
+        // TODO AE: Ertu sáttur með þessa hönnun?
+        // Finna hönnun á entry sem getur bæði verið ongoing match og waiting list. Eini munurinn
         //á þessum 2 entries er að playerTwo er óákveðið fyrir waiting. Kannski nóg að aðgreina entries þannig að
         // playerTwo = PENDING hjá waiting list og takkarnir(OBSERVE/JOIN) eru mismunandi á litinn
 
@@ -109,11 +117,17 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         public ListEntryHolder(View view)
         {
             super(view);
-            //TODO ÞÞ: TEngja þessi element við actual UI element í gegnum ID. Notast skal við færibreytuna view.
-            mPlayerOneTextView = (TextView)new View(mContext);
-            mPlayerTwoTextView = (TextView)new View(mContext);
-            mPointsTextView = (TextView)new View(mContext);
-            mAddedTimeTextView = (TextView)new View(mContext);
+
+            mPlayerOneImgView = (ImageView) view.findViewById(R.id.list_item_lobby_playerOneImg);
+            mPlayerOneTextView = (TextView) view.findViewById(R.id.list_item_lobby_playerOne);
+            mPlayerTwoImgView = (ImageView) view.findViewById(R.id.list_item_lobby_playerTwoImg);
+            mPlayerTwoTextView = (TextView) view.findViewById(R.id.list_item_lobby_playerTwo);
+
+            mPointsImgView = (ImageView) view.findViewById(R.id.list_item_lobby_pointImage);
+            mPointsTextView = (TextView) view.findViewById(R.id.list_item_lobby_points);
+
+            mAddedTimeImgView = (ImageView) view.findViewById(R.id.list_item_lobby_clockImage);
+            mAddedTimeTextView = (TextView) view.findViewById(R.id.list_item_lobby_clockText);
 
             mEntryButton = (Button)new View(mContext);
             mEntryButton.setOnClickListener(new View.OnClickListener() {
@@ -142,10 +156,16 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
 
         public void bindEntryData(HashMap<String, String> entryData)
         {
-            mPlayerOneTextView.setText(entryData.get("playerOne"));;
+            // TODO AE: Breyta player img breytum m.v. gildum úr lista?
+            mPlayerOneImgView.setImageResource(R.drawable.ic_face);
+            mPlayerOneTextView.setText(entryData.get("playerOne"));
+            mPlayerTwoImgView.setImageResource(R.drawable.ic_face);
             mPlayerTwoTextView.setText(entryData.get("playerOne"));
+            mPointsImgView.setImageResource(R.drawable.ic_point);
             mPointsTextView.setText(entryData.get("points"));
+            mAddedTimeImgView.setImageResource(R.drawable.ic_clock);
             mAddedTimeTextView.setText(entryData.get("addedTime"));
+
 
             mButtonType = entryData.get("type");
             mId = entryData.get("id");

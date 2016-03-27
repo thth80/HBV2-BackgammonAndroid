@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/listPreferredItemHeightLarge"
+                android:background="@drawable/border">
+    <Button
+        android:id="@+id/list_item_lobby_bnt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="@string/TEST"
+        tools:text="Observe"
+        android:background="@color/orange"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"/>
+
+    <ImageView
+        android:id="@+id/list_item_lobby_clockImage"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_toLeftOf="@id/list_item_lobby_bnt"
+        android:contentDescription="@string/clock_image_description"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_clock"/>
+
+    <TextView
+        android:id="@+id/list_item_lobby_clockText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/list_item_lobby_clockImage"
+        android:layout_toLeftOf="@id/list_item_lobby_bnt"
+        android:text="@string/TEST"
+        android:textStyle="bold"
+        android:padding="4dp"
+        tools:text="Time"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"/>
+
+    <ImageView
+        android:id="@+id/list_item_lobby_pointImage"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_toLeftOf="@id/list_item_lobby_clockImage"
+        android:contentDescription="@string/point_image_description"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_point"/>
+
+    <TextView
+        android:id="@+id/list_item_lobby_points"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_lobby_pointImage"
+        android:layout_toLeftOf="@id/list_item_lobby_clockImage"
+        android:text="@string/TEST"
+        android:textStyle="bold"
+        android:padding="4dp"
+        tools:text="Points"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"/>
+
+    <ImageView
+        android:id="@+id/list_item_lobby_playerOneImg"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/player_image_description"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        android:layout_alignRight="@+id/list_item_lobby_playerOne"
+        android:layout_alignEnd="@+id/list_item_lobby_playerOne"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_face"/>
+
+    <TextView
+        android:id="@+id/list_item_lobby_playerOne"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_lobby_playerOneImg"
+        android:textStyle="bold"
+        android:padding="4dp"
+        tools:text="Player one"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentLeft="true"/>
+
+    <ImageView
+        android:id="@+id/list_item_lobby_playerTwoImg"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/player_image_description"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/list_item_lobby_playerOne"
+        android:layout_alignRight="@+id/list_item_lobby_playerTwo"
+        android:layout_alignEnd="@+id/list_item_lobby_playerTwo"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_face"/>
+
+    <TextView
+        android:id="@+id/list_item_lobby_playerTwo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_lobby_playerTwoImg"
+        android:layout_toRightOf="@id/list_item_lobby_playerOne"
+        android:textStyle="bold"
+        android:padding="4dp"
+        tools:text="Player two"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"/>
+
+
+
+</RelativeLayout>

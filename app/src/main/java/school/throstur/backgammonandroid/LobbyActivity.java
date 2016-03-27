@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -83,6 +85,24 @@ public class LobbyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_lobby);
+
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment listFragment = fm.findFragmentById(R.id.lobby_first_fragment_container);
+        Fragment chatFragment = fm.findFragmentById(R.id.lobby_second_fragment_container);
+
+        // Setja list fragment í fyrri hluta skjás (lobby_first_fragment_containter),
+        // ef það er ekki þegar fragment í containernum.
+        if (listFragment == null) {
+            listFragment = new ListsFragment();
+            fm.beginTransaction()
+                    .add(R.id.lobby_first_fragment_container, listFragment)
+                    .commit();
+        }
+
+        // TODO ÞÞ: Gera eins fyrir chat fragment þegar það er búið að útfæra chat fragment.
+        // Setja chat fragment í seinni hluta skjás (lobby_second_fragment_containter),
+        // ef það er ekki þegar fragment í containernum.
+
 
         mSubmitChatButton = (Button)new View(LobbyActivity.this); //submit_chat
         mToTrophyButton = (Button)new View(LobbyActivity.this);  //to_trophy
