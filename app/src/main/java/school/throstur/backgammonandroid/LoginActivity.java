@@ -38,11 +38,6 @@ public class LoginActivity extends FragmentActivity {
         }
     }
 
-    // TODO AE: Þetta er orðið outdated right?
-    /*public void goToLobby(String username)
-    {
-        startActivity(LobbyActivity.usernameIntent(LoginActivity.this, username));
-    }*/
 
     public void PerformSignUp(String username, String password) {
         (new UserLoginTask(username, password, "signup")).execute((Void) null);
@@ -87,8 +82,6 @@ public class LoginActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(final ArrayList<HashMap<String, String>> msgs) {
-            // TODO AE: Þarf showProgress að vera hérna?
-            //showProgress(false);
 
             for(HashMap<String, String> msg: msgs)
             {
@@ -101,8 +94,6 @@ public class LoginActivity extends FragmentActivity {
                 }
                 else if(msg.get("action").equals("explain"))
                 {
-                    //mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    //mPasswordView.requestFocus();
                     Toast.makeText(LoginActivity.this, msg.get("explain"), Toast.LENGTH_LONG);
                 }
             }

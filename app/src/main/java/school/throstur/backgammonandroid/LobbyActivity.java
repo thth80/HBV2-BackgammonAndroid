@@ -26,6 +26,8 @@ import school.throstur.backgammonandroid.Utility.Utils;
 public class LobbyActivity extends AppCompatActivity {
     private static final String USERNAME_FROM_LOGIN = "usernameExtra";
     private static final String INIT_DATA_FROM_LOGIN = "hhhherrrrrrrrppppderrrrppp";
+    private static final String MATCH_PRESENTATION = "ForPassingPresFromStatsToHere";
+    private static final int REQUEST_CODE = 666;
 
     private String mUsername;
     private Button mSubmitChatButton;
@@ -40,12 +42,39 @@ public class LobbyActivity extends AppCompatActivity {
 
     private Timer mRefresher;
 
+    public static Intent fromStatsTrophiesIntent(Context packageContext, HashMap<String, String> matchPres)
+    {
+        Intent i = new Intent(packageContext, LobbyActivity.class);
+        i.putExtra(MATCH_PRESENTATION, matchPres);
+        return i;
+    }
+
     public static Intent initLobbyIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> initData)
     {
         Intent i = new Intent(packageContext, LobbyActivity.class);
         i.putExtra(USERNAME_FROM_LOGIN, username);
         i.putExtra(INIT_DATA_FROM_LOGIN, initData);
         return i;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(resultCode == RESULT_OK)
+        {
+            mRefresher = new Timer();
+            mRefresher.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    (new NetworkingTask("refresh")).execute();
+                }
+            }, 100, 1500);
+        }
+        else
+        {
+            HashMap<String, String> matchPresentation = (HashMap<String, String>)data.getSerializableExtra(MATCH_PRESENTATION);
+            startActivityForResult(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation), REQUEST_CODE);
+        }
     }
 
     //TODO ÞÞ: Tengja allar member breytur við raunveruleg widget í gegnum findViewById. Æskileg ID nöfn eru í lok hverrar línu
@@ -315,23 +344,23 @@ public class LobbyActivity extends AppCompatActivity {
             if(startMatchAfterProcessing)
             {
                 HashMap<String, String> matchPresentation = Utils.extractSpecificAction(messages, "presentMatch");
-                startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation));
+                startActivityForResult(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation), REQUEST_CODE);
             }
             else if(observeMatchAfterProcessing)
             {
                 HashMap<String, String> currentBoardState = Utils.extractSpecificAction(messages, "wholeBoard");
-                startActivity(InGameActivity.obersvingUserIntent(LobbyActivity.this, mUsername, currentBoardState));
+                startActivityForResult(InGameActivity.obersvingUserIntent(LobbyActivity.this, mUsername, currentBoardState), REQUEST_CODE);
             }
             else if(goToTrophyRoomAfterProcessing)
             {
                 ArrayList<HashMap<String, String>> trophyMessages = Utils.extractSpecificActions(messages, "trophyEntry");
-                startActivity(TrophyActivity.trophyDataIntent(LobbyActivity.this, mUsername, trophyMessages));
+                startActivityForResult(TrophyActivity.trophyDataIntent(LobbyActivity.this, mUsername, trophyMessages), REQUEST_CODE);
             }
             else if(goToStatsAfterProcessing)
             {
                 ArrayList<HashMap<String, String>> statsMessages = Utils.extractSpecificActions(messages, "versusStats");
                 HashMap<String, String> overallEntry = Utils.extractSpecificAction(messages, "overallStats");
-                startActivity(StatsActivity.statsDataIntent(LobbyActivity.this, mUsername, statsMessages, overallEntry));
+                startActivityForResult(StatsActivity.statsDataIntent(LobbyActivity.this, mUsername, statsMessages, overallEntry), REQUEST_CODE);
             }
 
         }

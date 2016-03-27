@@ -64,6 +64,23 @@ public class InGameNetworking {
         }
     }
 
+    public static JSONArray doublingDecision(String name, String accepted) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse("http://localhost:9090/startNewGame")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .appendQueryParameter("accepted", accepted)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
 
     public static JSONArray startNewGame(String name) throws IOException
     {

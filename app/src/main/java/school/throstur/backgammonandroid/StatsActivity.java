@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.lang.reflect.Array;
@@ -28,6 +29,8 @@ public class StatsActivity extends AppCompatActivity {
     private String mUsername;
     private StatsAdapter mAdapter;
     private RecyclerView mStatRecycler;
+    private Button mBackToLobby;
+    private Intent mLobbyMessage;
 
     public static Intent statsDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> versusEntries,
                                          HashMap<String, String> overallEntry)
@@ -54,10 +57,19 @@ public class StatsActivity extends AppCompatActivity {
         mStatRecycler.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
+        mLobbyMessage = null;
         String pointsFor = overallStats.get("pointsFor");
         String pointsAgainst = overallStats.get("pointsAgainst");
 
-        //TODO ÞÞ AE: Tengja recycler rétt, tengja pointsFor og pointsAgainst við static UI element sem er alltaf efst á skjánum.
+        //TODO ÞÞ: Tengja recycler og button rétt, tengja pointsFor og pointsAgainst við static UI element sem er alltaf efst á skjánum.
+
+        mBackToLobby = (Button)new View(StatsActivity.this);
+        mBackToLobby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -65,6 +77,17 @@ public class StatsActivity extends AppCompatActivity {
                 (new NetworkingTask(mUsername)).execute();
             }
         }, 0, 5000);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(mLobbyMessage == null)
+            setResult(RESULT_OK);
+        else
+            setResult(RESULT_CANCELED, mLobbyMessage);
+
+        super.onBackPressed();
     }
 
     public void makeToast(String toast)
@@ -99,9 +122,10 @@ public class StatsActivity extends AppCompatActivity {
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
             for(HashMap<String, String> msg: messages)
-                if(msg.get("action").equals("matchJoined"))
+                if(msg.get("action").equals("presentMatch"))
                 {
-
+                    mLobbyMessage = LobbyActivity.fromStatsTrophiesIntent(StatsActivity.this, msg );
+                    onBackPressed();
                 }
         }
     }

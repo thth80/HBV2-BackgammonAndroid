@@ -89,27 +89,33 @@ public class CanvasFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event)
             {
 
-                //TODO AE: Spyrja mAnimator hvort klikkað hafi verið á grænan, hvítan eða pivot
+                double relativeX = event.getX()/mDrawingCanvas.getCanvasWidth();
+                double relativeY = event.getY()/mDrawingCanvas.getCanvasHeight();
 
-                String whatHappened = "TODO";
-                if(whatHappened.equals("greenClick"))
+                String results = mAnimator.wasSquareClicked(relativeX, relativeY, mPivot);
+                String[] eventAndPos = results.split("_");
+
+                if(eventAndPos[0].equals("green"))
                 {
                     mAnimator.unHighlightAll();
-                    mParentGame.greenWasClicked(666);
                     mDrawingCanvas.invalidate();
+                    mPivot = NO_PIVOT;
+                    mParentGame.greenWasClicked(eventAndPos[1]);
                     //Held að lastWhiteLighted update-i automatic og rétt, þegar nýr skammtur af whitelighted kemur frá server
                 }
-                else if(whatHappened.equals("whiteClick"))
+                else if(eventAndPos[0].equals("white"))
                 {
                     mAnimator.unHighlightAll();
-                    mParentGame.whiteWasClicked(666);
-                    mPivot = 666;
+                    mPivot = Integer.parseInt(eventAndPos[1]);
                     mDrawingCanvas.invalidate();
+                    mParentGame.whiteWasClicked(eventAndPos[1]);
                 }
-                else if(whatHappened.equals("pivotClick"))
+                else if(eventAndPos[0].equals("pivot"))
                 {
+                    mAnimator.unHighlightAll();
                     mAnimator.whiteLightSquares(mAnimator.getLastWhiteLighted());
                     mParentGame.pivotWasClicked();
+                    mPivot = NO_PIVOT;
                 }
                 return false;
             }

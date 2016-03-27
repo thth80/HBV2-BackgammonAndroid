@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 
+import school.throstur.backgammonandroid.Fragments.CanvasFragment;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class BoardManager {
@@ -62,7 +63,6 @@ public class BoardManager {
             return whiteDice.update(deltaMs);
     }
 
-    //TODO AE: Vera handviss um að Integer sé ekki að valda neinum vandræðum
     public ArrayList<Integer> updateMovers(int deltaMs)
     {
         ArrayList<Integer> finishedIds = new ArrayList<>();
@@ -122,6 +122,16 @@ public class BoardManager {
             return alreadyKilled;
         }
     }
+
+    public Square getClickedSquare(double cx, double cy)
+    {
+        for(Square square: squares)
+            if(square.isInside(cx, cy) && square.getLighting() == Utils.GREEN_LIGHT)
+                return square;
+
+        return null;
+    }
+
 
     public void startBlackDiceRoll(int first, int second)
     {
@@ -202,7 +212,6 @@ public class BoardManager {
             if(mover.isActive())
                 mover.render(canvas);
     }
-
 
 
     //Aðferðir hér fyrir neðan skipta litlu mali

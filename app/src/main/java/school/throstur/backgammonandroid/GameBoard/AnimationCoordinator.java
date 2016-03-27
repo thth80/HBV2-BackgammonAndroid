@@ -13,7 +13,6 @@ import school.throstur.backgammonandroid.Utility.Utils;
 
 public class AnimationCoordinator {
     public static final int NOT_AN_ID = -1;
-    public static int WIDTH, HEIGHT;
     public static Drawable BLACK_PAWN, WHITE_PAWN, SHINY_HUE, GAME_BOARD, RED_DICE;
     public static Context ctx;
 
@@ -37,6 +36,7 @@ public class AnimationCoordinator {
         WHITE_PAWN = ContextCompat.getDrawable(context, R.drawable.white);
         SHINY_HUE =  ContextCompat.getDrawable(context, R.drawable.shine);
         GAME_BOARD =  ContextCompat.getDrawable(context, R.drawable.game_board);
+        RED_DICE = ContextCompat.getDrawable(context, R.drawable.red_strip);
 
         ctx = context;
 
@@ -54,6 +54,24 @@ public class AnimationCoordinator {
         AnimationCoordinator existingBoard = new AnimationCoordinator(context);
         existingBoard.board = BoardManager.buildExistingBoard(teams, counts, diceVals, cube);
         return existingBoard;
+    }
+
+    //0.0 <= cx og cy <= 1.0
+    public String wasSquareClicked(double cx, double cy, int pivot)
+    {
+        Square square = board.getClickedSquare(cx, cy);
+        if(square == null) return "none_0";
+        else if(square.getPosition() == pivot)
+                 return "pivot_"+square.getPosition();
+
+        switch(square.getLighting())
+        {
+            case Utils.WHITE_LIGHT:
+                return "white_"+square.getPosition();
+            case Utils.GREEN_LIGHT:
+                return "green_"+square.getPosition();
+        }
+        return "none_0";
     }
 
     public boolean arePawnsMoving()

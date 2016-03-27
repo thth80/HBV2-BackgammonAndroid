@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Adapter;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,8 @@ public class TrophyActivity extends AppCompatActivity {
     private String mUsername;
     private RecyclerView mTrophyRecycler;
     private TrophyAdapter mAdapter;
+    private Button mBackToLobby;
+    private Intent mLobbyMessage;
 
     public static Intent trophyDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> trophies)
     {
@@ -49,7 +52,16 @@ public class TrophyActivity extends AppCompatActivity {
         mTrophyRecycler = (RecyclerView)new View(TrophyActivity.this);
         mAdapter = new TrophyAdapter(TrophyActivity.this, trophies);
         mTrophyRecycler.setAdapter(mAdapter);
-        //mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
+
+        mLobbyMessage = null;
+        mBackToLobby = (Button)new View(TrophyActivity.this);
+        mBackToLobby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -57,6 +69,17 @@ public class TrophyActivity extends AppCompatActivity {
                 (new NetworkingTask(mUsername)).execute();
             }
         }, 0, 5000);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(mLobbyMessage == null)
+            setResult(RESULT_OK);
+        else
+            setResult(RESULT_CANCELED, mLobbyMessage);
+
+        super.onBackPressed();
     }
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
@@ -84,9 +107,10 @@ public class TrophyActivity extends AppCompatActivity {
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
             for(HashMap<String, String> msg: messages)
-                if(msg.get("action").equals("matchJoined"))
+                if(msg.get("action").equals("presentMatch"))
                 {
-                    ;
+                    mLobbyMessage = LobbyActivity.fromStatsTrophiesIntent(TrophyActivity.this, msg );
+                    onBackPressed();
                 }
         }
     }
