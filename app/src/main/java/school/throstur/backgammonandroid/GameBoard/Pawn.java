@@ -5,15 +5,8 @@ import android.graphics.drawable.Drawable;
 
 import school.throstur.backgammonandroid.Utility.Utils;
 
-/**
- * Created by Aðalsteinn on 15.3.2016.
- */
 public class Pawn {
-    public static final double PAWN_RADIUS = 0.2;
-    public static final int LEFT = (int)(-PAWN_RADIUS * AnimationCoordinator.WIDTH);
-    public static final int RIGHT = (int)(PAWN_RADIUS * AnimationCoordinator.WIDTH);
-    public static final int TOP = (int)(-PAWN_RADIUS * AnimationCoordinator.HEIGHT);
-    public static final int BOTTOM = (int)(PAWN_RADIUS * AnimationCoordinator.HEIGHT);
+    public static final double RADIUS = 0.2;
 
     private int  team;
     private double cx, cy, z;
@@ -106,9 +99,13 @@ public class Pawn {
 
     public void render(Canvas canvas)
     {
-        //Það þarf líka alls ekki að endurtaka þetta
-        pawnImage.setBounds(LEFT, TOP, RIGHT, BOTTOM );
-        hue.setBounds(LEFT, TOP, RIGHT, BOTTOM);
+        int h = canvas.getHeight();
+        int w = canvas.getWidth();
+        int left = (int)(-RADIUS * w);
+        int top = (int)(-RADIUS * h);
+
+        pawnImage.setBounds(left, top, -left, -top );
+        hue.setBounds(left, top, -left, -top);
 
         canvas.save();
         canvas.translate((float) cx, (float) cy);

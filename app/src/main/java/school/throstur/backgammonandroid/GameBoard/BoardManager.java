@@ -158,7 +158,6 @@ public class BoardManager {
         doublingCube = new Cube(val);
     }
 
-    //TODO AE: Þetta nafn er lélegt.
     public void resetMovementSettings(boolean isSequential)
     {
         batchMode = !isSequential;
@@ -198,7 +197,7 @@ public class BoardManager {
     public void render(Canvas canvas)
     {
         Drawable board = (AnimationCoordinator.GAME_BOARD);
-        board.setBounds(0, 0, Utils.WIDTH, Utils.HEIGHT);
+        board.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         board.draw(canvas);
 
         for(Square square: squares)
@@ -232,24 +231,24 @@ public class BoardManager {
                 offset = pos - 1;
 
             if(pos > 18 || pos < 7)
-                cx = Utils.WIDTH - offset*Utils.SQUARE_WIDTH - 0.133*Utils.WIDTH;
+                cx = 1.0 - offset * Square.WIDTH - 0.133;
             else
-                cx = Utils.WIDTH*0.102 + offset*Utils.SQUARE_WIDTH + Utils.SQUARE_WIDTH*0.5;
+                cx = 0.102 + offset * Square.WIDTH + 0.5;
 
             squares[pos] = new Square(pos, cx);
         }
 
-        Square whiteDeadZone = new Square(25, Utils.WIDTH*0.5);
-        whiteDeadZone.setBottomY(Utils.HEIGHT*0.8);
+        Square whiteDeadZone = new Square(25, 0.5);
+        whiteDeadZone.setBottomY(0.8);
         squares[25] = whiteDeadZone;
 
-        Square blackDeadZone = new Square(0, Utils.WIDTH*0.5);
-        blackDeadZone.setBottomY(Utils.HEIGHT*0.2);
+        Square blackDeadZone = new Square(0, 0.5);
+        blackDeadZone.setBottomY(0.2);
         squares[0] = blackDeadZone;
 
-        Square whiteEndZone = new Square(26, Utils.WIDTH*0.94);
+        Square whiteEndZone = new Square(26, 0.94);
         whiteEndZone.makePointDown();
-        whiteEndZone.setBottomY(Utils.HEIGHT*0.039);
+        whiteEndZone.setBottomY(0.039);
         squares[26] = whiteEndZone;
 
         Square blackEndZone = new Square(27, Utils.WIDTH*0.94);

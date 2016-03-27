@@ -22,7 +22,6 @@ public class AnimationCoordinator {
     private int[] lastWhiteLighted;
     boolean isSequential, pawnsAreMoving, diceAreRolling, isDelaying, cubeIsFlipping;
 
-    //TODO AE: Hvernig skal geyma WIDTH og HEIGHT? Virðist best að geyma þessi gögn bara í DrawingCanvas
     private AnimationCoordinator(Context context)
     {
         moves = null;
@@ -203,7 +202,7 @@ public class AnimationCoordinator {
 
     public void render(Canvas canvas)
     {
-
+        board.render(canvas);
     }
 
     private void sequentialUpdate(int deltaMs)
@@ -254,7 +253,7 @@ public class AnimationCoordinator {
         for(int i = 0; i < moves.size(); i++)
         {
             HashMap<String, Integer> move = moves.get(index);
-            if(move.get("killMove").equals(1) && move.get("from").equals(finishedMove.get("to")))
+            if(move.get("finished").equals(0) && move.get("killMove").equals(1) && move.get("from").equals(finishedMove.get("to")))
             {
                 board.setUpNextMove(move.get("from"), move.get("to"), 0, i);
                 return;

@@ -40,9 +40,12 @@ public class CanvasFragment extends Fragment {
     private float firstX, firstY;
     private InGameActivity mParentGame;
 
-    public CanvasFragment()
+    @Override
+    public void onCreate(Bundle savedInstanceState)
     {
+        super.onCreate(savedInstanceState);
         //TODO ÞÞ: Tengja þessi element við rétt UI element
+        //TODO: Fragment-a þennan klasa upp
 
         mEndTurnButton = (Button)new View(getActivity());
         mThrowDiceButton = (Button)new View(getActivity());
@@ -120,7 +123,6 @@ public class CanvasFragment extends Fragment {
                 return false;
             }
         });
-
     }
 
     public void setCouldDouble(boolean couldDouble)

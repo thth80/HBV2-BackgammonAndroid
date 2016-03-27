@@ -113,7 +113,7 @@ public class InGameActivity extends AppCompatActivity {
         else
         {
             HashMap<String, String> wholeBoard = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
-            AnimationCoordinator animator = Utils.buildBoardFromDescription(wholeBoard);
+            AnimationCoordinator animator = Utils.buildBoardFromDescription(wholeBoard, InGameActivity.this);
 
             mCanvas = new CanvasFragment();
             mCanvas.setAnimator(animator);

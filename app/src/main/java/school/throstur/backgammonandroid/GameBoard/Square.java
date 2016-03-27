@@ -12,10 +12,10 @@ import school.throstur.backgammonandroid.Utility.Utils;
  * Created by Aðalsteinn on 15.3.2016.
  */
 public class Square {
-    private static final double SQUARE_WIDTH = 0.06;
-    private static final double SQUARE_HEIGHT = 0.25;
-    private static final Rect BOUNDS = new Rect((int)(-SQUARE_WIDTH/2),(int)(-SQUARE_HEIGHT/2),
-                        (int)(SQUARE_WIDTH/2), (int)(SQUARE_HEIGHT/2));
+    public static final double WIDTH = 0.06;
+    public static final double HEIGHT = 0.25;
+    private static final Rect BOUNDS = new Rect((int)(-WIDTH/2),(int)(-HEIGHT/2),
+                        (int)(WIDTH/2), (int)(HEIGHT/2));
 
     private ArrayList<Pawn> pawns;
     private int position, highlighting;
@@ -44,7 +44,6 @@ public class Square {
         return position;
     }
 
-    //TODO AE: Athuga með að bæta þennan add/Remove protocol. Til dæmis láta add skila Pawn
     public Pawn removePawn()
     {
         Pawn removed = pawns.get(getCount() - 1);
@@ -85,7 +84,7 @@ public class Square {
 
     public boolean isInside(double cx, double cy)
     {
-        return Math.abs(cx - this.cx) <= SQUARE_WIDTH/2 && Math.abs(cy - this.cy) <= SQUARE_HEIGHT/2;
+        return Math.abs(cx - this.cx) <= WIDTH/2 && Math.abs(cy - this.cy) <= HEIGHT/2;
     }
 
     public double getX()

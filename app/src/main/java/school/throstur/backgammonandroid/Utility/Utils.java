@@ -1,5 +1,7 @@
 package school.throstur.backgammonandroid.Utility;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -152,7 +154,7 @@ public class Utils {
         return animMoves;
     }
 
-    public static AnimationCoordinator buildBoardFromDescription(HashMap<String, String> description)
+    public static AnimationCoordinator buildBoardFromDescription(HashMap<String, String> description, Context context)
     {
         int[] counts = new int[28];
         int[] teams = new int[28];
@@ -167,7 +169,7 @@ public class Utils {
         for(int i = 0; i < 4; i++)
             diceVals[i] = Integer.parseInt(description.get("d" + i));
 
-        AnimationCoordinator animator = AnimationCoordinator.buildExistingBoard(teams, counts, diceVals, cubeValue);
+        AnimationCoordinator animator = AnimationCoordinator.buildExistingBoard(teams, counts, diceVals, cubeValue, context);
         return animator;
     }
 
