@@ -46,37 +46,13 @@ public class SigninFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         View v = inflater.inflate(R.layout.fragment_signin, container, false);
 
         mUsernameView = (AutoCompleteTextView)v.findViewById(R.id.username);
-
         mPasswordView = (EditText)v.findViewById(R.id.signin_password);
-        if( mPasswordView != null ) {
-            mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                    if (id == R.id.signIn || id == EditorInfo.IME_NULL) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-        }
-
         mPasswordViewTwo = (EditText)v.findViewById(R.id.signin2_password);
-        // Hef ekki hugmynd hvað þetta gerir
-        if( mPasswordViewTwo != null ) {
-            mPasswordViewTwo.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                    if (id == R.id.signIn || id == EditorInfo.IME_NULL) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-        }
 
         Button mUserSignInButton = (Button)v.findViewById(R.id.user_sign_in_button);
         if ( mUserSignInButton != null) {
@@ -116,11 +92,8 @@ public class SigninFragment extends Fragment {
         return password != null && password.length() >= 3;
     }
 
-    private void attemptSignup() {
-        // Reset errors.
-        mUsernameView.setError(null);
-        mPasswordView.setError(null);
-
+    private void attemptSignup()
+    {
         String username = mUsernameView.getText().toString();
         String passwordOne = mPasswordView.getText().toString();
         String passwordTwo = mPasswordViewTwo.getText().toString();
@@ -150,7 +123,7 @@ public class SigninFragment extends Fragment {
             focusView.requestFocus();
         else
         {
-            showProgress(true);
+            //showProgress(true);
             // Make LoginActivity perform the sign up logic
             ((LoginActivity)getActivity()).PerformSignUp(username, passwordOne);
         }

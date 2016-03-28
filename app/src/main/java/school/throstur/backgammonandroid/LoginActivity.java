@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -76,6 +77,7 @@ public class LoginActivity extends FragmentActivity {
             }
             catch (Exception e)
             {
+                Log.w(e.getMessage(), e);
                return null;
             }
         }
@@ -85,10 +87,10 @@ public class LoginActivity extends FragmentActivity {
 
             for(HashMap<String, String> msg: msgs)
             {
+                Log.d("LOGINACTIVITY", "ACTION OF MESSAGE: "+msg.get("action"));
                 if(msg.get("action").equals("legalSignup"))
                 {
                     String username = msg.get("username");
-                    msgs.remove(msg);
 
                     startActivity(LobbyActivity.initLobbyIntent(LoginActivity.this, username, msgs));
                 }
@@ -105,11 +107,11 @@ public class LoginActivity extends FragmentActivity {
         public LoginNetworking()
         {  }
 
-        public JSONArray tryLogin(String username, String password)
+        public JSONArray tryLogin(String username, String password) throws Exception
         {
             try
             {
-                String url = Uri.parse("http://localhost:9090/login")
+                String url = Uri.parse("http://10.0.2.2:9090/login")
                         .buildUpon()
                         .appendQueryParameter("name", username)
                         .appendQueryParameter("pw", password)
@@ -119,16 +121,16 @@ public class LoginActivity extends FragmentActivity {
             }
             catch (Exception e)
             {
-                e.getMessage();
-                return null;
+                Log.d("LOGINACTIVITY", e.getMessage());
+                throw e;
             }
         }
 
-        public JSONArray trySignup(String username, String password)
+        public JSONArray trySignup(String username, String password) throws Exception
         {
             try
             {
-                String url = Uri.parse("http://localhost:9090/signup")
+                String url = Uri.parse("http://10.0.2.2:9090/signup")
                         .buildUpon()
                         .appendQueryParameter("name", username)
                         .appendQueryParameter("pw", password)
@@ -138,8 +140,7 @@ public class LoginActivity extends FragmentActivity {
             }
             catch (Exception e)
             {
-                e.getMessage();
-                return null;
+                throw e;
             }
         }
     }

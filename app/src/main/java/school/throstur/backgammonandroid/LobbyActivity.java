@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -55,6 +56,7 @@ public class LobbyActivity extends AppCompatActivity {
         Intent i = new Intent(packageContext, LobbyActivity.class);
         i.putExtra(USERNAME_FROM_LOGIN, username);
         i.putExtra(INIT_DATA_FROM_LOGIN, initData);
+        Log.d("LOGINACTIVITY", "Setting the Intent for the Lobby");
         return i;
     }
 
@@ -82,9 +84,14 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        Log.d("LOGINACTIVITY", "Entered OnCreate for the first time");
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_lobby);
 
+        //TODO AE: Koma í veg fyrir iteration i gegnum NULL ef server skilar villu
+
+
+        Log.d("LOGINACTIVITY", "Finished expanding main layout!");
         FragmentManager fm = getSupportFragmentManager();
         Fragment listFragment = fm.findFragmentById(R.id.lobby_fragment_container);
 
@@ -96,6 +103,8 @@ public class LobbyActivity extends AppCompatActivity {
                     .add(R.id.lobby_fragment_container, listFragment)
                     .commit();
         }
+
+        Log.d("LOGINACTIVITY", "Finished expanding FRAGMENTS!");
 
         // TODO ÞÞ: Gera eins fyrir chat fragment þegar það er búið að útfæra chat fragment.
         // Setja chat fragment í seinni hluta skjás (lobby_second_fragment_containter),

@@ -1,6 +1,7 @@
 package school.throstur.backgammonandroid.Utility;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -98,7 +99,13 @@ public class Utils {
 
             out.close();
             return out.toByteArray();
-        } finally {
+        }
+        catch(Exception e)
+        {
+            Log.d("UTILS", e.getMessage());
+            return new byte[0];
+        }
+        finally {
             connection.disconnect();
         }
     }
@@ -111,6 +118,7 @@ public class Utils {
     {
         @SuppressWarnings("unchecked")
         ArrayList<HashMap<String, String>> messages = new ArrayList <HashMap<String, String>>();
+        Log.d("LOGINACTIVITY", "RESPONSE: "+ jsonArray.toString());
         for(int i = 0; i < jsonArray.length(); i++)
         {
             JSONObject msg = null;
@@ -127,9 +135,12 @@ public class Utils {
             }
             catch (JSONException e)
             {
+                Log.d("LOGINACTIVITY", "CAUGTH JSON ERROR: "+e.getMessage());
                 e.printStackTrace();
             }
         }
+
+        Log.d("LOGINACTIVITY", "ARRAYLIST: "+messages.toString());
 
         return messages;
     }

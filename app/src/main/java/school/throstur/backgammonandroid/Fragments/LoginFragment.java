@@ -49,19 +49,6 @@ public class LoginFragment extends Fragment {
         mUsernameView = (AutoCompleteTextView)v.findViewById(R.id.username);
 
         mPasswordView = (EditText)v.findViewById(R.id.login_password);
-        if( mPasswordView != null ) {
-            mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                    if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                        // TODO AE: Þurfum við þetta hérna? Þarf þetta ekki bara hjá login takka?
-                        //attemptLogin();
-                        return true;
-                    }
-                    return false;
-                }
-            });
-        }
 
         Button mUserLogInButton = (Button)v.findViewById(R.id.user_log_in_button);
         if ( mUserLogInButton != null) {
@@ -103,9 +90,6 @@ public class LoginFragment extends Fragment {
     }
 
     private void attemptLogin() {
-        // Reset errors.
-        mUsernameView.setError(null);
-        mPasswordView.setError(null);
 
         String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
@@ -129,7 +113,7 @@ public class LoginFragment extends Fragment {
             focusView.requestFocus();
         else
         {
-            showProgress(true);
+            //showProgress(true);
             // Make LoginActivity perform the sign up logic
             ((LoginActivity)getActivity()).PerformLogin(username, password);
         }
