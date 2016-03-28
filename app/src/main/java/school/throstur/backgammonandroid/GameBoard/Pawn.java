@@ -3,23 +3,19 @@ package school.throstur.backgammonandroid.GameBoard;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
+import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class Pawn {
-    public static final double RADIUS = 0.2;
+    public static final double RADIUS = 0.05;
 
     private int  team;
     private double cx, cy, z;
     private double xVel, yVel, zVel;
-    private Drawable pawnImage, hue;
 
     public Pawn(int team)
     {
         this.team = team;
-        if(this.team == Utils.TEAM_BL)
-            pawnImage = AnimationCoordinator.BLACK_PAWN;
-
-        hue = AnimationCoordinator.SHINY_HUE;
 
         this.cx = cx;
         this.cy = cy;
@@ -99,13 +95,8 @@ public class Pawn {
 
     public void render(Canvas canvas)
     {
-        int h = canvas.getHeight();
-        int w = canvas.getWidth();
-        int left = (int)(-RADIUS * w);
-        int top = (int)(-RADIUS * h);
-
-        pawnImage.setBounds(left, top, -left, -top );
-        hue.setBounds(left, top, -left, -top);
+        Drawable pawnImage = (team == Utils.TEAM_BL)? DrawableStorage.getBlack() : DrawableStorage.getWhite() ;
+        Drawable hue = DrawableStorage.getShine();
 
         canvas.save();
         canvas.translate((float) cx, (float) cy);

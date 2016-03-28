@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import java.util.ArrayList;
 
 import school.throstur.backgammonandroid.Fragments.CanvasFragment;
+import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class BoardManager {
@@ -22,7 +23,7 @@ public class BoardManager {
         squares = new Square[28];
         killedPawns = new Pawn[28];
         pawnMovers = new PawnMover[]{new PawnMover(), new PawnMover(), new PawnMover(), new PawnMover()};
-        doublingCube = new Cube(1);
+        doublingCube = new Cube(0);
         whiteDice = new DicePair(Utils.TEAM_WH);
         blackDice = new DicePair(Utils.TEAM_BL);
         batchMode = false;
@@ -143,7 +144,7 @@ public class BoardManager {
     }
     public void startCubeFlipping(int nextVal)
     {
-        doublingCube.startFlipping(nextVal);
+        doublingCube.startFlipping();
     }
 
     private void setDicePairs(int[] vals)
@@ -196,9 +197,8 @@ public class BoardManager {
 
     public void render(Canvas canvas)
     {
-        Drawable board = (AnimationCoordinator.GAME_BOARD);
-        board.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        board.draw(canvas);
+        Drawable gameBoard = DrawableStorage.getGameBoard();
+        gameBoard.draw(canvas);
 
         for(Square square: squares)
                 square.render(canvas);

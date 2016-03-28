@@ -21,7 +21,7 @@ public class TrophyStatsNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/checkForJoin")
+            String url = Uri.parse(Utils.HOST + "/checkForJoin")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();

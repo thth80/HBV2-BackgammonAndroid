@@ -3,6 +3,10 @@ package school.throstur.backgammonandroid.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,18 +18,22 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import school.throstur.backgammonandroid.Adapters.LobbyListAdapter;
 import school.throstur.backgammonandroid.DrawingCanvas;
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
 import school.throstur.backgammonandroid.InGameActivity;
 import school.throstur.backgammonandroid.LobbyActivity;
 import school.throstur.backgammonandroid.R;
+import school.throstur.backgammonandroid.Utility.DrawableStorage;
+import school.throstur.backgammonandroid.Utility.Utils;
 
 
 public class CanvasFragment extends Fragment {
     private static int NO_PIVOT = -1;
-    private static int GREEN_SQUARE = 0;
-    private static int WHITE_SQUARE = 1;
-    private static int PIVOT_SQUARE = 2;
+    private static final String BOARD_TYPE = "lykillinn fyrir borðið";
+    private static final String BOARD_DESC = "lysing a borðinu";
+    public static final String NEW_BOARD = "new board";
+    public static final String EXISTING_BOARD = "existing board";
 
     private DrawingCanvas mDrawingCanvas;
     private Button mEndTurnButton;
@@ -35,25 +43,56 @@ public class CanvasFragment extends Fragment {
     private AnimationCoordinator mAnimator;
     private int mPivot;
     private Timer mAnimLoop;
-    private boolean mCouldDouble;
+    private boolean mCouldDouble, mButtonPermission;
 
     private float firstX, firstY;
     private InGameActivity mParentGame;
+
+    public CanvasFragment()
+    {
+
+    }
+
+    public static final CanvasFragment newInstance(String boardType, HashMap<String, String> boardDescript)
+    {
+        CanvasFragment frag = new CanvasFragment();
+        Bundle bdl = new Bundle(2);
+        bdl.putString(BOARD_TYPE, boardType);
+        bdl.putSerializable(BOARD_DESC, boardDescript);
+        frag.setArguments(bdl);
+        return frag;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        //TODO ÞÞ: Tengja þessi element við rétt UI element
-        //TODO: Fragment-a þennan klasa upp
-
-        mEndTurnButton = (Button)new View(getActivity());
-        mThrowDiceButton = (Button)new View(getActivity());
-        mFlipCubeButton = (Button)new View(getActivity());
-        mDrawingCanvas = (DrawingCanvas)new View(getActivity());
-
-        //TODO AE: Breyta þessu
+        mButtonPermission = false;
+        mCouldDouble = false;
+        mPivot = NO_PIVOT;
         mParentGame = (InGameActivity)getActivity();
+
+        String action = getArguments().getString(BOARD_TYPE);
+        HashMap<String, String> board = (HashMap<String, String>)getArguments().getSerializable(BOARD_DESC);
+
+        if(action.equals(NEW_BOARD))
+            mAnimator = AnimationCoordinator.buildNewBoard(mParentGame);
+        else
+            mAnimator = Utils.buildBoardFromDescription(board, mParentGame);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        View view = inflater.inflate(R.layout.fragment_canvas, container, false);
+
+        //TODO ÞÞ: Búa til þessi element með þessum ids
+
+        //mEndTurnButton = (Button) view.findViewById(R.id.end_turn_btn);
+       // mThrowDiceButton = (Button) view.findViewById(R.id.throw_dice_btn);
+        //mFlipCubeButton = (Button) view.findViewById(R.id.flip_cube_btn);
+        //mDrawingCanvas = (DrawingCanvas)view.findViewById(R.id.drawing_canvas);
+
 
         mEndTurnButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,8 +102,7 @@ public class CanvasFragment extends Fragment {
                 mAnimator.unHighlightAll();
                 mPivot = NO_PIVOT;
 
-                InGameActivity game = (InGameActivity)getActivity();
-                game.endTurnWasClicked();
+                mParentGame.endTurnWasClicked();
                 mDrawingCanvas.invalidate();
             }
         });
@@ -73,8 +111,7 @@ public class CanvasFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 hideButtons();
-                InGameActivity game = (InGameActivity)getActivity();
-                game.diceWasThrown();
+                mParentGame.diceWasThrown();
             }
         });
 
@@ -82,47 +119,68 @@ public class CanvasFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 hideButtons();
-                InGameActivity game = (InGameActivity)getActivity();
-                game.cubeWasFlipped();
+                mParentGame.cubeWasFlipped();
             }
         });
 
         mDrawingCanvas.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
+            public boolean onTouch(View v, MotionEvent event) {
 
-                double relativeX = event.getX()/mDrawingCanvas.getCanvasWidth();
-                double relativeY = event.getY()/mDrawingCanvas.getCanvasHeight();
+                double relativeX = event.getX() / mDrawingCanvas.getCanvasWidth();
+                double relativeY = event.getY() / mDrawingCanvas.getCanvasHeight();
 
                 String results = mAnimator.wasSquareClicked(relativeX, relativeY, mPivot);
                 String[] eventAndPos = results.split("_");
 
-                if(eventAndPos[0].equals("green"))
+                if (eventAndPos[0].equals("green"))
                 {
                     mAnimator.unHighlightAll();
+                    mAnimator.removeLastWhitelighted();
                     mDrawingCanvas.invalidate();
                     mPivot = NO_PIVOT;
                     mParentGame.greenWasClicked(eventAndPos[1]);
-                    //Held að lastWhiteLighted update-i automatic og rétt, þegar nýr skammtur af whitelighted kemur frá server
                 }
-                else if(eventAndPos[0].equals("white"))
+                else if (eventAndPos[0].equals("white"))
                 {
                     mAnimator.unHighlightAll();
-                    mPivot = Integer.parseInt(eventAndPos[1]);
                     mDrawingCanvas.invalidate();
+                    mPivot = Integer.parseInt(eventAndPos[1]);
                     mParentGame.whiteWasClicked(eventAndPos[1]);
                 }
-                else if(eventAndPos[0].equals("pivot"))
+                else if (eventAndPos[0].equals("pivot"))
                 {
                     mAnimator.unHighlightAll();
                     mAnimator.whiteLightSquares(mAnimator.getLastWhiteLighted());
-                    mParentGame.pivotWasClicked();
                     mPivot = NO_PIVOT;
+                    mParentGame.pivotWasClicked();
                 }
                 return false;
             }
         });
+
+        return view;
+    }
+
+    public void onViewCreated(View view, Bundle saved)
+    {
+        super.onViewCreated(view, saved);
+        view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
+                                       int oldBottom)
+            {
+                if (left == 0 && top == 0 && right == 0 && bottom == 0)
+                    return;
+
+                DrawableStorage.setDimensions(mDrawingCanvas.getCanvasWidth(), mDrawingCanvas.getCanvasHeight());
+            }
+        });
+    }
+
+    public void giveButtonPermission()
+    {
+        mButtonPermission = true;
     }
 
     public void setCouldDouble(boolean couldDouble)
@@ -153,14 +211,13 @@ public class CanvasFragment extends Fragment {
                 boolean animFinished = updateAnimator(16);
                 mDrawingCanvas.invalidate();
 
-                InGameActivity game = (InGameActivity)getActivity();
-                if(!mAnimator.isAnimating() && game.shouldResetClock())
-                    game.resetGameClock();
+                if(!mAnimator.isAnimating() && mParentGame.shouldResetClock())
+                    mParentGame.resetGameClock();
 
                 if (animFinished)
                     this.cancel();
             }
-        }, 20, 20);
+        }, 16, 16);
     }
 
     public boolean updateAnimator(int deltaMs)
@@ -178,9 +235,9 @@ public class CanvasFragment extends Fragment {
             mAnimator.emptyStorage();
         }
 
-        if(wasMovingPawns != mAnimator.arePawnsMoving())
+        if(wasMovingPawns != mAnimator.arePawnsMoving() && mButtonPermission)
         {
-            //TODO AE: Ekki rétt lógík, ekki víst að þessi megi sjá takkana
+            mButtonPermission = false;
             showThrowDice();
             if(mCouldDouble)
                 showFlipCube();
@@ -254,11 +311,5 @@ public class CanvasFragment extends Fragment {
         mThrowDiceButton.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_canvas, container, false);
-    }
 
 }

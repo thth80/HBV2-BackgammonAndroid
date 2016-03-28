@@ -4,29 +4,25 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 
 import school.throstur.backgammonandroid.R;
+import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 /**
  * Created by Aðalsteinn on 15.3.2016.
  */
 public class DicePair {
-    private static final Rect BOUNDS = new Rect(-50, -50, 50, 50);
+    public static final double WIDTH = 0.05;
 
-    private int imageId;
     private boolean isWhite, isAnimating;
     private int first, second, firstCopy, secondCopy;
     private int animTimeLeft, timeBtwFlips;
 
-    private Bitmap spriteSheet;
-
     public DicePair(int team)
     {
-        imageId = 666;
         isWhite = (team == Utils.TEAM_WH);
-        spriteSheet = (isWhite)? BitmapFactory.decodeResource(AnimationCoordinator.ctx.getResources(), R.drawable.red_strip) :
-                                  BitmapFactory.decodeResource(AnimationCoordinator.ctx.getResources(), R.drawable.blue_strip);
 
         first = second = firstCopy = secondCopy = 1;
         isAnimating = false;
@@ -94,14 +90,14 @@ public class DicePair {
         int leftOffset = (this.first - 1) * (width + gap);
         Rect source = new Rect(leftOffset, 0, leftOffset + width, width);
 
-        //TODO AE: Setja rétt relative gildi hérna sem færa teningana
         canvas.save();
         if(isWhite)
-            canvas.translate((float)200, (float) 300);
+            canvas.translate((float)(canvas.getWidth()*0.25), (float)(canvas.getHeight()*0.5));
         else
-            canvas.translate((float)500, (float)300 );
+            canvas.translate((float)(canvas.getWidth() - canvas.getWidth()*0.25), (float)(canvas.getHeight()*0.5) );
 
-        canvas.drawBitmap(spriteSheet, source, BOUNDS, null);
+        Bitmap diceSheet = (isWhite)? DrawableStorage.getRedDice(): DrawableStorage.getBlueDice() ;
+        canvas.drawBitmap(diceSheet, source, DrawableStorage.getDiceBounds(), null);
         canvas.restore();
     }
 }

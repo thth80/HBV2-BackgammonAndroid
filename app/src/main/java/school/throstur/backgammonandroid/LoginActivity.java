@@ -100,7 +100,6 @@ public class LoginActivity extends FragmentActivity {
                 }
             }
         }
-
     }
 
     public class LoginNetworking {
@@ -111,7 +110,7 @@ public class LoginActivity extends FragmentActivity {
         {
             try
             {
-                String url = Uri.parse("http://10.0.2.2:9090/login")
+                String url = Uri.parse(Utils.HOST + "/login")
                         .buildUpon()
                         .appendQueryParameter("name", username)
                         .appendQueryParameter("pw", password)
@@ -130,7 +129,7 @@ public class LoginActivity extends FragmentActivity {
         {
             try
             {
-                String url = Uri.parse("http://10.0.2.2:9090/signup")
+                String url = Uri.parse(Utils.HOST + "/signup")
                         .buildUpon()
                         .appendQueryParameter("name", username)
                         .appendQueryParameter("pw", password)

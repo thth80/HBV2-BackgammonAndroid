@@ -20,7 +20,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/removeWaitEntry")
+            String url = Uri.parse(Utils.HOST + "/removeWaitEntry")
                     .buildUpon()
                     .appendQueryParameter("waitId", waitId)
                     .build().toString();
@@ -38,7 +38,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/startBotMatch")
+            String url = Uri.parse(Utils.HOST + "/startBotMatch")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("points", points)
@@ -59,7 +59,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/addWaitEntry")
+            String url = Uri.parse(Utils.HOST + "/addWaitEntry")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("clock", clock)
@@ -78,7 +78,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/joinHumanMatch")
+            String url = Uri.parse(Utils.HOST + "/joinHumanMatch")
                     .buildUpon()
                     .appendQueryParameter("matchId", id)
                     .appendQueryParameter("joiner", user)
@@ -96,7 +96,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/submitLobbyChat")
+            String url = Uri.parse(Utils.HOST + "/submitLobbyChat")
                     .buildUpon()
                     .appendQueryParameter("name", chatter)
                     .appendQueryParameter("chatEntry", chatEntry)
@@ -114,7 +114,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/observeMatch")
+            String url = Uri.parse(Utils.HOST + "/observeMatch")
                     .buildUpon()
                     .appendQueryParameter("waitId", matchId)
                     .appendQueryParameter("name", username)
@@ -133,7 +133,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/refresh")
+            String url = Uri.parse(Utils.HOST + "/refresh")
                     .buildUpon()
                     .appendQueryParameter("name", username)
                     .build().toString();
@@ -151,7 +151,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/goToTrophy")
+            String url = Uri.parse(Utils.HOST + "/goToTrophy")
                     .buildUpon()
                     .appendQueryParameter("name", username)
                     .build().toString();
@@ -169,7 +169,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/leaveApp")
+            String url = Uri.parse(Utils.HOST + "/leaveApp")
                     .buildUpon()
                     .appendQueryParameter("name", username)
                     .build().toString();
@@ -187,7 +187,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/goToStats")
+            String url = Uri.parse(Utils.HOST + "/goToStats")
                     .buildUpon()
                     .appendQueryParameter("name", username)
                     .build().toString();
@@ -205,7 +205,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/initLobby")
+            String url = Uri.parse(Utils.HOST + "/initLobby")
                     .buildUpon()
                     .appendQueryParameter("name", username)
                     .build().toString();

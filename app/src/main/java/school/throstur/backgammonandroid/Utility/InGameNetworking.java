@@ -17,7 +17,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/dice")
+            String url = Uri.parse(Utils.HOST + "/dice")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("pw", "derp")
@@ -34,7 +34,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/cube")
+            String url = Uri.parse(Utils.HOST + "/cube")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
@@ -51,7 +51,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/timeOut")
+            String url = Uri.parse(Utils.HOST + "/timeOut")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
@@ -68,7 +68,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/startNewGame")
+            String url = Uri.parse(Utils.HOST + "/startNewGame")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("accepted", accepted)
@@ -86,7 +86,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/startNewGame")
+            String url = Uri.parse(Utils.HOST + "/startNewGame")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
@@ -103,7 +103,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/refresh")
+            String url = Uri.parse(Utils.HOST + "/refresh")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
@@ -120,7 +120,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/whiteSquare")
+            String url = Uri.parse(Utils.HOST + "/whiteSquare")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("pos", pos)
@@ -138,7 +138,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/greenSquare")
+            String url = Uri.parse(Utils.HOST + "/greenSquare")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("pos", pos)
@@ -156,7 +156,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/pivot")
+            String url = Uri.parse(Utils.HOST + "/pivot")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
@@ -173,7 +173,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/leaveMatch")
+            String url = Uri.parse(Utils.HOST + "/leaveMatch")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
@@ -190,7 +190,7 @@ public class InGameNetworking {
     {
         try
         {
-            String url = Uri.parse("http://localhost:9090/endTurn")
+            String url = Uri.parse(Utils.HOST + "/endTurn")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
