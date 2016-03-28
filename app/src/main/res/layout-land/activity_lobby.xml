@@ -32,7 +32,9 @@
                 android:id="@+id/to_stats"
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="6dp"
-                android:layout_marginRight="6dp"/>
+                android:layout_marginRight="6dp"
+                android:textColor="@color/white"
+                android:background="@color/colorPrimaryDark"/>
 
             <Button
                 style="?android:attr/buttonStyleSmall"
@@ -40,7 +42,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/btn_to_trophy"
                 android:id="@+id/to_trophy"
-                android:layout_toLeftOf="@id/to_stats"/>
+                android:layout_toLeftOf="@id/to_stats"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@color/white"/>
         </RelativeLayout>
 
         <Button

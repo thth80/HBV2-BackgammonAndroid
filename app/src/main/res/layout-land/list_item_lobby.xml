@@ -5,6 +5,7 @@
                 android:layout_height="?android:attr/listPreferredItemHeightLarge"
                 android:background="@drawable/border">
     <Button
+        style="?android:attr/buttonStyleSmall"
         android:id="@+id/list_item_lobby_bnt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,98 +16,139 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>
 
-    <ImageView
-        android:id="@+id/list_item_lobby_clockImage"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_toLeftOf="@id/list_item_lobby_bnt"
-        android:contentDescription="@string/clock_image_description"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_clock"/>
-
-    <TextView
-        android:id="@+id/list_item_lobby_clockText"
+    <RelativeLayout
+        android:id="@+id/lobby_view_player_one"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/list_item_lobby_clockImage"
-        android:layout_toLeftOf="@id/list_item_lobby_bnt"
-        android:textStyle="bold"
-        android:padding="4dp"
-        tools:text="Time"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"/>
-
-    <ImageView
-        android:id="@+id/list_item_lobby_pointImage"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_toLeftOf="@id/list_item_lobby_clockImage"
-        android:contentDescription="@string/point_image_description"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_point"/>
-
-    <TextView
-        android:id="@+id/list_item_lobby_points"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/list_item_lobby_pointImage"
-        android:layout_toLeftOf="@id/list_item_lobby_clockImage"
-        android:textStyle="bold"
-        android:padding="4dp"
-        tools:text="Points"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"/>
-
-    <ImageView
-        android:id="@+id/list_item_lobby_playerOneImg"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:contentDescription="@string/player_image_description"
+        android:gravity="center"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="10dp"
-        android:layout_alignRight="@+id/list_item_lobby_playerOne"
-        android:layout_alignEnd="@+id/list_item_lobby_playerOne"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_face"/>
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="4dp"
+        >
 
-    <TextView
-        android:id="@+id/list_item_lobby_playerOne"
+        <ImageView
+            android:id="@+id/list_item_lobby_playerOneImg"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/player_image_description"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_face"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/list_item_lobby_playerOne"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_lobby_playerOneImg"
+            android:textStyle="bold"
+            android:padding="4dp"
+            tools:text="Player one"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/lobby_view_player_two"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/list_item_lobby_playerOneImg"
-        android:textStyle="bold"
-        android:padding="4dp"
-        tools:text="Player one"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_alignParentLeft="true"/>
+        android:gravity="center"
+        android:layout_toRightOf="@id/lobby_view_player_one"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="4dp">
 
-    <ImageView
-        android:id="@+id/list_item_lobby_playerTwoImg"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:contentDescription="@string/player_image_description"
-        android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@id/list_item_lobby_playerOne"
-        android:layout_alignRight="@+id/list_item_lobby_playerTwo"
-        android:layout_alignEnd="@+id/list_item_lobby_playerTwo"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_face"/>
+        <ImageView
+            android:id="@+id/list_item_lobby_playerTwoImg"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/player_image_description"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_face"
+            android:layout_centerHorizontal="true"/>
 
-    <TextView
-        android:id="@+id/list_item_lobby_playerTwo"
+        <TextView
+            android:id="@+id/list_item_lobby_playerTwo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_lobby_playerTwoImg"
+            android:textStyle="bold"
+            android:padding="4dp"
+            tools:text="Player two"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/lobby_view_player_point"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/list_item_lobby_playerTwoImg"
-        android:layout_toRightOf="@id/list_item_lobby_playerOne"
-        android:textStyle="bold"
-        android:padding="4dp"
-        tools:text="Player two"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"/>
+        android:gravity="center"
+        android:layout_toRightOf="@id/lobby_view_player_two"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp">
 
+        <ImageView
+            android:id="@+id/list_item_lobby_pointImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/point_image_description"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_point"
+            android:layout_centerHorizontal="true"/>
 
+        <TextView
+            android:id="@+id/list_item_lobby_points"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_lobby_pointImage"
+            android:textStyle="bold"
+            android:padding="4dp"
+            tools:text="Points"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/lobby_view_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_toRightOf="@id/lobby_view_player_point"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp">
+
+        <ImageView
+            android:id="@+id/list_item_lobby_clockImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/clock_image_description"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_clock"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/list_item_lobby_clockText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/list_item_lobby_clockImage"
+            android:textStyle="bold"
+            android:padding="4dp"
+            tools:text="Time"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

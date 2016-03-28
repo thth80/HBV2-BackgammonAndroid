@@ -111,9 +111,9 @@ public class LobbyActivity extends AppCompatActivity {
         // ef það er ekki þegar fragment í containernum.
 
 
-        mSubmitChatButton = (Button) findViewById(R.id.submit_chat); //submit_chat
-        mToTrophyButton = (Button) findViewById(R.id.to_trophy);  //to_trophy
-        mToStatsButton = (Button) findViewById(R.id.to_stats);   //to_stats
+        mSubmitChatButton = (Button) findViewById(R.id.submit_chat);
+        mToTrophyButton = (Button) findViewById(R.id.to_trophy);
+        mToStatsButton = (Button) findViewById(R.id.to_stats);
 
         mChatRecycler = (RecyclerView) new View(LobbyActivity.this); //chat_list
 
