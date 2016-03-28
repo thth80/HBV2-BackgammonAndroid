@@ -41,4 +41,5 @@
     <string name="btn_chat">Submit</string>
     <string name="btn_to_new_game">New game</string>
     <string name="chat_testMsg">Feel the Bern!</string>
+    <string name="chat_hint">Enter a message...</string>
 </resources>

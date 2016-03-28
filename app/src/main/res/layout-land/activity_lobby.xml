@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              xmlns:android.support.v7.recyclerview="http://schemas.android.com/apk/res-auto"
               android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
@@ -45,16 +47,40 @@
                 android:layout_toLeftOf="@id/to_stats"
                 android:background="@color/colorPrimaryDark"
                 android:textColor="@color/white"/>
-        </RelativeLayout>
 
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_chat"
-            android:id="@+id/submit_chat"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="6dp"/>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/chat_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/to_stats"
+                android:layout_above="@id/submit_chat"
+                tools:listitem="@layout/chat_entry"
+                android:background="@drawable/border"
+                android.support.v7.recyclerview:stackFromEnd ="true">
+
+            </android.support.v7.widget.RecyclerView>
+
+            <ImageButton
+                style="?android:attr/buttonStyleSmall"
+                android:id="@+id/submit_chat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="6dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/ic_action_send"/>
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/text_to_submit"
+                android:layout_toLeftOf="@id/submit_chat"
+                android:layout_below="@id/chat_list"
+                android:layout_alignParentLeft="true"
+                android:hint="@string/chat_hint"
+                android:inputType="textLongMessage"/>
+
+        </RelativeLayout>
 
     </FrameLayout>
 </LinearLayout>

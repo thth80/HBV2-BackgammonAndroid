@@ -12,6 +12,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -32,7 +34,8 @@ public class LobbyActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 666;
 
     private String mUsername;
-    private Button mSubmitChatButton;
+    private ImageButton mSubmitChatButton;
+    private EditText mChatText;
     private Button mToTrophyButton;
     private Button mToStatsButton;
 
@@ -106,16 +109,12 @@ public class LobbyActivity extends AppCompatActivity {
 
         Log.d("LOGINACTIVITY", "Finished expanding FRAGMENTS!");
 
-        // TODO ÞÞ: Gera eins fyrir chat fragment þegar það er búið að útfæra chat fragment.
-        // Setja chat fragment í seinni hluta skjás (lobby_second_fragment_containter),
-        // ef það er ekki þegar fragment í containernum.
-
-
-        mSubmitChatButton = (Button) findViewById(R.id.submit_chat);
+        mChatText = (EditText) findViewById(R.id.text_to_submit);
+        mSubmitChatButton = (ImageButton) findViewById(R.id.submit_chat);
         mToTrophyButton = (Button) findViewById(R.id.to_trophy);
         mToStatsButton = (Button) findViewById(R.id.to_stats);
 
-        mChatRecycler = (RecyclerView) new View(LobbyActivity.this); //chat_list
+        mChatRecycler = (RecyclerView) findViewById(R.id.chat_list);
 
         mSubmitChatButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,8 +185,8 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void submitChatEntry()
     {
-        //TODO ÞÞ: Extract-a chat textann úr tilsvarandi View-i og setja í chatEntry.
-        String chatEntry = "Trump Trump Trump! Make America great again";
+        //TODO AE: Þarf ekki nú að binda chatEntry strenginn við chat_entry view?
+        String chatEntry = mChatText.getText().toString();
 
         if(chatEntry.length() == 0)
             Toast.makeText(LobbyActivity.this, "If you want to chat you must write something down!", Toast.LENGTH_SHORT);
