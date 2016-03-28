@@ -93,14 +93,13 @@ public class LobbyActivity extends AppCompatActivity {
 
         Log.d("LOGINACTIVITY", "Finished expanding main layout!");
         FragmentManager fm = getSupportFragmentManager();
-        Fragment listFragment = fm.findFragmentById(R.id.lobby_fragment_container);
+        mMatchSetupFragment = new SetupMatchFragment();
+        mListsFragment = (ListsFragment)fm.findFragmentById(R.id.lobby_fragment_container);
 
-        // Setja list fragment í fyrri hluta skjás (lobby_first_fragment_containter),
-        // ef það er ekki þegar fragment í containernum.
-        if (listFragment == null) {
-            listFragment = new ListsFragment();
+        if (mListsFragment == null) {
+            mListsFragment = new ListsFragment();
             fm.beginTransaction()
-                    .add(R.id.lobby_fragment_container, listFragment)
+                    .add(R.id.lobby_fragment_container, mListsFragment)
                     .commit();
         }
 
@@ -110,7 +109,7 @@ public class LobbyActivity extends AppCompatActivity {
         mToTrophyButton = (Button) findViewById(R.id.to_trophy);
         mToStatsButton = (Button) findViewById(R.id.to_stats);
 
-        mChatRecycler = (RecyclerView) new View(LobbyActivity.this); //chat_list
+        //mChatRecycler = (RecyclerView) new View(LobbyActivity.this); //chat_list
 
         mSubmitChatButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,6 +213,15 @@ public class LobbyActivity extends AppCompatActivity {
         for(int i = 0; i < chats.size(); i++)
             mChatAdapter.appendEntry(chats.get("" + i));
         mChatAdapter.notifyDataSetChanged();
+    }
+
+    public SetupMatchFragment getSetupMatch()
+    {
+        return mMatchSetupFragment;
+    }
+    public ListsFragment getListsFragment()
+    {
+        return mListsFragment;
     }
 
     public void attemptObservingMatch(String id)
