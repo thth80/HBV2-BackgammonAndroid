@@ -2,21 +2,55 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:baselineAligned="false">
 
     <FrameLayout
-        android:id="@+id/lobby_first_fragment_container"
+        android:id="@+id/lobby_fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
         android:layout_weight="3">
 
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/lobby_second_fragment_container"
+        android:id="@+id/lobby_chat_container"
         android:layout_weight="4"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_to_stats"
+                android:id="@+id/to_stats"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"/>
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_to_trophy"
+                android:id="@+id/to_trophy"
+                android:layout_toLeftOf="@id/to_stats"/>
+        </RelativeLayout>
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_chat"
+            android:id="@+id/submit_chat"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="6dp"/>
 
     </FrameLayout>
 </LinearLayout>

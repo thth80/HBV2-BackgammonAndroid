@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -87,15 +86,14 @@ public class LobbyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lobby);
 
         FragmentManager fm = getSupportFragmentManager();
-        Fragment listFragment = fm.findFragmentById(R.id.lobby_first_fragment_container);
-        Fragment chatFragment = fm.findFragmentById(R.id.lobby_second_fragment_container);
+        Fragment listFragment = fm.findFragmentById(R.id.lobby_fragment_container);
 
         // Setja list fragment í fyrri hluta skjás (lobby_first_fragment_containter),
         // ef það er ekki þegar fragment í containernum.
         if (listFragment == null) {
             listFragment = new ListsFragment();
             fm.beginTransaction()
-                    .add(R.id.lobby_first_fragment_container, listFragment)
+                    .add(R.id.lobby_fragment_container, listFragment)
                     .commit();
         }
 
@@ -104,9 +102,9 @@ public class LobbyActivity extends AppCompatActivity {
         // ef það er ekki þegar fragment í containernum.
 
 
-        mSubmitChatButton = (Button)new View(LobbyActivity.this); //submit_chat
-        mToTrophyButton = (Button)new View(LobbyActivity.this);  //to_trophy
-        mToStatsButton = (Button)new View(LobbyActivity.this);   //to_stats
+        mSubmitChatButton = (Button) findViewById(R.id.submit_chat); //submit_chat
+        mToTrophyButton = (Button) findViewById(R.id.to_trophy);  //to_trophy
+        mToStatsButton = (Button) findViewById(R.id.to_stats);   //to_stats
 
         mChatRecycler = (RecyclerView) new View(LobbyActivity.this); //chat_list
 
