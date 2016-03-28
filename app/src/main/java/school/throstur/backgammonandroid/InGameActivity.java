@@ -85,9 +85,7 @@ public class InGameActivity extends AppCompatActivity {
 
         if(mIsPlaying)
         {
-            AnimationCoordinator animator = AnimationCoordinator.buildNewBoard(InGameActivity.this);
-            mCanvas = new CanvasFragment();
-            mCanvas.setAnimator(animator);
+            mCanvas = CanvasFragment.newInstance(CanvasFragment.NEW_BOARD, null);
 
             HashMap<String, String> pres = (HashMap<String, String>)getIntent().getSerializableExtra(PRESENT_DATA);
             mTimedMatch = !pres.get("addedTime").equals("0") ;
@@ -112,13 +110,11 @@ public class InGameActivity extends AppCompatActivity {
         }
         else
         {
-            HashMap<String, String> wholeBoard = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
-            AnimationCoordinator animator = Utils.buildBoardFromDescription(wholeBoard, InGameActivity.this);
+            mTimedMatch = false;
+            HashMap<String, String> boardDescript = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
+            mCanvas = CanvasFragment.newInstance(CanvasFragment.EXISTING_BOARD, boardDescript);
 
-            mCanvas = new CanvasFragment();
-            mCanvas.setAnimator(animator);
-            mCanvas.drawCanvas();
-
+            //TODO AE: Hvenær er öruggt að biðja um að teikna canvas?
             mRefresher = new Timer();
             mRefresher.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -241,7 +237,11 @@ public class InGameActivity extends AppCompatActivity {
             if(canDouble) mCanvas.showFlipCube();
         }
         else
+        {
             mCanvas.setCouldDouble(canDouble);
+            mCanvas.giveButtonPermission();
+        }
+
     }
 
     public boolean shouldResetClock()
@@ -260,9 +260,9 @@ public class InGameActivity extends AppCompatActivity {
             public void run() {
                 long timeNow = System.currentTimeMillis();
                 long delta = timeNow - mLastGameClockTime;
-
                 mLastGameClockTime = timeNow;
                 mTimeLeftMs -= delta;
+
                 if(mTimeLeftMs <= 0)
                     onTimeRunningOut();
             }

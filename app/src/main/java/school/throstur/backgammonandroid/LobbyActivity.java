@@ -106,11 +106,6 @@ public class LobbyActivity extends AppCompatActivity {
 
         Log.d("LOGINACTIVITY", "Finished expanding FRAGMENTS!");
 
-        // TODO ÞÞ: Gera eins fyrir chat fragment þegar það er búið að útfæra chat fragment.
-        // Setja chat fragment í seinni hluta skjás (lobby_second_fragment_containter),
-        // ef það er ekki þegar fragment í containernum.
-
-
         mSubmitChatButton = (Button) findViewById(R.id.submit_chat);
         mToTrophyButton = (Button) findViewById(R.id.to_trophy);
         mToStatsButton = (Button) findViewById(R.id.to_stats);

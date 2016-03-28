@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import school.throstur.backgammonandroid.LobbyActivity;
+import school.throstur.backgammonandroid.R;
 
 /**
  * Created by Aðalsteinn on 25.3.2016.
@@ -52,9 +53,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     public ChatHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        //View view = inflater.inflate(R.layout.list_item_tvseries, parent, false);
-        //TODO ÞÞ: kalla á inflater.inflate með rétt layout
-        View view = new View(mContext);
+        View view = inflater.inflate(R.layout.list_item_lobby, parent, false);
+        //TODO ÞÞ: kalla á inflater.inflate með rétt layout, þetta er lobby listinn
         return new ChatHolder(view);
     }
 
@@ -74,14 +74,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     {
         private TextView mChatTextView;
 
-        //TODO ÞÞ AE: Hanna chat UI element, væntanlega bara textView sem getur verið 1+ lína
-        private Context mContext;
-
         public ChatHolder(View view)
         {
             super(view);
-            //TODO ÞÞ: TEngja þetta element við actual UI element í gegnum view
-            mChatTextView = (TextView)new View(mContext);
+            //TODO ÞÞ: Nota sömu ID og uncommenta
+            //mChatTextView = (TextView) view.findViewById(R.id.chat_entry);
         }
 
         public void bindEntryData(String chatEntry)

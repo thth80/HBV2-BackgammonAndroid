@@ -51,14 +51,12 @@ public class LoginFragment extends Fragment {
         mPasswordView = (EditText)v.findViewById(R.id.login_password);
 
         Button mUserLogInButton = (Button)v.findViewById(R.id.user_log_in_button);
-        if ( mUserLogInButton != null) {
-            mUserLogInButton.setOnClickListener(new View.OnClickListener() {
+        mUserLogInButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     attemptLogin();
                 }
             });
-        }
 
         mLoginFormView = v.findViewById(R.id.login_form);
         mProgressView = v.findViewById(R.id.auth_progress);
@@ -81,7 +79,7 @@ public class LoginFragment extends Fragment {
 
     private boolean isUsernameValid(String username) {
         if(username == null) return false;
-        String regEx = "^[a-zA-z0-9]{3,25}";
+        String regEx = "^[a-zA-z0-9]{3,20}";
         return username.length() >= 3 && username.matches(regEx);
     }
 
@@ -114,7 +112,6 @@ public class LoginFragment extends Fragment {
         else
         {
             //showProgress(true);
-            // Make LoginActivity perform the sign up logic
             ((LoginActivity)getActivity()).PerformLogin(username, password);
         }
     }

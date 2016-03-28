@@ -39,7 +39,7 @@ public class ListsFragment extends Fragment {
         mToNewGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SetupMatchFragment matchFragment = new SetupMatchFragment();
+                SetupMatchFragment matchFragment = ((LobbyActivity)getActivity()).getSetupMatch();
                 FragmentManager fm = getFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
                 ft.replace(R.id.lobby_fragment_container, matchFragment);
@@ -47,20 +47,19 @@ public class ListsFragment extends Fragment {
             }
         });
 
-        //mListRecycler = (RecyclerView)new View(getActivity());
-        mListRecycler = (RecyclerView) view
-                .findViewById(R.id.lobby_recycler_view);
+        mListRecycler = (RecyclerView) view.findViewById(R.id.lobby_recycler_view);
         mListRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        updateUI();
+        mListAdapter = new LobbyListAdapter(getActivity(), this);
+        mListRecycler.setAdapter(mListAdapter);
 
         return view;
     }
 
-    // Sets up the ListsFragment user interface
-    private void updateUI() {
-        mListAdapter = new LobbyListAdapter(getActivity(), this);
-        mListRecycler.setAdapter(mListAdapter);
+    @Override
+    public void onResume()
+    {
+        mListAdapter.notifyDataSetChanged();
     }
 
     public void addWaitingEntry(HashMap<String, String> waitEntry, boolean canCancel)

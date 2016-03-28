@@ -55,14 +55,12 @@ public class SigninFragment extends Fragment {
         mPasswordViewTwo = (EditText)v.findViewById(R.id.signin2_password);
 
         Button mUserSignInButton = (Button)v.findViewById(R.id.user_sign_in_button);
-        if ( mUserSignInButton != null) {
-            mUserSignInButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    attemptSignup();
-                }
-            });
-        }
+        mUserSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptSignup();
+            }
+        });
 
         mSigninFormView = v.findViewById(R.id.signin_form);
         mProgressView = v.findViewById(R.id.auth_progress);
@@ -84,7 +82,7 @@ public class SigninFragment extends Fragment {
 
     private boolean isUsernameValid(String username) {
         if(username == null) return false;
-        String regEx = "^[a-zA-z0-9]{3,25}";
+        String regEx = "^[a-zA-z0-9]{3,20}";
         return username.length() >= 3 && username.matches(regEx);
     }
 

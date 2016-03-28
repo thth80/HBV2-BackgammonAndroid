@@ -33,6 +33,7 @@ public class Utils {
     public static final int WHITE_LIGHT = 5;
     public static final int GREEN_LIGHT = 6;
     public static final int NO_LIGHT = 9;
+    public static final String HOST = "http://10.0.2.2:9090";
 
     public static final String[] trophyNames = new String[]
             {

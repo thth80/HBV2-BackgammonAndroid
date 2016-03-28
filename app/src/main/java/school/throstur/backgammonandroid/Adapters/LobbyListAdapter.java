@@ -2,6 +2,7 @@ package school.throstur.backgammonandroid.Adapters;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,9 +67,6 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
     public ListEntryHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        //View view = inflater.inflate(R.layout.list_item_tvseries, parent, false);
-        //Hérna að ofan gerast töfrarnir þegar layout fyrir entry er tengt við view
-        //View view = new View(mContext);
         View view = inflater.inflate(R.layout.list_item_lobby, parent, false);
         return new ListEntryHolder(view);
     }
@@ -80,17 +78,27 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         holder.bindEntryData(entryData);
     }
 
-    public int removeEntryById(String id) {;
+    //Það getur reynst hættulegt að breyta ArrayList í miðri ítrun
+    public int removeEntryById(String id)
+    {
+        int foundPos = -1;
         for (int i = 0; i < mEntryList.size(); i++)
         {
             HashMap<String, String> listEntry = mEntryList.get(i);
             if (listEntry.get("id").equals(id))
             {
-                mEntryList.remove(i);
-                return i;
+                foundPos = i;
+                break;
             }
         }
-        return -1;
+
+        if(foundPos == -1)
+            return -1;
+        else
+        {
+            mEntryList.remove(foundPos);
+            return foundPos;
+        }
     }
 
     public class ListEntryHolder extends RecyclerView.ViewHolder
@@ -106,9 +114,6 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         private Button mEntryButton;
 
         // TODO AE: Ertu sáttur með þessa hönnun?
-        // Finna hönnun á entry sem getur bæði verið ongoing match og waiting list. Eini munurinn
-        //á þessum 2 entries er að playerTwo er óákveðið fyrir waiting. Kannski nóg að aðgreina entries þannig að
-        // playerTwo = PENDING hjá waiting list og takkarnir(OBSERVE/JOIN) eru mismunandi á litinn
 
         private String mButtonType;
         private String mId;
@@ -129,7 +134,7 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
             mAddedTimeImgView = (ImageView) view.findViewById(R.id.list_item_lobby_clockImage);
             mAddedTimeTextView = (TextView) view.findViewById(R.id.list_item_lobby_clockText);
 
-            mEntryButton = (Button)new View(mContext);
+            mEntryButton = (Button) view.findViewById(R.id.list_item_lobby_bnt);
             mEntryButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v)
@@ -154,9 +159,9 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
 
         }
 
+        //TODO AE: Líklega hægt að færa þessar myndtengingar í efri aðferð þar sem þær eru fastar
         public void bindEntryData(HashMap<String, String> entryData)
         {
-            // TODO AE: Breyta player img breytum m.v. gildum úr lista?
             mPlayerOneImgView.setImageResource(R.drawable.ic_face);
             mPlayerOneTextView.setText(entryData.get("playerOne"));
             mPlayerTwoImgView.setImageResource(R.drawable.ic_face);
@@ -166,11 +171,23 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
             mAddedTimeImgView.setImageResource(R.drawable.ic_clock);
             mAddedTimeTextView.setText(entryData.get("addedTime"));
 
-
             mButtonType = entryData.get("type");
             mId = entryData.get("id");
 
-            //TODO ÞÞ: Þarf að tengja réttan streng og lit á takkann út frá type. Type = "cancel" / "join" / "observe"
+            switch (mButtonType)
+            {
+                case "cancel":
+                    mEntryButton.setBackgroundColor(Color.argb(255, 0, 255, 255));
+                    mEntryButton.setText("CANCEL");
+                    break;
+                case "observe":
+                    mEntryButton.setBackgroundColor(Color.argb(255, 25, 26, 255));
+                    mEntryButton.setText("OBSERVE");
+                    break;
+                case "join":
+                    mEntryButton.setBackgroundColor(Color.argb(255, 10, 255, 10));
+                    mEntryButton.setText("JOIN!");
+            }
         }
     }
 

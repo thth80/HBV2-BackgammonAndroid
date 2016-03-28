@@ -9,12 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import school.throstur.backgammonandroid.R;
+import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class AnimationCoordinator {
     public static final int NOT_AN_ID = -1;
-    public static Drawable BLACK_PAWN, WHITE_PAWN, SHINY_HUE, GAME_BOARD, RED_DICE;
-    public static Context ctx;
 
     private BoardManager board;
     private ArrayList<HashMap<String, Integer>> moves, delayedMoves;
@@ -31,14 +30,7 @@ public class AnimationCoordinator {
         diceAreRolling = false;
         cubeIsFlipping = false;
 
-        BLACK_PAWN = ContextCompat.getDrawable(context, R.drawable.black);
-        WHITE_PAWN = ContextCompat.getDrawable(context, R.drawable.white);
-        SHINY_HUE =  ContextCompat.getDrawable(context, R.drawable.shine);
-        GAME_BOARD =  ContextCompat.getDrawable(context, R.drawable.game_board);
-        RED_DICE = ContextCompat.getDrawable(context, R.drawable.red_strip);
-
-        ctx = context;
-
+        DrawableStorage.setContext(context);
     }
 
     public static AnimationCoordinator buildNewBoard(Context context)
@@ -76,11 +68,6 @@ public class AnimationCoordinator {
     public boolean arePawnsMoving()
     {
         return pawnsAreMoving;
-    }
-
-    public boolean isDiceRolling()
-    {
-        return diceAreRolling;
     }
 
     public boolean isAnimating()
@@ -159,8 +146,6 @@ public class AnimationCoordinator {
         }
     }
 
-    //TODO AE: Láta Activity sjá um að birta takkana eftir að peð hafa verið hreyfð
-
     public void updatePawns(int deltaMs)
     {
         if(isSequential)
@@ -198,6 +183,11 @@ public class AnimationCoordinator {
     public void emptyStorage()
     {
         delayedMoves = null;
+    }
+
+    public void removeLastWhitelighted()
+    {
+        lastWhiteLighted = new int[0];
     }
 
     public void render(Canvas canvas)
