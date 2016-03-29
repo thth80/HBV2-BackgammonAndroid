@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +25,6 @@ import school.throstur.backgammonandroid.Utility.TrophyStatsNetworking;
 public class StatsActivity extends AppCompatActivity {
     private static final String SENT_USERNAME = "usernameSent";
     private static final String SENT_VERSUS = "xxxxxxdfdsf";
-    private static final String SENT_OVERALL = "derrrrrrrrpppppp";
 
     private String mUsername;
     private StatsAdapter mAdapter;
@@ -32,13 +32,11 @@ public class StatsActivity extends AppCompatActivity {
     private Button mBackToLobby;
     private Intent mLobbyMessage;
 
-    public static Intent statsDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> versusEntries,
-                                         HashMap<String, String> overallEntry)
+    public static Intent statsDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> versusEntries)
     {
         Intent i = new Intent(packageContext, LobbyActivity.class);
         i.putExtra(SENT_USERNAME, username);
         i.putExtra(SENT_VERSUS, versusEntries);
-        i.putExtra(SENT_OVERALL, overallEntry);
         return i;
     }
 
@@ -48,35 +46,22 @@ public class StatsActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_stats);
 
+        mLobbyMessage = null;
         mUsername = getIntent().getStringExtra(SENT_USERNAME);
         ArrayList<HashMap<String, String>> versusStats = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_VERSUS);
-        HashMap<String, String> overallStats = (HashMap<String, String>) getIntent().getSerializableExtra(SENT_OVERALL);
 
         mStatRecycler = (RecyclerView) new View(StatsActivity.this);
         mAdapter = new StatsAdapter(StatsActivity.this, versusStats, this);
         mStatRecycler.setAdapter(mAdapter);
+        mStatRecycler.setLayoutManager(new LinearLayoutManager(StatsActivity.this));
         mAdapter.notifyDataSetChanged();
-
-        mLobbyMessage = null;
-        String pointsFor = overallStats.get("pointsFor");
-        String pointsAgainst = overallStats.get("pointsAgainst");
-
-        //TODO ÞÞ: Tengja recycler og button rétt, tengja pointsFor og pointsAgainst við static UI element sem er alltaf efst á skjánum.
-
-        mBackToLobby = (Button)new View(StatsActivity.this);
-        mBackToLobby.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 (new NetworkingTask(mUsername)).execute();
             }
-        }, 0, 5000);
+        }, 5000, 5000);
     }
 
     @Override
@@ -94,7 +79,6 @@ public class StatsActivity extends AppCompatActivity {
     {
         Toast.makeText(StatsActivity.this, toast, Toast.LENGTH_LONG);
     }
-
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
 

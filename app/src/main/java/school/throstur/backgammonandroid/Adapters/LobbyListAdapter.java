@@ -112,8 +112,7 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         private ImageView mAddedTimeImgView;
         private TextView mAddedTimeTextView;
         private Button mEntryButton;
-
-        // TODO AE: Ertu sáttur með þessa hönnun?
+        private View mWholeEntry;
 
         private String mButtonType;
         private String mId;
@@ -122,6 +121,7 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         public ListEntryHolder(View view)
         {
             super(view);
+            mWholeEntry = view;
 
             mPlayerOneImgView = (ImageView) view.findViewById(R.id.list_item_lobby_playerOneImg);
             mPlayerOneTextView = (TextView) view.findViewById(R.id.list_item_lobby_playerOne);
@@ -133,6 +133,11 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
 
             mAddedTimeImgView = (ImageView) view.findViewById(R.id.list_item_lobby_clockImage);
             mAddedTimeTextView = (TextView) view.findViewById(R.id.list_item_lobby_clockText);
+
+            mPlayerOneImgView.setImageResource(R.drawable.ic_face);
+            mPlayerTwoImgView.setImageResource(R.drawable.ic_face);
+            mPointsImgView.setImageResource(R.drawable.ic_point);
+            mAddedTimeImgView.setImageResource(R.drawable.ic_clock);
 
             mEntryButton = (Button) view.findViewById(R.id.list_item_lobby_bnt);
             mEntryButton.setOnClickListener(new View.OnClickListener() {
@@ -159,17 +164,14 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
 
         }
 
-        //TODO AE: Líklega hægt að færa þessar myndtengingar í efri aðferð þar sem þær eru fastar
         public void bindEntryData(HashMap<String, String> entryData)
         {
-            mPlayerOneImgView.setImageResource(R.drawable.ic_face);
             mPlayerOneTextView.setText(entryData.get("playerOne"));
-            mPlayerTwoImgView.setImageResource(R.drawable.ic_face);
-            mPlayerTwoTextView.setText(entryData.get("playerOne"));
-            mPointsImgView.setImageResource(R.drawable.ic_point);
+            mPlayerTwoTextView.setText(entryData.get("playerTwo"));
             mPointsTextView.setText(entryData.get("points"));
-            mAddedTimeImgView.setImageResource(R.drawable.ic_clock);
-            mAddedTimeTextView.setText(entryData.get("addedTime"));
+
+            String time = (entryData.get("addedTime").equals("0"))? "\u221E" : entryData.get("addedTime") + " s";
+            mAddedTimeTextView.setText(time);
 
             mButtonType = entryData.get("type");
             mId = entryData.get("id");
@@ -177,16 +179,19 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
             switch (mButtonType)
             {
                 case "cancel":
-                    mEntryButton.setBackgroundColor(Color.argb(255, 0, 255, 255));
+                    mEntryButton.setBackgroundColor(Color.argb(220, 0, 255, 255));
                     mEntryButton.setText("CANCEL");
+                    mWholeEntry.setBackgroundColor(Color.argb(33, 255, 255, 0));
                     break;
                 case "observe":
-                    mEntryButton.setBackgroundColor(Color.argb(255, 25, 26, 255));
+                    mEntryButton.setBackgroundColor(Color.argb(220, 25, 26, 255));
                     mEntryButton.setText("OBSERVE");
+                    mWholeEntry.setBackgroundColor(Color.argb(33,0,0 ,255));
                     break;
                 case "join":
-                    mEntryButton.setBackgroundColor(Color.argb(255, 10, 255, 10));
+                    mEntryButton.setBackgroundColor(Color.argb(220, 10, 255, 10));
                     mEntryButton.setText("JOIN!");
+                    mWholeEntry.setBackgroundColor(Color.argb(33, 0, 255,0));
             }
         }
     }

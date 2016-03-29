@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,9 +60,7 @@ public class ListsFragment extends Fragment {
     @Override
     public void onResume()
     {
-        Log.d("LOGINACTIVITY", "KALLAÐI víst á SUOE, eða gerði ég?????");
         super.onResume();
-        Log.d("LOGINACTIVITY", "KALLAÐI víst á SUOER!");
         mListAdapter.notifyDataSetChanged();
     }
 
@@ -103,7 +100,7 @@ public class ListsFragment extends Fragment {
     public void cancelWasClicked(String id)
     {
         LobbyActivity parent = (LobbyActivity)getActivity();
-        parent.cancelWaitEntry(id);
+        parent.removeWaitEntry(id);
     }
 
     public void observeWasClicked(String id)

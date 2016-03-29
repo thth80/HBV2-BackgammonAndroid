@@ -96,7 +96,7 @@ public class LoginActivity extends FragmentActivity {
                 }
                 else if(msg.get("action").equals("explain"))
                 {
-                    Toast.makeText(LoginActivity.this, msg.get("explain"), Toast.LENGTH_LONG);
+                    Toast.makeText(LoginActivity.this, msg.get("explain"), Toast.LENGTH_LONG).show();
                 }
             }
         }

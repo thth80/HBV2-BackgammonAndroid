@@ -104,8 +104,8 @@ public class Utils {
         }
         catch(Exception e)
         {
-            Log.d(LobbyActivity.TAG, e.getMessage());
-            return new byte[0];
+            Log.d(LobbyActivity.TAG+ " ::: ERROR", e.getMessage());
+            return null;
         }
         finally {
             connection.disconnect();
@@ -113,14 +113,15 @@ public class Utils {
     }
 
     public static String getUrlString(String urlSpec) throws IOException {
-        return new String(getUrlBytes(urlSpec));
+        byte[] result = getUrlBytes(urlSpec);
+        if(result == null) return "[]";
+        else               return new String(result);
     }
 
     public static ArrayList<HashMap<String, String>> JSONToMapList(JSONArray jsonArray)
     {
         @SuppressWarnings("unchecked")
         ArrayList<HashMap<String, String>> messages = new ArrayList <HashMap<String, String>>();
-        Log.d(LobbyActivity.TAG, "RESPONSE: "+ jsonArray.toString());
         for(int i = 0; i < jsonArray.length(); i++)
         {
             JSONObject msg = null;

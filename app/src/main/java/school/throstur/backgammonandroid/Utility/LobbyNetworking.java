@@ -18,13 +18,14 @@ import school.throstur.backgammonandroid.Utility.Utils;
  */
 public class LobbyNetworking {
 
-    public static ArrayList<HashMap<String, String>> removeWaitEntry(String waitId ) throws IOException
+    public static ArrayList<HashMap<String, String>> removeWaitEntry(String username, String waitId ) throws IOException
     {
         try
         {
             String url = Uri.parse(Utils.HOST + "/removeWaitEntry")
                     .buildUpon()
                     .appendQueryParameter("waitId", waitId)
+                    .appendQueryParameter("name", username)
                     .build().toString();
 
             JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
@@ -72,7 +73,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -110,7 +112,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -129,7 +132,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -147,8 +151,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            Log.d("LOBBYACTIVITY", e.getMessage());
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -166,7 +170,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -184,7 +189,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -202,7 +208,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 

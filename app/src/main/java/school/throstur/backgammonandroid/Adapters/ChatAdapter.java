@@ -2,6 +2,7 @@ package school.throstur.backgammonandroid.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,7 +59,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     public void onBindViewHolder(ChatHolder holder, int index)
     {
         String chatEntry = mChatList.get(index);
-        holder.bindEntryData(chatEntry);
+        holder.bindEntryData(chatEntry, index);
     }
 
     public int latestIndex()
@@ -76,9 +77,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
             mChatTextView = (TextView) view.findViewById(R.id.chat_entry);
         }
 
-        public void bindEntryData(String chatEntry)
+        public void bindEntryData(String chatEntry, int index)
         {
-            mChatTextView.setText(chatEntry);;
+            mChatTextView.setText(chatEntry);
+            int background = (index%2 == 0)? Color.argb(36, 255, 0, 0): Color.argb(36, 0, 255, 0) ;
+            mChatTextView.setBackgroundColor(background);
         }
     }
 }

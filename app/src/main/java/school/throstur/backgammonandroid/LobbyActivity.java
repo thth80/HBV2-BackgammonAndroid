@@ -10,12 +10,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.webkit.HttpAuthHandler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextClock;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -78,7 +81,7 @@ public class LobbyActivity extends AppCompatActivity {
                 public void run() {
                     (new NetworkingTask("refresh")).execute();
                 }
-            }, 100, 1500);
+            }, 100, 5000);
         }
         else
         {
@@ -87,7 +90,6 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
-    //TODO AE: Koma í veg fyrir iteration i gegnum NULL ef server skilar villu
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,8 +105,6 @@ public class LobbyActivity extends AppCompatActivity {
                     .add(R.id.lobby_fragment_container, mListsFragment)
                     .commit();
         }
-
-        Log.d("LOGINACTIVITY", "Finished expanding FRAGMENTS!");
 
         mChatText = (EditText) findViewById(R.id.text_to_submit);
         mSubmitChatButton = (ImageButton) findViewById(R.id.submit_chat);
@@ -138,7 +138,7 @@ public class LobbyActivity extends AppCompatActivity {
             public void run() {
                 (new NetworkingTask("refresh")).execute();
             }
-        }, 7000, 1500);
+        }, 7000, 7500);
 
 
         mUsername = getIntent().getStringExtra(USERNAME_FROM_LOGIN);
@@ -162,6 +162,7 @@ public class LobbyActivity extends AppCompatActivity {
     {
         for(HashMap<String, String> msg: mInitMessages)
         {
+            Log.d(LobbyActivity.TAG + " Init", msg.get("action"));
             switch (msg.get("action"))
             {
                 case "chatBatch":
@@ -181,7 +182,7 @@ public class LobbyActivity extends AppCompatActivity {
                     break;
             }
         }
-        mInitMessages = null;
+       // mInitMessages = null;
     }
 
      /*
@@ -191,12 +192,16 @@ public class LobbyActivity extends AppCompatActivity {
     private void submitChatEntry()
     {
         String chatEntry = mChatText.getText().toString();
+        mChatText.setText("");
 
-        Log.d(TAG, "no longer sending to the wrong address!");
         if(chatEntry.length() == 0)
-            Toast.makeText(LobbyActivity.this, "If you want to chat you must write something down!", Toast.LENGTH_SHORT);
+            Toast.makeText(LobbyActivity.this, "If you want to chat you must write something down!", Toast.LENGTH_SHORT).show();
         else
+        {
+            mChatAdapter.appendEntry("[" + mUsername + "]: " + chatEntry);
+            mChatAdapter.notifyItemInserted(mChatAdapter.latestIndex());
             (new NetworkingTask("submitLobbyChat")).execute(chatEntry);
+        }
     }
 
     public void setupNewMatch(String points, String addedTime,String botDiff ,boolean isHumanMatch)
@@ -244,9 +249,9 @@ public class LobbyActivity extends AppCompatActivity {
         (new NetworkingTask("joinHumanMatch")).execute(id);
     }
 
-    public void cancelWaitEntry(String id)
+    public void removeWaitEntry(String id)
     {
-        (new NetworkingTask("cancel")).execute(id);
+        (new NetworkingTask("removeWaitEntry")).execute(id);
     }
 
     private void addOngoingEntry(HashMap<String, String> entry)
@@ -259,7 +264,6 @@ public class LobbyActivity extends AppCompatActivity {
         boolean canCancel = entry.get("playerOne").equals(mUsername);
         mListsFragment.addWaitingEntry(entry, canCancel);
     }
-
 
     private void removeListEntries(HashMap<String, String> deleteIds)
     {
@@ -301,7 +305,7 @@ public class LobbyActivity extends AppCompatActivity {
                     case "addWaitEntry":
                         return LobbyNetworking.addWaitEntry(mUsername, params[0], params[1]);
                     case "removeWaitEntry":
-                        return LobbyNetworking.removeWaitEntry(params[0]);
+                        return LobbyNetworking.removeWaitEntry(mUsername, params[0]);
                     case "joinHumanMatch":
                         return LobbyNetworking.joinHumanMatch(mUsername, params[0]);
                     case "startBotMatch":
@@ -348,6 +352,7 @@ public class LobbyActivity extends AppCompatActivity {
 
             for(HashMap<String, String> msg: messages)
             {
+                Log.d(LobbyActivity.TAG, "Message action is: " + msg.get("action"));
                 switch (msg.get("action"))
                 {
                     case "chatEntry":
@@ -369,7 +374,7 @@ public class LobbyActivity extends AppCompatActivity {
                         removeListEntry(msg.get("id"));
                         break;
                     case "explain":
-                        Toast.makeText(LobbyActivity.this, msg.get("explain"), Toast.LENGTH_SHORT);
+                        Toast.makeText(LobbyActivity.this, msg.get("explain"), Toast.LENGTH_LONG).show();
                         break;
                     case "matchAvailable":
                         if(mPath.equals("joinHumanMatch"))
@@ -397,8 +402,7 @@ public class LobbyActivity extends AppCompatActivity {
             else if(goToStatsAfterProcessing)
             {
                 ArrayList<HashMap<String, String>> statsMessages = Utils.extractSpecificActions(messages, "versusStats");
-                HashMap<String, String> overallEntry = Utils.extractSpecificAction(messages, "overallStats");
-                startActivityForResult(StatsActivity.statsDataIntent(LobbyActivity.this, mUsername, statsMessages, overallEntry), REQUEST_CODE);
+                startActivityForResult(StatsActivity.statsDataIntent(LobbyActivity.this, mUsername, statsMessages), REQUEST_CODE);
             }
 
         }
