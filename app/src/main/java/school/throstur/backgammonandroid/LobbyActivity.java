@@ -8,9 +8,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.webkit.HttpAuthHandler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -33,6 +35,8 @@ public class LobbyActivity extends AppCompatActivity {
     private static final String MATCH_PRESENTATION = "ForPassingPresFromStatsToHere";
     private static final int REQUEST_CODE = 666;
 
+    public static final String TAG = "LOBBYACTIVITY";
+
     private String mUsername;
     private ImageButton mSubmitChatButton;
     private EditText mChatText;
@@ -41,6 +45,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     private SetupMatchFragment mMatchSetupFragment;
     private ListsFragment mListsFragment;
+    private ArrayList<HashMap<String, String>> mInitMessages;
 
     private RecyclerView mChatRecycler;
     private ChatAdapter mChatAdapter;
@@ -59,7 +64,6 @@ public class LobbyActivity extends AppCompatActivity {
         Intent i = new Intent(packageContext, LobbyActivity.class);
         i.putExtra(USERNAME_FROM_LOGIN, username);
         i.putExtra(INIT_DATA_FROM_LOGIN, initData);
-        Log.d("LOGINACTIVITY", "Setting the Intent for the Lobby");
         return i;
     }
 
@@ -83,18 +87,12 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
-    //TODO ÞÞ: Tengja allar member breytur við raunveruleg widget í gegnum findViewById. Æskileg ID nöfn eru í lok hverrar línu
+    //TODO AE: Koma í veg fyrir iteration i gegnum NULL ef server skilar villu
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("LOGINACTIVITY", "Entered OnCreate for the first time");
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_lobby);
 
-        //TODO AE: Koma í veg fyrir iteration i gegnum NULL ef server skilar villu
-
-
-        Log.d("LOGINACTIVITY", "Finished expanding main layout!");
         FragmentManager fm = getSupportFragmentManager();
         mMatchSetupFragment = new SetupMatchFragment();
         mListsFragment = (ListsFragment)fm.findFragmentById(R.id.lobby_fragment_container);
@@ -140,7 +138,7 @@ public class LobbyActivity extends AppCompatActivity {
             public void run() {
                 (new NetworkingTask("refresh")).execute();
             }
-        }, 1500, 1500);
+        }, 7000, 1500);
 
 
         mUsername = getIntent().getStringExtra(USERNAME_FROM_LOGIN);
@@ -149,13 +147,20 @@ public class LobbyActivity extends AppCompatActivity {
 
         mChatAdapter = new ChatAdapter(LobbyActivity.this, this);
         mChatRecycler.setAdapter(mChatAdapter);
+        mChatRecycler.setLayoutManager(new LinearLayoutManager(LobbyActivity.this));
 
-        processInitialData(initialData);
+        mInitMessages = initialData;
     }
 
-    private void processInitialData(ArrayList<HashMap<String, String>> messages)
+    @Override
+    public void onResume()
     {
-        for(HashMap<String, String> msg: messages)
+        super.onResume();
+        processInitialData();
+    }
+    private void processInitialData()
+    {
+        for(HashMap<String, String> msg: mInitMessages)
         {
             switch (msg.get("action"))
             {
@@ -176,6 +181,7 @@ public class LobbyActivity extends AppCompatActivity {
                     break;
             }
         }
+        mInitMessages = null;
     }
 
      /*
@@ -184,13 +190,13 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void submitChatEntry()
     {
-        //TODO AE: Þarf ekki nú að binda chatEntry strenginn við chat_entry view?
         String chatEntry = mChatText.getText().toString();
 
+        Log.d(TAG, "no longer sending to the wrong address!");
         if(chatEntry.length() == 0)
             Toast.makeText(LobbyActivity.this, "If you want to chat you must write something down!", Toast.LENGTH_SHORT);
         else
-            (new NetworkingTask("newLobbyChat")).execute(chatEntry);
+            (new NetworkingTask("submitLobbyChat")).execute(chatEntry);
     }
 
     public void setupNewMatch(String points, String addedTime,String botDiff ,boolean isHumanMatch)
@@ -306,8 +312,6 @@ public class LobbyActivity extends AppCompatActivity {
                         return LobbyNetworking.submitLobbyChat(mUsername, params[0]);
                     case "refresh":
                         return LobbyNetworking.refresh(mUsername);
-                    case "initLobby":
-                        return LobbyNetworking.initLobby(mUsername);
                     case "goToTrophy":
                         return LobbyNetworking.goToTrophy(mUsername);
                     case "goToStats":

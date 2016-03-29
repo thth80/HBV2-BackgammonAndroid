@@ -1,6 +1,7 @@
 package school.throstur.backgammonandroid.Utility;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONArray;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import school.throstur.backgammonandroid.LobbyActivity;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 /**
@@ -101,6 +103,8 @@ public class LobbyNetworking {
                     .appendQueryParameter("name", chatter)
                     .appendQueryParameter("chatEntry", chatEntry)
                     .build().toString();
+
+            Log.d(LobbyActivity.TAG, url );
             JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
             return Utils.JSONToMapList(jsonArray);
         }
@@ -133,7 +137,7 @@ public class LobbyNetworking {
     {
         try
         {
-            String url = Uri.parse(Utils.HOST + "/refresh")
+            String url = Uri.parse(Utils.HOST + "/refreshLobby")
                     .buildUpon()
                     .appendQueryParameter("name", username)
                     .build().toString();
@@ -143,6 +147,7 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
+            Log.d("LOBBYACTIVITY", e.getMessage());
             return null;
         }
     }
@@ -188,24 +193,6 @@ public class LobbyNetworking {
         try
         {
             String url = Uri.parse(Utils.HOST + "/goToStats")
-                    .buildUpon()
-                    .appendQueryParameter("name", username)
-                    .build().toString();
-
-            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
-            return Utils.JSONToMapList(jsonArray);
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-    }
-
-    public static ArrayList<HashMap<String, String>> initLobby(String username ) throws IOException
-    {
-        try
-        {
-            String url = Uri.parse(Utils.HOST + "/initLobby")
                     .buildUpon()
                     .appendQueryParameter("name", username)
                     .build().toString();

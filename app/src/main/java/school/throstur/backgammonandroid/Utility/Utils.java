@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
+import school.throstur.backgammonandroid.LobbyActivity;
 
 /**
  * Created by Aðalsteinn on 14.3.2016.
@@ -103,7 +104,7 @@ public class Utils {
         }
         catch(Exception e)
         {
-            Log.d("UTILS", e.getMessage());
+            Log.d(LobbyActivity.TAG, e.getMessage());
             return new byte[0];
         }
         finally {
@@ -119,7 +120,7 @@ public class Utils {
     {
         @SuppressWarnings("unchecked")
         ArrayList<HashMap<String, String>> messages = new ArrayList <HashMap<String, String>>();
-        Log.d("LOGINACTIVITY", "RESPONSE: "+ jsonArray.toString());
+        Log.d(LobbyActivity.TAG, "RESPONSE: "+ jsonArray.toString());
         for(int i = 0; i < jsonArray.length(); i++)
         {
             JSONObject msg = null;
@@ -136,12 +137,12 @@ public class Utils {
             }
             catch (JSONException e)
             {
-                Log.d("LOGINACTIVITY", "CAUGTH JSON ERROR: "+e.getMessage());
+                Log.d(LobbyActivity.TAG, "CAUGTH JSON ERROR: "+e.getMessage());
                 e.printStackTrace();
             }
         }
 
-        Log.d("LOGINACTIVITY", "ARRAYLIST: "+messages.toString());
+        Log.d(LobbyActivity.TAG, "ARRAYLIST: "+messages.toString());
 
         return messages;
     }

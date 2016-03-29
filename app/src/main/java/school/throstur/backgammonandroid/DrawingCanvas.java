@@ -8,9 +8,6 @@ import android.view.View;
 import school.throstur.backgammonandroid.Fragments.CanvasFragment;
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
 
-/**
- * Created by Aðalsteinn on 26.3.2016.
- */
 public class DrawingCanvas extends View {
 
     private Bitmap mBitMap;

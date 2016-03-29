@@ -29,9 +29,8 @@ public class SetupMatchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
         //TODO ÞÞ: Tengja breytur við rétt element
-
         View view = inflater.inflate(R.layout.fragment_lobby_list, container, false);
 
         //mSetupMatchButton = (Button) view.findViewById(R.id.setup_match_btn);

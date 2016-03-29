@@ -19,20 +19,17 @@ import school.throstur.backgammonandroid.R;
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     private ArrayList<String> mChatList;
     private Context mContext;
-    private Activity mParent;
 
     public ChatAdapter(Context context, ArrayList<String> chatList, LobbyActivity parent)
     {
         mContext = context;
         mChatList = chatList;
-        mParent = parent;
     }
 
     public ChatAdapter(Context context, LobbyActivity parent)
     {
         mContext = context;
         mChatList = new ArrayList<>();
-        mParent = parent;
     }
 
     @Override
@@ -53,8 +50,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     public ChatHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.list_item_lobby, parent, false);
-        //TODO ÞÞ: kalla á inflater.inflate með rétt layout, þetta er lobby listinn
+        View view = inflater.inflate(R.layout.chat_entry, parent, false);
         return new ChatHolder(view);
     }
 
@@ -77,8 +73,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
         public ChatHolder(View view)
         {
             super(view);
-            //TODO ÞÞ: Nota sömu ID og uncommenta
-            //mChatTextView = (TextView) view.findViewById(R.id.chat_entry);
+            mChatTextView = (TextView) view.findViewById(R.id.chat_entry);
         }
 
         public void bindEntryData(String chatEntry)
