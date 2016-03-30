@@ -22,17 +22,13 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="4dp"
-        >
+        android:layout_centerVertical="true">
 
         <ImageView
             android:id="@+id/list_item_lobby_playerOneImg"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:contentDescription="@string/player_image_description"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:src="@drawable/ic_face"
             android:layout_centerHorizontal="true"/>
 
@@ -44,8 +40,6 @@
             android:textStyle="bold"
             android:padding="4dp"
             tools:text="Player one"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>
@@ -56,16 +50,13 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_toRightOf="@id/lobby_view_player_one"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="4dp">
+        android:layout_centerVertical="true">
 
         <ImageView
             android:id="@+id/list_item_lobby_playerTwoImg"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:contentDescription="@string/player_image_description"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:src="@drawable/ic_face"
             android:layout_centerHorizontal="true"/>
 
@@ -77,8 +68,6 @@
             android:textStyle="bold"
             android:padding="4dp"
             tools:text="Player two"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>
@@ -89,17 +78,13 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_toRightOf="@id/lobby_view_player_two"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp">
+        android:layout_centerVertical="true">
 
         <ImageView
             android:id="@+id/list_item_lobby_pointImage"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:contentDescription="@string/point_image_description"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:src="@drawable/ic_point"
             android:layout_centerHorizontal="true"/>
 
@@ -111,8 +96,6 @@
             android:textStyle="bold"
             android:padding="4dp"
             tools:text="Points"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>
@@ -123,17 +106,13 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_toRightOf="@id/lobby_view_player_point"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp">
+        android:layout_centerVertical="true">
 
         <ImageView
             android:id="@+id/list_item_lobby_clockImage"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:contentDescription="@string/clock_image_description"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:src="@drawable/ic_clock"
             android:layout_centerHorizontal="true"/>
 
@@ -145,8 +124,6 @@
             android:textStyle="bold"
             android:padding="4dp"
             tools:text="Time"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>
