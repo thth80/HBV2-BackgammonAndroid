@@ -32,16 +32,18 @@ public class SetupMatchFragment extends Fragment {
         //TODO ÞÞ: Tengja breytur við rétt element
         View view = inflater.inflate(R.layout.fragment_lobby_list, container, false);
 
-        //mSetupMatchButton = (Button) view.findViewById(R.id.setup_match_btn);
-        //mPointsSelection = (RadioGroup) view.findViewById(R.id.points_sel);
-        //mTimeSelection = (RadioGroup) view.findViewById(R.id.time_sel);
-        //mDifficultySelection = (RadioGroup) view.findViewById(R.id.diff_sel);
-        //mHumanSelection = (RadioGroup) view.findViewById(R.id.human_sel);
+        mSetupMatchButton = (Button) view.findViewById(R.id.setup_match_btn);
+        mPointsSelection = (RadioGroup) view.findViewById(R.id.points_sel);
+        mTimeSelection = (RadioGroup) view.findViewById(R.id.time_sel);
+        mDifficultySelection = (RadioGroup) view.findViewById(R.id.diff_sel);
+        mHumanSelection = (RadioGroup) view.findViewById(R.id.human_sel);
 
         mHumanSelection.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 //TODO AE: Disable/Enable difficulty grúppuna eftir því hvort hakað sé við Human eða Bot
+                // Rel-view-ið fyrir difficulty (með id setup_match_view_difficulty) er með visibility attribute
+                // sem er hægt að setja á gone þegar human er valið.
             }
         });
 

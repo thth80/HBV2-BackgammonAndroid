@@ -44,4 +44,20 @@
     <string name="chat_hint">Enter a message...</string>
     <string name="btn_watch">Watch</string>
     <string name="swap_description">A button that switches between views</string>
+    <string name="human">Human</string>
+    <string name="bot">Bot</string>
+    <string name="onePoint">1</string>
+    <string name="ninePoint">9</string>
+    <string name="sevenPoint">7</string>
+    <string name="fivePoint">5</string>
+    <string name="threePoint">3</string>
+    <string name="infinityTime">∞</string>
+    <string name="s15Time">15 sec</string>
+    <string name="s30Time">30 sec</string>
+    <string name="s45Time">45 sec</string>
+    <string name="android_image_description">An image of an android</string>
+    <string name="easyDifficulty">Easy</string>
+    <string name="mediumDifficulty">Medium</string>
+    <string name="hardDifficulty">Hard</string>
+    <string name="create_match">Let\'s do this!</string>
 </resources>
