@@ -2,23 +2,19 @@ package school.throstur.backgammonandroid;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
-import android.webkit.HttpAuthHandler;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextClock;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -45,9 +41,11 @@ public class LobbyActivity extends AppCompatActivity {
     private EditText mChatText;
     private Button mToTrophyButton;
     private Button mToStatsButton;
+    private ImageButton mSwitchFragButton;
 
     private SetupMatchFragment mMatchSetupFragment;
     private ListsFragment mListsFragment;
+    private boolean mDisplayingLists;
     private ArrayList<HashMap<String, String>> mInitMessages;
 
     private RecyclerView mChatRecycler;
@@ -98,6 +96,7 @@ public class LobbyActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         mMatchSetupFragment = new SetupMatchFragment();
         mListsFragment = (ListsFragment)fm.findFragmentById(R.id.lobby_fragment_container);
+        mDisplayingLists = true;
 
         if (mListsFragment == null) {
             mListsFragment = new ListsFragment();
@@ -106,10 +105,22 @@ public class LobbyActivity extends AppCompatActivity {
                     .commit();
         }
 
+        mSwitchFragButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment toUse = (mDisplayingLists)? mListsFragment : mMatchSetupFragment;
+                FragmentManager fm = getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.lobby_fragment_container, toUse);
+                ft.commit();
+            }
+        });
+
         mChatText = (EditText) findViewById(R.id.text_to_submit);
         mSubmitChatButton = (ImageButton) findViewById(R.id.submit_chat);
         mToTrophyButton = (Button) findViewById(R.id.to_trophy);
         mToStatsButton = (Button) findViewById(R.id.to_stats);
+        mSwitchFragButton = (ImageButton) findViewById(R.id.btn_swap);
 
         mChatRecycler = (RecyclerView) findViewById(R.id.chat_list);
 

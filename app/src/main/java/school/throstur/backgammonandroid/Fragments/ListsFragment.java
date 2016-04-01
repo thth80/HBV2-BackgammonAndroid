@@ -23,7 +23,6 @@ import school.throstur.backgammonandroid.R;
 public class ListsFragment extends Fragment {
     private RecyclerView mListRecycler;
     private LobbyListAdapter mListAdapter;
-    private Button mToNewGame;
 
     public ListsFragment()
     {
@@ -35,18 +34,6 @@ public class ListsFragment extends Fragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_lobby_list, container, false);
-
-        mToNewGame = (Button) view.findViewById(R.id.to_new_game);
-        mToNewGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SetupMatchFragment matchFragment = ((LobbyActivity)getActivity()).getSetupMatch();
-                FragmentManager fm = getFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(R.id.lobby_fragment_container, matchFragment);
-                ft.commit();
-            }
-        });
 
         mListRecycler = (RecyclerView) view.findViewById(R.id.lobby_recycler_view);
         mListRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));

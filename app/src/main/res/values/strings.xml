@@ -42,4 +42,6 @@
     <string name="btn_to_new_game">New game</string>
     <string name="chat_testMsg">Feel the Bern!</string>
     <string name="chat_hint">Enter a message...</string>
+    <string name="btn_watch">Watch</string>
+    <string name="swap_description">A button that switches between views</string>
 </resources>

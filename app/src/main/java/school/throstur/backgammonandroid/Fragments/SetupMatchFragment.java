@@ -19,7 +19,6 @@ import school.throstur.backgammonandroid.R;
  */
 public class SetupMatchFragment extends Fragment {
     private Button mSetupMatchButton;
-    private Button mSwitchFragButton;
     private RadioGroup mPointsSelection;
     private RadioGroup mTimeSelection;
     private RadioGroup mHumanSelection;
@@ -34,7 +33,6 @@ public class SetupMatchFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_lobby_list, container, false);
 
         //mSetupMatchButton = (Button) view.findViewById(R.id.setup_match_btn);
-        //mSwitchFragButton = (Button) view.findViewById(R.id.switch_btn);
         //mPointsSelection = (RadioGroup) view.findViewById(R.id.points_sel);
         //mTimeSelection = (RadioGroup) view.findViewById(R.id.time_sel);
         //mDifficultySelection = (RadioGroup) view.findViewById(R.id.diff_sel);
@@ -44,17 +42,6 @@ public class SetupMatchFragment extends Fragment {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 //TODO AE: Disable/Enable difficulty grúppuna eftir því hvort hakað sé við Human eða Bot
-            }
-        });
-
-        mSwitchFragButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ListsFragment listFragment = ((LobbyActivity)getActivity()).getListsFragment();
-                FragmentManager fm = getFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(R.id.lobby_fragment_container, listFragment);
-                ft.commit();
             }
         });
 
