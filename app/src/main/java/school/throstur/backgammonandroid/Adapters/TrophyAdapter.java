@@ -3,9 +3,7 @@ package school.throstur.backgammonandroid.Adapters;
 /**
  * Created by Aðalsteinn on 25.3.2016.
  */
-import android.app.Activity;
 import android.content.Context;
-import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,7 +65,7 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
 
             mNameTextView = (TextView) view.findViewById(R.id.trophy_entry_heading);
             mDecriptTextView = (TextView) view.findViewById(R.id.trophy_entry_text);
-            mTrophyProgress = (ProgressBar) view.findViewById(R.id.trophy_entry_progBar);
+            mTrophyProgress = (ProgressBar) view.findViewById(R.id.trophy_entry_progbar);
             mTrophyProgress.setMax(100);
             mTrophyImage = (ImageView) view.findViewById(R.id.trophy_entry_img);
 

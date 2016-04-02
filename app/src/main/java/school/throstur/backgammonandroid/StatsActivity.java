@@ -50,7 +50,8 @@ public class StatsActivity extends AppCompatActivity {
         mUsername = getIntent().getStringExtra(SENT_USERNAME);
         ArrayList<HashMap<String, String>> versusStats = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_VERSUS);
 
-        mStatRecycler = (RecyclerView) new View(StatsActivity.this);
+        //mStatRecycler = (RecyclerView) new View(StatsActivity.this);
+        mStatRecycler = (RecyclerView) findViewById(R.id.stats_list);
         mAdapter = new StatsAdapter(StatsActivity.this, versusStats, this);
         mStatRecycler.setAdapter(mAdapter);
         mStatRecycler.setLayoutManager(new LinearLayoutManager(StatsActivity.this));

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import school.throstur.backgammonandroid.R;
 import school.throstur.backgammonandroid.StatsActivity;
 
 /**
@@ -41,9 +42,7 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
     public StatHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        //View view = inflater.inflate(R.layout.list_item_tvseries, parent, false);
-        //TODO ÞÞ: kalla á inflater.inflate með rétt layout
-        View view = new View(mContext);
+        View view = inflater.inflate(R.layout.stats_entry, parent, false);
         return new StatHolder(view);
     }
 
@@ -61,16 +60,15 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
         private ProgressBar mPawnsProgress;
         private HashMap<String, String> mStats;
 
-        //TODO ÞÞ: Hanna Stats entry, freistandi að nota bara 3 progress bars, textview fyrir nafnið og henda í Toast ef ýtt er á progress bar
         private Context mContext;
 
         public StatHolder(View view)
         {
             super(view);
-            //TODO ÞÞ: TEngja þessi element við actual UI element í gegnum view
-            oppoNameTextView = (TextView)new View(mContext);
-            mPointsProgress = (ProgressBar)new View(mContext);
-            mPawnsProgress = (ProgressBar)new View(mContext);
+
+            oppoNameTextView = (TextView) view.findViewById(R.id.stats_opponent);
+            mPointsProgress = (ProgressBar) view.findViewById(R.id.stats_progbar_point);
+            mPawnsProgress = (ProgressBar) view.findViewById(R.id.stats_progbar_pawn);
 
             mPointsProgress.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -83,7 +81,7 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
             mPawnsProgress.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String toast = "Your have saved " + mStats.get("pawnsOne") + " pawns nd your opponent has saved " + mStats.get("pawnsTwo");
+                    String toast = "Your have saved " + mStats.get("pawnsOne") + " pawns and your opponent has saved " + mStats.get("pawnsTwo");
                     mParent.makeToast(toast);
                 }
             });

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/border"
+              android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/stats_opponent"
+        android:id="@+id/stats_opponent"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/stats_view_point"
+        android:layout_below="@id/stats_opponent">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/stats_progbar_point"
+            android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/stats_point"
+            android:src="@drawable/ic_point"
+            android:contentDescription="@string/point_image_description"
+            android:layout_toLeftOf="@id/stats_progbar_point"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/stats_view_pawn"
+        android:layout_below="@id/stats_view_point">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/stats_progbar_pawn"
+            android:layout_centerInParent="true"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/stats_pawns"
+            android:src="@drawable/ic_action_emo_tongue"
+            android:contentDescription="@string/pawn_image_description"
+            android:layout_toLeftOf="@id/stats_progbar_pawn"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+</RelativeLayout>

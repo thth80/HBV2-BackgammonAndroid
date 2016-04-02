@@ -58,7 +58,7 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/trophy_entry_progBar"
+        android:id="@+id/trophy_entry_progbar"
         android:layout_weight="1"
         android:layout_gravity="bottom"
         android:progress="50"
