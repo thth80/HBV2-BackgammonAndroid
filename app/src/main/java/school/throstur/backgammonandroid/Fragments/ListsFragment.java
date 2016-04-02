@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,11 @@ import school.throstur.backgammonandroid.Adapters.LobbyListAdapter;
 import school.throstur.backgammonandroid.LobbyActivity;
 import school.throstur.backgammonandroid.R;
 
-/**
- * Created by Þröstur on 25.3.2016.
- */
+
 public class ListsFragment extends Fragment {
-    private RecyclerView mListRecycler;
-    private LobbyListAdapter mListAdapter;
+    private static RecyclerView mListRecycler = null;
+    private static LobbyListAdapter mListAdapter = null;
+    private static LobbyActivity mParent = null;
 
     public ListsFragment()
     {
@@ -30,15 +30,23 @@ public class ListsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        if(mListAdapter == null)
+        {
+            mParent = (LobbyActivity)getActivity();
+            mListAdapter = new LobbyListAdapter(getActivity(), mParent);
+        }
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_lobby_list, container, false);
 
         mListRecycler = (RecyclerView) view.findViewById(R.id.lobby_recycler_view);
         mListRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        mListAdapter = new LobbyListAdapter(getActivity(), this);
         mListRecycler.setAdapter(mListAdapter);
 
         return view;
@@ -78,21 +86,4 @@ public class ListsFragment extends Fragment {
         mListAdapter.notifyDataSetChanged();
     }
 
-    public void joinWasClicked(String id)
-    {
-        LobbyActivity parent = (LobbyActivity)getActivity();
-        parent.attemptJoiningMatch(id);
-    }
-
-    public void cancelWasClicked(String id)
-    {
-        LobbyActivity parent = (LobbyActivity)getActivity();
-        parent.removeWaitEntry(id);
-    }
-
-    public void observeWasClicked(String id)
-    {
-        LobbyActivity parent = (LobbyActivity)getActivity();
-        parent.attemptObservingMatch(id);
-    }
 }

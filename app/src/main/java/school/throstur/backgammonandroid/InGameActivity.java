@@ -7,9 +7,13 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -19,27 +23,29 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import school.throstur.backgammonandroid.Fragments.CanvasFragment;
-import school.throstur.backgammonandroid.Fragments.PresentMatchFragment;
+import school.throstur.backgammonandroid.Fragments.TrophyFragment;
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
 import school.throstur.backgammonandroid.Utility.InGameNetworking;
 import school.throstur.backgammonandroid.Utility.Utils;
 
-public class InGameActivity extends AppCompatActivity {
-
+public class InGameActivity extends AppCompatActivity
+{
     private static final String USERNAME = "nameOfUser";
     private static final String IS_PLAYING = "canPlay";
     private static final String PRESENT_DATA = "PresentingTHeMAtch";
     private static final String CURRENT_BOARD = "currentStateOfTheBoardForNewcomers";
 
     private String mUsername;
-    private boolean mCouldDouble, mIsPlaying, mShouldResetClock, mTimedMatch;
-    private Timer  mRefresher, mClockTimer;
+    private boolean mIsPlaying, mShouldResetClock, mMatchOver;
     private long mLastGameClockTime;
+    private int mTimeLeftMs, mAddedTime;
 
+    private Timer  mRefresher, mClockTimer;
     private CanvasFragment mCanvas;
-    private int mTimeLeftMs;
+    private ArrayList<Fragment> mTrophyStack;
 
     private Button mLeaveMatchButton;
+    private TextView mTextClock;
 
     public static Intent playingUserIntent(Context packageContext, String username, HashMap<String, String> matchPresent)
     {
@@ -71,11 +77,12 @@ public class InGameActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_in_game);
 
+        mMatchOver = false;
         setResult(RESULT_OK);
         mUsername = getIntent().getStringExtra(USERNAME);
         mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
-        mLeaveMatchButton = (Button)new View(InGameActivity.this);
         //TODO ÞÞ: Tengja takkann rétt
+        mLeaveMatchButton = (Button)new View(InGameActivity.this);
         mLeaveMatchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,41 +95,30 @@ public class InGameActivity extends AppCompatActivity {
             mCanvas = CanvasFragment.newInstance(CanvasFragment.NEW_BOARD, null);
 
             HashMap<String, String> pres = (HashMap<String, String>)getIntent().getSerializableExtra(PRESENT_DATA);
-            mTimedMatch = !pres.get("addedTime").equals("0") ;
+            mAddedTime = Integer.parseInt(pres.get("addedTime"));
+            //Setja klukku á infinity
+            //Það þarf að koma match presentatation gögnum til Fragment, líklega í gegnum NewInstance
 
-            PresentMatchFragment presentFrag = new PresentMatchFragment();
-            presentFrag.setMatchData(pres.get("playerOne"), pres.get("playerTwo"), pres.get("points"), pres.get("addedTime"));
-
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    //Skipta um Fragment hér
-
-                    mRefresher = new Timer();
-                    mRefresher.scheduleAtFixedRate(new TimerTask() {
-                        @Override
-                        public void run() {
-                            (new NetworkingTask("refresh")).execute();
-                        }
-                    }, 500, 1500);
-                }
-            }, 5000);
         }
         else
         {
-            mTimedMatch = false;
+            //FELA KLUKKU
             HashMap<String, String> boardDescript = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
             mCanvas = CanvasFragment.newInstance(CanvasFragment.EXISTING_BOARD, boardDescript);
 
-            //TODO AE: Hvenær er öruggt að biðja um að teikna canvas?
-            mRefresher = new Timer();
-            mRefresher.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    (new NetworkingTask("refresh")).execute();
-                }
-            }, 1500, 1500);
         }
+
+        setFragment(mCanvas);
+
+        int delayUntilFirstRefresh = (mIsPlaying)? 5000 : 1500;
+        //Hér þarf að henda á Fragment.hideMatchPres(
+        mRefresher = new Timer();
+        mRefresher.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                (new NetworkingTask("refresh")).execute();
+            }
+        }, delayUntilFirstRefresh, 2500);
     }
 
     public void greenWasClicked(String pos)
@@ -139,6 +135,7 @@ public class InGameActivity extends AppCompatActivity {
     }
     public void endTurnWasClicked()
     {
+        mClockTimer.cancel();
         (new NetworkingTask("endTurn")).execute();
     }
     public void cubeWasFlipped()
@@ -153,30 +150,36 @@ public class InGameActivity extends AppCompatActivity {
     private void onTimeRunningOut()
     {
         mCanvas.timeRanOut();
-        mTimeLeftMs = 0;
+        mTimeLeftMs = mAddedTime * 1000;
         mClockTimer.cancel();
         (new NetworkingTask("timeOut")).execute();
 
-        //TODO ÞÞ: Láta klukku UI element fá gildið 0
-        Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG);
+        //TODO ÞÞ: Láta klukku UI element fá rétt gildi mAddedTime/1000
+        Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG).show();
     }
 
     private void leaveMatchClicked()
     {
+        if(!mIsPlaying)
+        {
+            (new NetworkingTask("observerLeaving")).execute();
+            super.onBackPressed();
+            return;
+        }
+
         new AlertDialog.Builder(InGameActivity.this)
                 .setTitle("Leaving The Match")
                 .setMessage("Are you sure you want to leave and forfeit the match?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         (new NetworkingTask("leaveMatch")).execute();
-                        setResult(RESULT_OK);
                         InGameActivity.super.onBackPressed();
                     }
                 })
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(DialogInterface dialog, int which)
+                    { /*Ekkert gerist*/ }
 
-                    }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
@@ -213,7 +216,7 @@ public class InGameActivity extends AppCompatActivity {
     private void startDiceRoll(int first, int second, int team, String thrower)
     {
         mCanvas.startDiceRoll(first, second, team);
-        if(thrower.equals(mUsername) && mTimedMatch)
+        if(thrower.equals(mUsername) && mAddedTime > 0)
             mShouldResetClock = true;
     }
 
@@ -241,7 +244,6 @@ public class InGameActivity extends AppCompatActivity {
             mCanvas.setCouldDouble(canDouble);
             mCanvas.giveButtonPermission();
         }
-
     }
 
     public boolean shouldResetClock()
@@ -263,22 +265,17 @@ public class InGameActivity extends AppCompatActivity {
                 mLastGameClockTime = timeNow;
                 mTimeLeftMs -= delta;
 
-                if(mTimeLeftMs <= 0)
+                if (mTimeLeftMs <= 0)
                     onTimeRunningOut();
             }
-        }, 25 , 50);
-    }
-
-    private void addGameTime(int seconds)
-    {
-        mTimeLeftMs += seconds*1000;
-        int secondsOnClock = mTimeLeftMs/1000;
-        //TODO ÞÞ: uppfæra UI klukkuna með gildinu í secondsOnClock
+        }, 25, 150);
     }
 
     private void presentFinishedMatch(String winner, String loser, String winPoints, String lossPoints)
     {
-        //TODO AE: Henda í Toast hérna. Slökkva á refresh?
+        mMatchOver = true;
+        //TODO AE: Blokka öll input hjá acting player ef hinn spilarinn hætti í miðjum leik
+        //TODO AE: Setja gögn í viðeigandi glugga og show()-a svo gluggann. Slökkva á refresh?
 
         mRefresher.cancel();
     }
@@ -291,31 +288,83 @@ public class InGameActivity extends AppCompatActivity {
         else if(multiplier.equals("3")) wonBy = " Won By Backgammon!!!";
 
         int totalPoints = Integer.parseInt(multiplier) * Integer.parseInt(cube);
-        Toast.makeText(InGameActivity.this, winner+wonBy+" "+winner+" receives a total of " + totalPoints + " points!", Toast.LENGTH_LONG);
+        Toast.makeText(InGameActivity.this, winner+wonBy+" "+winner+" receives a total of " + totalPoints + " points!", Toast.LENGTH_LONG).show();
+
+        mRefresher.cancel();
 
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 AnimationCoordinator animator = AnimationCoordinator.buildNewBoard(InGameActivity.this);
                 mCanvas.setAnimator(animator);
-                (new NetworkingTask("startNewGame")).execute();
+                if (mIsPlaying && !mMatchOver)
+                    (new NetworkingTask("startNewGame")).execute();
+
+                if(mMatchOver) return;
+                mRefresher.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        (new NetworkingTask("refresh")).execute();
+                    }
+                }, 2500, 3500);
             }
-        }, 3000);
+        }, 5000);
     }
 
     private void presentTrophy(int id)
     {
         //TODO: Tengja gefinn trophy við random bikaramynd til að byrja með
+        HashMap<String, String> trophyPres = new HashMap<>();
         String trophyDescript = Utils.trophyDesc[id];
         String trophyName = Utils.trophyNames[id];
 
-        //TODO AE: Búa til nytt TrophyFragment. Setja Fragment á stafla. Birta fragment.
+        Fragment trophyFragment = TrophyFragment.newInstance(trophyPres);
+        mTrophyStack.add(trophyFragment);
+        if(mTrophyStack.size() == 1)
+            replaceFragment(trophyFragment);
+
+        //TODO AE: Er hægt að init-a fleiri en eitt Fragment í einu?
+    }
+
+    public void onRemoveTrophy()
+    {
+        if(mTrophyStack.size() == 1)
+        {
+            mTrophyStack = new ArrayList<>();
+            replaceFragment(mCanvas);
+        }
+        else
+        {
+            replaceFragment(mTrophyStack.get(1));
+
+            ArrayList<Fragment> restOfStack = new ArrayList<>();
+            for(int i = 1; i < mTrophyStack.size(); i++)
+                restOfStack.add(mTrophyStack.get(i));
+
+            mTrophyStack = restOfStack;
+        }
+    }
+
+    private void replaceFragment(Fragment newFragment)
+    {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.lobby_fragment_container, newFragment);
+        ft.commit();
+    }
+
+    private void setFragment(Fragment firstFragment)
+    {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.lobby_fragment_container, firstFragment);
+        ft.commit();
     }
 
     private void playerDoubled(String doubler, String decider, String stakes)
     {
         if(doubler.equals(mUsername))
-            Toast.makeText(InGameActivity.this, "You doubled the stakes, "+decider+" is making his decision", Toast.LENGTH_LONG);
+            Toast.makeText(InGameActivity.this, "You doubled the stakes, "+decider+" is making his decision", Toast.LENGTH_LONG).show();
         else if(decider.equals(mUsername))
         {
             new AlertDialog.Builder(InGameActivity.this)
@@ -323,19 +372,19 @@ public class InGameActivity extends AppCompatActivity {
                     .setMessage("Do you accept your opponent's offer?")
                     .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            (new NetworkingTask("doublingDecision")).execute("true");
+                            (new NetworkingTask("accept")).execute();
                         }
                     })
                     .setNegativeButton("NO", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            (new NetworkingTask("doublingDecision")).execute("false");
+                            (new NetworkingTask("reject")).execute();
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
         else
-            Toast.makeText(InGameActivity.this, doubler + " doubled the stakes. "+decider+" is making his decision", Toast.LENGTH_LONG);
+            Toast.makeText(InGameActivity.this, doubler + " doubled the stakes. "+decider+" is making his decision", Toast.LENGTH_LONG).show();
     }
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>>
@@ -370,16 +419,20 @@ public class InGameActivity extends AppCompatActivity {
                         return Utils.JSONToMapList(InGameNetworking.pivotClicked(mUsername));
                     case "refresh":
                         return Utils.JSONToMapList(InGameNetworking.refresh(mUsername));
-                    case "leaveMatch":
-                        return Utils.JSONToMapList(InGameNetworking.leaveMatch(mUsername));
                     case "endTurn":
                         return Utils.JSONToMapList(InGameNetworking.endTurn(mUsername));
                     case "timeOut":
                         return Utils.JSONToMapList(InGameNetworking.timeOut(mUsername));
                     case "startNewGame":
                         return Utils.JSONToMapList(InGameNetworking.startNewGame(mUsername));
-                    case "doublingDecision":
-                        return Utils.JSONToMapList(InGameNetworking.doublingDecision(mUsername, params[0]));
+                    case "accept":
+                        return Utils.JSONToMapList(InGameNetworking.acceptOffer(mUsername));
+                    case "reject":
+                        return Utils.JSONToMapList(InGameNetworking.rejectOffer(mUsername));
+                    case "observerLeaving":
+                        return Utils.JSONToMapList(InGameNetworking.observerLeaving(mUsername));
+                    case "playerLeaving":
+                        return Utils.JSONToMapList(InGameNetworking.playerLeaving(mUsername));
                 }
                 return null;
             }
@@ -421,9 +474,6 @@ public class InGameActivity extends AppCompatActivity {
                     case "mayEndTurn":
                         mCanvas.showEndTurn();
                         break;
-                    case "addedTime":
-                        addGameTime(Integer.parseInt(msg.get("seconds")));
-                        break;
                     case "matchOver":
                         presentFinishedMatch(msg.get("winner"), msg.get("loser"), msg.get("winPoints"), msg.get("lossPoints"));
                         break;
@@ -431,7 +481,7 @@ public class InGameActivity extends AppCompatActivity {
                         presentFinishedGame(msg.get("winner"), msg.get("mult"), msg.get("cube"), msg.get("type"));
                         break;
                     case "explain":
-                        Toast.makeText(InGameActivity.this, msg.get("explain"), Toast.LENGTH_LONG);
+                        Toast.makeText(InGameActivity.this, msg.get("explain"), Toast.LENGTH_LONG).show();
                         break;
                     case "presentTrophy":
                         presentTrophy(Integer.parseInt(msg.get("id")));

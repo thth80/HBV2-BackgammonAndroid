@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import school.throstur.backgammonandroid.Fragments.ListsFragment;
+import school.throstur.backgammonandroid.LobbyActivity;
 import school.throstur.backgammonandroid.R;
 
 /**
@@ -23,15 +24,9 @@ import school.throstur.backgammonandroid.R;
 public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.ListEntryHolder>{
     private ArrayList<HashMap<String, String>> mEntryList;
     private Context mContext;
-    private ListsFragment mParent;
+    private LobbyActivity mParent;
 
-    public LobbyListAdapter(Context context, ArrayList<HashMap<String, String>> entryList, ListsFragment parent) {
-        mContext = context;
-        mEntryList = entryList;
-        mParent = parent;
-    }
-
-    public LobbyListAdapter(Context context, ListsFragment parent)
+    public LobbyListAdapter(Context context, LobbyActivity parent)
     {
         mContext = context;
         mParent = parent;
@@ -151,13 +146,13 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
                             int position = removeEntryById(mId);
                             if(position != -1)
                                 notifyItemRemoved(position);
-                            mParent.cancelWasClicked(mId);
+                            mParent.removeWaitEntry(mId);
                             break;
                         case "observe":
-                            mParent.observeWasClicked(mId);
+                            mParent.attemptObservingMatch(mId);
                             break;
                         case "join":
-                            mParent.joinWasClicked(mId);
+                            mParent.attemptJoiningMatch(mId);
                     }
                 }
             });

@@ -2,13 +2,10 @@ package school.throstur.backgammonandroid.GameBoard;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import school.throstur.backgammonandroid.R;
 import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
@@ -19,7 +16,7 @@ public class AnimationCoordinator {
     private ArrayList<HashMap<String, Integer>> moves, delayedMoves;
     private int currAnimIndex;
     private int[] lastWhiteLighted;
-    boolean isSequential, pawnsAreMoving, diceAreRolling, isDelaying, cubeIsFlipping;
+    boolean isSequential, pawnsAreMoving, diceAreStillRolling, isDelaying, cubeIsFlipping;
 
     private AnimationCoordinator(Context context)
     {
@@ -27,7 +24,7 @@ public class AnimationCoordinator {
         currAnimIndex = 0;
         isSequential = false;
         pawnsAreMoving = false;
-        diceAreRolling = false;
+        diceAreStillRolling = false;
         cubeIsFlipping = false;
 
         DrawableStorage.setContext(context);
@@ -72,12 +69,12 @@ public class AnimationCoordinator {
 
     public boolean isAnimating()
     {
-        return pawnsAreMoving || cubeIsFlipping || diceAreRolling;
+        return pawnsAreMoving || cubeIsFlipping || diceAreStillRolling;
     }
 
     public void startDiceRoll(int first, int second, int team)
     {
-        diceAreRolling = true;
+        diceAreStillRolling = true;
         if(team == Utils.TEAM_WH)
             board.startWhiteDiceRoll(first, second);
         else
@@ -98,7 +95,7 @@ public class AnimationCoordinator {
 
     public boolean isRollingDice()
     {
-        return diceAreRolling;
+        return diceAreStillRolling;
     }
     public boolean isFlippingCube()
     {
@@ -154,15 +151,15 @@ public class AnimationCoordinator {
             batchUpdate(deltaMs);
     }
 
-    public void updateDice(int deltaMs)
+    public boolean updateDice(int deltaMs)
     {
-        boolean oldStatus = diceAreRolling;
-        diceAreRolling = board.updateDice(deltaMs);
-        if(oldStatus != diceAreRolling && isDelaying)
+        diceAreStillRolling = board.updateDice(deltaMs);
+        if(!diceAreStillRolling && isDelaying)
         {
             isDelaying = false;
             whiteLightSquares(lastWhiteLighted);
         }
+        return diceAreStillRolling;
     }
 
     public void updateCube(int deltaMs)

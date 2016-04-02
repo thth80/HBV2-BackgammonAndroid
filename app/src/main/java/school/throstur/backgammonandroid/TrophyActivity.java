@@ -5,7 +5,9 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
@@ -32,9 +34,11 @@ public class TrophyActivity extends AppCompatActivity {
 
     public static Intent trophyDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> trophies)
     {
-        Intent i = new Intent(packageContext, LobbyActivity.class);
+        Intent i = new Intent(packageContext, TrophyActivity.class);
         i.putExtra(SENT_USERNAME, username);
         i.putExtra(SENT_TROPHIES, trophies);
+
+        Log.d("TROPHYROOM", trophies.size()+" number of trophies");
         return i;
     }
 
@@ -42,32 +46,36 @@ public class TrophyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_trophy);
 
+        mUsername = getIntent().getStringExtra(SENT_USERNAME);
         ArrayList<HashMap<String, String>> trophies = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_TROPHIES);
 
-        mUsername = getIntent().getStringExtra(SENT_USERNAME);
+        Log.d("TROPHYROOM", "ONCREATE TROPHYROOM !!!");
+
         mTrophyRecycler = (RecyclerView) findViewById(R.id.trophy_list);
+        mTrophyRecycler.setLayoutManager(new LinearLayoutManager(TrophyActivity.this));
         mAdapter = new TrophyAdapter(TrophyActivity.this, trophies);
         mTrophyRecycler.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
         mLobbyMessage = null;
-        mBackToLobby = (Button)new View(TrophyActivity.this);
+
+        /*mBackToLobby = (Button)new View(TrophyActivity.this);
         mBackToLobby.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
-
+    */
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 (new NetworkingTask(mUsername)).execute();
             }
         }, 0, 5000);
+
     }
 
     @Override

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="school.throstur.backgammonandroid.Fragments.PresentMatchFragment">
+    tools:context=".Fragments.TrophyFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView

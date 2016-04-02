@@ -56,10 +56,11 @@ public class CanvasFragment extends Fragment {
     public static final CanvasFragment newInstance(String boardType, HashMap<String, String> boardDescript)
     {
         CanvasFragment frag = new CanvasFragment();
-        Bundle bdl = new Bundle(2);
-        bdl.putString(BOARD_TYPE, boardType);
-        bdl.putSerializable(BOARD_DESC, boardDescript);
-        frag.setArguments(bdl);
+        Bundle bundle = new Bundle(2);
+        bundle.putString(BOARD_TYPE, boardType);
+        bundle.putSerializable(BOARD_DESC, boardDescript);
+
+        frag.setArguments(bundle);
         return frag;
     }
 
@@ -67,6 +68,7 @@ public class CanvasFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         mButtonPermission = false;
         mCouldDouble = false;
         mPivot = NO_PIVOT;
@@ -101,9 +103,9 @@ public class CanvasFragment extends Fragment {
                 hideEndTurn();
                 mAnimator.unHighlightAll();
                 mPivot = NO_PIVOT;
+                mDrawingCanvas.invalidate();
 
                 mParentGame.endTurnWasClicked();
-                mDrawingCanvas.invalidate();
             }
         });
 
@@ -140,6 +142,7 @@ public class CanvasFragment extends Fragment {
                     mDrawingCanvas.invalidate();
                     mPivot = NO_PIVOT;
                     mParentGame.greenWasClicked(eventAndPos[1]);
+                    //TODO AE: Fela End Turn, gæti verið sjáanlegur og spilari færir til baka
                 }
                 else if (eventAndPos[0].equals("white"))
                 {
@@ -168,8 +171,7 @@ public class CanvasFragment extends Fragment {
         view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
-                                       int oldBottom)
-            {
+                                       int oldBottom) {
                 if (left == 0 && top == 0 && right == 0 && bottom == 0)
                     return;
 
@@ -222,20 +224,23 @@ public class CanvasFragment extends Fragment {
 
     public boolean updateAnimator(int deltaMs)
     {
-        boolean wasMovingPawns = mAnimator.arePawnsMoving();
-        if(deltaMs > 30) deltaMs = 16;
+        boolean pawnsWereMoving = mAnimator.arePawnsMoving();
 
-        mAnimator.updatePawns(deltaMs);
-        mAnimator.updateCube(deltaMs);
-        mAnimator.updateDice(deltaMs);
+        if(pawnsWereMoving)
+            mAnimator.updatePawns(deltaMs);
+        if(mAnimator.isFlippingCube())
+            mAnimator.updateCube(deltaMs);
+        if(mAnimator.isRollingDice() && !mAnimator.updateDice(deltaMs))
+            mDrawingCanvas.invalidate();
 
-        if(wasMovingPawns != mAnimator.arePawnsMoving() && mAnimator.areMovesStored())
+        if(pawnsWereMoving != mAnimator.arePawnsMoving() && mAnimator.areMovesStored())
         {
+            //pawnsAreMoving = TRUE eftir þessa línu
             mAnimator.initPawnAnimation(mAnimator.getStoredMoves());
             mAnimator.emptyStorage();
         }
 
-        if(wasMovingPawns != mAnimator.arePawnsMoving() && mButtonPermission)
+        if(pawnsWereMoving != mAnimator.arePawnsMoving() && mButtonPermission)
         {
             mButtonPermission = false;
             showThrowDice();
@@ -264,10 +269,10 @@ public class CanvasFragment extends Fragment {
         mDrawingCanvas.invalidate();
     }
 
-    public void drawCanvas()
+    /*public void drawCanvas()
     {
         mDrawingCanvas.invalidate();
-    }
+    }*/
 
     public void setAnimator(AnimationCoordinator animator)
     {
@@ -277,7 +282,11 @@ public class CanvasFragment extends Fragment {
 
     public void whiteLightSquares(int[] positions)
     {
-        mAnimator.whiteLightSquares(positions);
+        if(mAnimator.isRollingDice())
+            mAnimator.delayWhiteLighting(positions);
+        else
+            mAnimator.whiteLightSquares(positions);
+
         mDrawingCanvas.invalidate();
     }
 

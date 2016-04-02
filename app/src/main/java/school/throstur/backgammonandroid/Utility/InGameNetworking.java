@@ -99,14 +99,51 @@ public class InGameNetworking {
         }
     }
 
+    public static JSONArray rejectOffer(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse(Utils.HOST + "/reject")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray acceptOffer(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse(Utils.HOST + "/accept")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
     public static JSONArray refresh(String name) throws IOException
     {
         try
         {
-            String url = Uri.parse(Utils.HOST + "/refresh")
+            String url = Uri.parse(Utils.HOST + "/refreshMatch")
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
+
             String json = Utils.getUrlString(url);
             return new JSONArray(json);
         }
@@ -142,6 +179,40 @@ public class InGameNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .appendQueryParameter("pos", pos)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray playerLeaving(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse(Utils.HOST + "/playerLeaving")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
+                    .build().toString();
+            String json = Utils.getUrlString(url);
+            return new JSONArray(json);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    public static JSONArray observerLeaving(String name) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse(Utils.HOST + "/observerLeaving")
+                    .buildUpon()
+                    .appendQueryParameter("name", name)
                     .build().toString();
             String json = Utils.getUrlString(url);
             return new JSONArray(json);

@@ -33,7 +33,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -54,18 +55,20 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static ArrayList<HashMap<String, String>> addWaitEntry(String name, String points, String clock ) throws IOException
+    public static ArrayList<HashMap<String, String>> addWaitEntry(String name, String points, String addedTime ) throws IOException
     {
         try
         {
             String url = Uri.parse(Utils.HOST + "/addWaitEntry")
                     .buildUpon()
                     .appendQueryParameter("name", name)
-                    .appendQueryParameter("clock", clock)
+                    .appendQueryParameter("points", points)
+                    .appendQueryParameter("addedTime", addedTime)
                     .build().toString();
 
             JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
@@ -92,7 +95,8 @@ public class LobbyNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -107,6 +111,25 @@ public class LobbyNetworking {
                     .build().toString();
 
             Log.d(LobbyActivity.TAG, url );
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
+        }
+        catch(Exception e)
+        {
+            Log.d(LobbyActivity.TAG, e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public static ArrayList<HashMap<String, String>> logOut(String user) throws IOException
+    {
+        try
+        {
+            String url = Uri.parse(Utils.HOST + "/logout")
+                    .buildUpon()
+                    .appendQueryParameter("name", user)
+                    .build().toString();
+
             JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
             return Utils.JSONToMapList(jsonArray);
         }

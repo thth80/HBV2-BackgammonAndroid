@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -34,23 +35,25 @@ public class StatsActivity extends AppCompatActivity {
 
     public static Intent statsDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> versusEntries)
     {
-        Intent i = new Intent(packageContext, LobbyActivity.class);
+        Intent i = new Intent(packageContext, StatsActivity.class);
         i.putExtra(SENT_USERNAME, username);
         i.putExtra(SENT_VERSUS, versusEntries);
+
+        Log.d("STATSACTIVITY", versusEntries.toString());
         return i;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_stats);
 
+        Log.d("STATSACTIVITY", "In the ONCreate yeaaaahhh");
         mLobbyMessage = null;
         mUsername = getIntent().getStringExtra(SENT_USERNAME);
         ArrayList<HashMap<String, String>> versusStats = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_VERSUS);
 
-        //mStatRecycler = (RecyclerView) new View(StatsActivity.this);
         mStatRecycler = (RecyclerView) findViewById(R.id.stats_list);
         mAdapter = new StatsAdapter(StatsActivity.this, versusStats, this);
         mStatRecycler.setAdapter(mAdapter);
@@ -81,8 +84,8 @@ public class StatsActivity extends AppCompatActivity {
         Toast.makeText(StatsActivity.this, toast, Toast.LENGTH_LONG);
     }
 
-    public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {
-
+    public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>>
+    {
         private final String mUsername;
 
         NetworkingTask(String username)

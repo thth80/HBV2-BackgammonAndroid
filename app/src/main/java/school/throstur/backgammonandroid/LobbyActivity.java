@@ -69,6 +69,13 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed()
+    {
+        (new NetworkingTask("logout")).execute();
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         if(resultCode == RESULT_OK)
@@ -98,29 +105,34 @@ public class LobbyActivity extends AppCompatActivity {
         mListsFragment = (ListsFragment)fm.findFragmentById(R.id.lobby_fragment_container);
         mDisplayingLists = true;
 
-        if (mListsFragment == null) {
+        if (mListsFragment == null)
+        {
             mListsFragment = new ListsFragment();
             fm.beginTransaction()
                     .add(R.id.lobby_fragment_container, mListsFragment)
                     .commit();
         }
 
-        mSwitchFragButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment toUse = (mDisplayingLists)? mListsFragment : mMatchSetupFragment;
-                FragmentManager fm = getSupportFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(R.id.lobby_fragment_container, toUse);
-                ft.commit();
-            }
-        });
 
         mChatText = (EditText) findViewById(R.id.text_to_submit);
         mSubmitChatButton = (ImageButton) findViewById(R.id.submit_chat);
         mToTrophyButton = (Button) findViewById(R.id.to_trophy);
         mToStatsButton = (Button) findViewById(R.id.to_stats);
         mSwitchFragButton = (ImageButton) findViewById(R.id.btn_swap);
+
+        mSwitchFragButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                Fragment toUse = (mDisplayingLists)? mMatchSetupFragment : new ListsFragment();
+                mDisplayingLists = !mDisplayingLists;
+
+                FragmentManager fm = getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.lobby_fragment_container, toUse);
+                ft.commit();
+            }
+        });
 
         mChatRecycler = (RecyclerView) findViewById(R.id.chat_list);
 
@@ -161,14 +173,18 @@ public class LobbyActivity extends AppCompatActivity {
         mChatRecycler.setLayoutManager(new LinearLayoutManager(LobbyActivity.this));
 
         mInitMessages = initialData;
+
+        Log.d(TAG, "ONCREATING THE LOBBY");
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
-        processInitialData();
+        if(mInitMessages != null)
+            processInitialData();
     }
+
     private void processInitialData()
     {
         for(HashMap<String, String> msg: mInitMessages)
@@ -196,10 +212,6 @@ public class LobbyActivity extends AppCompatActivity {
        // mInitMessages = null;
     }
 
-     /*
-        LOCAL EVENT HANDLING
-     */
-
     private void submitChatEntry()
     {
         String chatEntry = mChatText.getText().toString();
@@ -222,10 +234,6 @@ public class LobbyActivity extends AppCompatActivity {
         else
             (new NetworkingTask("startBotMatch")).execute(points, addedTime, botDiff);
     }
-
-    /*
-        HTTP RESPONSES
-     */
 
     private void appendChatEntry(String chatEntry, String chatType)
     {
@@ -333,6 +341,8 @@ public class LobbyActivity extends AppCompatActivity {
                         return LobbyNetworking.goToStats(mUsername);
                     case "leaveApp":
                         return LobbyNetworking.leaveApp(mUsername);
+                    case "logout":
+                        return LobbyNetworking.logOut(mUsername);
                 }
                 return null;
             }
@@ -357,6 +367,8 @@ public class LobbyActivity extends AppCompatActivity {
                 case "goToTrophy":
                     goToTrophyRoomAfterProcessing = true;
                     break;
+                case "logout":
+                    return;
                 case "goToStats":
                     goToStatsAfterProcessing = true;
             }
@@ -408,7 +420,7 @@ public class LobbyActivity extends AppCompatActivity {
             else if(goToTrophyRoomAfterProcessing)
             {
                 ArrayList<HashMap<String, String>> trophyMessages = Utils.extractSpecificActions(messages, "trophyEntry");
-                startActivityForResult(TrophyActivity.trophyDataIntent(LobbyActivity.this, mUsername, trophyMessages), REQUEST_CODE);
+                startActivity(TrophyActivity.trophyDataIntent(LobbyActivity.this, mUsername, trophyMessages));
             }
             else if(goToStatsAfterProcessing)
             {

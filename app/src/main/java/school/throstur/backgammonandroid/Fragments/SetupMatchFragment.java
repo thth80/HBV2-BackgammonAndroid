@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import school.throstur.backgammonandroid.LobbyActivity;
@@ -24,13 +25,14 @@ public class SetupMatchFragment extends Fragment {
     private RadioGroup mHumanSelection;
     private RadioGroup mDifficultySelection;
 
+    private static boolean firstSetup = true;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         super.onCreateView(inflater, container, savedInstanceState);
-        //TODO ÞÞ: Tengja breytur við rétt element
-        View view = inflater.inflate(R.layout.fragment_lobby_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_setup_match, container, false);
 
         mSetupMatchButton = (Button) view.findViewById(R.id.setup_match_btn);
         mPointsSelection = (RadioGroup) view.findViewById(R.id.points_sel);
@@ -38,25 +40,70 @@ public class SetupMatchFragment extends Fragment {
         mDifficultySelection = (RadioGroup) view.findViewById(R.id.diff_sel);
         mHumanSelection = (RadioGroup) view.findViewById(R.id.human_sel);
 
+        if(firstSetup)
+        {
+            firstSetup = false;
+            ((RadioButton) view.findViewById(R.id.check_bot)).setChecked(true);
+            ((RadioButton) view.findViewById(R.id.easy_difficulty)).setChecked(true);
+            ((RadioButton) view.findViewById(R.id.s15_time)).setChecked(true);
+            ((RadioButton) view.findViewById(R.id.one_point)).setChecked(true);
+        }
+
         mHumanSelection.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                //TODO AE: Disable/Enable difficulty grúppuna eftir því hvort hakað sé við Human eða Bot
-                // Rel-view-ið fyrir difficulty (með id setup_match_view_difficulty) er með visibility attribute
-                // sem er hægt að setja á gone þegar human er valið.
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                boolean isEnabled = (checkedId == R.id.check_bot);
+                for(int i = 0; i < mDifficultySelection.getChildCount(); i++)
+                    ((RadioButton)mDifficultySelection.getChildAt(i)).setEnabled(isEnabled);
+
             }
         });
+
+
+
+        // Rel-view-ið fyrir difficulty (með id setup_match_view_difficulty) er með visibility attribute
+        // sem er hægt að setja á gone þegar human er valið.
 
         mSetupMatchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-                //TODO AE: Extracta gildin úr RadioGroups og setja í breyturnar
-
-                String points = "9"; //1, 3, 5, 7 eða 9
-                String addedTime = "15"; //0, 15, 30, 45
-                String botDifficulty = "1"; //1, 2, 3
-                boolean isHumanMatch = true;
+                boolean isHumanMatch = mHumanSelection.getCheckedRadioButtonId() == R.id.check_human ;
+                String points;
+                switch (mPointsSelection.getCheckedRadioButtonId())
+                {
+                    case R.id.one_point:
+                        points = "1";
+                        break;
+                    case R.id.three_point:
+                        points = "3";
+                        break;
+                    case R.id.five_point:
+                        points = "5";
+                        break;
+                    case R.id.seven_point:
+                        points = "7";
+                        break;
+                    default:
+                        points = "9";
+                }
+                String addedTime;
+                switch (mTimeSelection.getCheckedRadioButtonId())
+                {
+                    case R.id.infinity_time:
+                        addedTime = "0";
+                        break;
+                    case R.id.s15_time:
+                        addedTime = "10";
+                        break;
+                    case R.id.s30_time:
+                        addedTime = "20";
+                        break;
+                    default:
+                        addedTime = "30";;
+                }
+                String botDifficulty = "1";
 
                 LobbyActivity lobby = (LobbyActivity) getActivity();
                 lobby.setupNewMatch(points, addedTime, botDifficulty, isHumanMatch);

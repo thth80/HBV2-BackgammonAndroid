@@ -89,7 +89,7 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
 
         public void bindEntryData(HashMap<String, String> stats)
         {
-            oppoNameTextView.setText(stats.get("name"));
+            oppoNameTextView.setText(stats.get("playerTwo"));
 
             int pointsWon = Integer.parseInt(stats.get("pointsOne"));
             int pointsLost = Integer.parseInt(stats.get("pointsTwo"));
@@ -99,8 +99,8 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
             mPointsProgress.setMax(pointsLost + pointsWon);
             mPointsProgress.setProgress(pointsWon);
 
-            mPawnsProgress.setMax(oppoPawns + userPawns);
-            mPawnsProgress.setProgress(userPawns);
+            mPawnsProgress.setMax(100);
+            mPawnsProgress.setProgress(55);
 
             mStats = stats;
 

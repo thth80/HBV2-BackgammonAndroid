@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_centerHorizontal="true"
-        android:checkedButton="@+id/check_bot"
         android:id="@+id/human_sel">
 
         <RadioButton
@@ -38,7 +37,7 @@
         android:id="@+id/setup_match_view_points">
 
         <ImageView
-            android:id="@+id/setup_match_pointImg"
+            android:id="@+id/setup_match_pointimg"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:contentDescription="@string/point_image_description"
@@ -50,9 +49,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            android:checkedButton="@+id/one_point"
             android:id="@+id/points_sel"
-            android:layout_below="@id/setup_match_pointImg"
+            android:layout_below="@id/setup_match_pointimg"
             android:weightSum="5">
 
             <RadioButton
@@ -122,7 +120,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            android:checkedButton="@+id/infinity_time"
             android:id="@+id/time_sel"
             android:layout_below="@id/setup_match_clock"
             android:weightSum="5">
@@ -186,7 +183,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            android:checkedButton="@+id/easy_difficulty"
             android:id="@+id/diff_sel"
             android:layout_below="@id/setup_match_android"
             android:weightSum="5">
