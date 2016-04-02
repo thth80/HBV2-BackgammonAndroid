@@ -64,4 +64,5 @@
     <string name="heading_example">Francis J. Underwood</string>
     <string name="stats_opponent">Ted Cruz</string>
     <string name="pawn_image_description">An image of a smiley face</string>
+    <string name="leave_match">Leave match</string>
 </resources>

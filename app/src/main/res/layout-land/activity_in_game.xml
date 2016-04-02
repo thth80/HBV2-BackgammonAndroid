@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              xmlns:android.support.v7.recyclerview="http://schemas.android.com/apk/res-auto"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:baselineAligned="false">
+
+    <FrameLayout
+        android:id="@+id/ingame_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="3">
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/ingame_sidebar_container"
+        android:layout_weight="12"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/leave_match"
+            android:id="@+id/btn_leave_match"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/textView"/>
+    </FrameLayout>
+</LinearLayout>
+
