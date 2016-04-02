@@ -47,9 +47,8 @@ public class TrophyActivity extends AppCompatActivity {
 
         ArrayList<HashMap<String, String>> trophies = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_TROPHIES);
 
-        //TODO ÞÞ: Tengja recycler við alvöru recycler
         mUsername = getIntent().getStringExtra(SENT_USERNAME);
-        mTrophyRecycler = (RecyclerView)new View(TrophyActivity.this);
+        mTrophyRecycler = (RecyclerView) findViewById(R.id.trophy_list);
         mAdapter = new TrophyAdapter(TrophyActivity.this, trophies);
         mTrophyRecycler.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();

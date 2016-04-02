@@ -10,11 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import school.throstur.backgammonandroid.R;
 
 /**
  * Created by Aðalsteinn on 25.3.2016.
@@ -38,9 +41,7 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
     public TrophyHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        //View view = inflater.inflate(R.layout.list_item_tvseries, parent, false);
-        //TODO ÞÞ: kalla á inflater.inflate með rétt layout
-        View view = new View(mContext);
+        View view = inflater.inflate(R.layout.trophy_entry, parent, false);
         return new TrophyHolder(view);
     }
 
@@ -56,21 +57,19 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
         private TextView mNameTextView;
         private TextView mDecriptTextView;
         private ProgressBar mTrophyProgress;
-        private Image mTrophyImage;
+        private ImageView mTrophyImage;
 
-        //TODO ÞÞ: Hanna trophy entry, mun innihalda nafn(stuttur texti), lýsingu(lengri texti), mynd(þurfum bara ID) og progress bar
         private Context mContext;
 
         public TrophyHolder(View view)
         {
             super(view);
 
-            //TODO ÞÞ: TEngja þessi element við actual UI element í gegnum view
-            mNameTextView = (TextView)new View(mContext);
-            mDecriptTextView = (TextView)new View(mContext);
-            mTrophyProgress = (ProgressBar)new View(mContext);
+            mNameTextView = (TextView) view.findViewById(R.id.trophy_entry_heading);
+            mDecriptTextView = (TextView) view.findViewById(R.id.trophy_entry_text);
+            mTrophyProgress = (ProgressBar) view.findViewById(R.id.trophy_entry_progBar);
             mTrophyProgress.setMax(100);
-            //tengja mTrophyImage
+            mTrophyImage = (ImageView) view.findViewById(R.id.trophy_entry_img);
 
         }
 
@@ -84,9 +83,12 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
                 progress = (progress >= 100) ? 100 : 0;
 
             mTrophyProgress.setProgress(progress);
+            // TODO AE: Verður imageId með rétt id m.v. drawable?
+            // líka hægt að gera:
+            // int imageId = getResources().getIdentifier("yourpackagename:drawable/" + StringGenerated, null, null);
             int imageId = Integer.parseInt(trophy.get("imageId"));
 
-            //TODO ÞÞ: Nota imageId til að setja rétta mynd
+            mTrophyImage.setImageResource(imageId);
         }
     }
 }
