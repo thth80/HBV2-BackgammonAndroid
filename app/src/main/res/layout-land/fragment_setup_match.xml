@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_centerHorizontal="true"
-        android:checkedButton="@id/check_bot"
+        android:checkedButton="@+id/check_bot"
         android:id="@+id/human_sel">
 
         <RadioButton
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            android:checkedButton="@id/one_point"
+            android:checkedButton="@+id/one_point"
             android:id="@+id/points_sel"
             android:layout_below="@id/setup_match_pointImg"
             android:weightSum="5">
@@ -122,7 +122,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            android:checkedButton="@id/infinity_time"
+            android:checkedButton="@+id/infinity_time"
             android:id="@+id/time_sel"
             android:layout_below="@id/setup_match_clock"
             android:weightSum="5">
@@ -186,7 +186,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            android:checkedButton="@id/easy_difficulty"
+            android:checkedButton="@+id/easy_difficulty"
             android:id="@+id/diff_sel"
             android:layout_below="@id/setup_match_android"
             android:weightSum="5">
