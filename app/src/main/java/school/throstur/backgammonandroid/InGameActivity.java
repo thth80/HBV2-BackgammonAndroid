@@ -11,8 +11,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Choreographer;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,8 +83,8 @@ public class InGameActivity extends AppCompatActivity
         setResult(RESULT_OK);
         mUsername = getIntent().getStringExtra(USERNAME);
         mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
-        //TODO ÞÞ: Tengja takkann rétt
-        mLeaveMatchButton = (Button)new View(InGameActivity.this);
+        mTextClock = (TextView) findViewById(R.id.time_left);
+        mLeaveMatchButton = (Button) findViewById(R.id.btn_leave_match);
         mLeaveMatchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,6 +105,11 @@ public class InGameActivity extends AppCompatActivity
         else
         {
             //FELA KLUKKU
+            // TODO AE: Ég held við getum falið klukkuna svona, spurning um að skilgreina sidebar
+            // annars staðar.
+            FrameLayout sidebar = (FrameLayout) findViewById(R.id.ingame_sidebar_container);
+            mTextClock.setVisibility(sidebar.GONE);
+
             HashMap<String, String> boardDescript = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
             mCanvas = CanvasFragment.newInstance(CanvasFragment.EXISTING_BOARD, boardDescript);
 
@@ -154,7 +161,8 @@ public class InGameActivity extends AppCompatActivity
         mClockTimer.cancel();
         (new NetworkingTask("timeOut")).execute();
 
-        //TODO ÞÞ: Láta klukku UI element fá rétt gildi mAddedTime/1000
+        // Láta klukku UI element fá rétt gildi mAddedTime/1000
+        mTextClock.setText(mAddedTime/1000);
         Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG).show();
     }
 

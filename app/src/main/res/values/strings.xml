@@ -65,4 +65,5 @@
     <string name="stats_opponent">Ted Cruz</string>
     <string name="pawn_image_description">An image of a smiley face</string>
     <string name="leave_match">Leave match</string>
+    <string name="example_time_left">45</string>
 </resources>
