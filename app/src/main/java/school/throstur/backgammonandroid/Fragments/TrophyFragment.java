@@ -58,6 +58,6 @@ public class TrophyFragment extends Fragment {
         });
 
         //Tengja við UI
-        return inflater.inflate(R.layout.fragment_present_match, container, false);
+        return inflater.inflate(R.layout.fragment_present_trophy, container, false);
     }
 }

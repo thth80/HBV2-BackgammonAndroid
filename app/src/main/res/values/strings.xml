@@ -66,4 +66,6 @@
     <string name="pawn_image_description">An image of a smiley face</string>
     <string name="leave_match">Leave match</string>
     <string name="example_time_left">45</string>
+    <string name="btn_ok">Ok</string>
+    <string name="present_trophy_heading">WOW! A NEW TROPHY!</string>
 </resources>

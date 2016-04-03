@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:background="@drawable/xthin_border"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:gravity="center"
-              android:weightSum="10">
+              android:layout_height="match_parent">
         <TextView
             android:id="@+id/chat_entry"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_weight="10"
-            android:text="@string/chat_testMsg"
-            android:inputType="textLongMessage"
+            android:text="@string/lorem_ipsum"
             android:textStyle="bold"
-            android:textColor="@color/darkGrey"/>
-</TableRow>
+            android:textColor="@color/darkGrey"
+            android:singleLine="false"/>
+</LinearLayout>
