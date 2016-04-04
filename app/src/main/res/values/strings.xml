@@ -68,4 +68,11 @@
     <string name="example_time_left">45</string>
     <string name="btn_ok">Ok</string>
     <string name="present_trophy_heading">WOW! A NEW TROPHY!</string>
+    <string name="throw_dice">Throw Dices</string>
+    <string name="end_turn">End Turn</string>
+    <string name="double_stakes">Double Stakes</string>
+    <string name="match_time_example">No time limit</string>
+    <string name="match_score_example">5 point match</string>
+    <string name="match_heading_example">The match is over!</string>
+    <string name="match_post_info_example">IceHot1 won by backgammon! \nThe cube miltiplier was 2 \nTotal points to IceHot1: 6</string>
 </resources>

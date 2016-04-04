@@ -1,12 +1,168 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="450dp"
     android:layout_height="match_parent"
-    tools:context="school.throstur.backgammonandroid.Fragments.CanvasFragment">
+    tools:context="school.throstur.backgammonandroid.Fragments.CanvasFragment"
+    >
 
-    <school.throstur.backgammonandroid.DrawingCanvas
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/game_canvas"/>
+        android:id="@+id/game_canvas"
+        android:background="@drawable/game_board" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/throw_dice"
+        android:id="@+id/throw_dice"
+        android:layout_gravity="left|center_vertical"
+        android:layout_marginLeft="100dp"
+        android:background="@color/colorPrimaryDark"
+        android:textColor="@color/white"
+        android:visibility="gone"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/end_turn"
+        android:id="@+id/end_turn"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        android:background="@color/orange"
+        android:visibility="gone"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/double_stakes"
+        android:id="@+id/double_stakes"
+        android:layout_gravity="center_vertical|right"
+        android:layout_marginRight="100dp"
+        android:textColor="@color/white"
+        android:background="@color/red"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:id="@+id/player_presentation"
+        android:layout_width="250dp"
+        android:layout_height="200dp"
+        android:background="@color/black_transparent"
+        android:layout_gravity="center"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/match_player_one_view"
+            android:layout_width="80dp"
+            android:layout_height="110dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="30dp">
+            <ImageView
+                android:id="@+id/match_player_one_img"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/monster1"/>
+            <TextView
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/match_player_one_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="Mossack"
+                android:layout_below="@+id/match_player_one_img"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/match_player_two_view"
+            android:layout_width="80dp"
+            android:layout_height="110dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="20dp">
+            <ImageView
+                android:id="@+id/match_player_two_img"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/monster2"/>
+            <TextView
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/match_player_two_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="Fonseca"
+                android:layout_below="@+id/match_player_two_img"
+                android:layout_centerHorizontal="true"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:id="@+id/match_info_view"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/match_score_example"
+                android:id="@+id/match_info_score"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_centerInParent="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/match_time_example"
+                android:id="@+id/match_info_time"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_centerInParent="true"
+                android:layout_below="@+id/match_info_score"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/post_match_presentation"
+        android:layout_width="260dp"
+        android:layout_height="150dp"
+        android:background="@color/black_transparent"
+        android:layout_gravity="center"
+        android:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/match_heading_example"
+            android:id="@+id/post_match_heading"
+            android:textColor="@color/white"
+            android:layout_marginTop="6dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/match_post_info_example"
+            android:id="@+id/post_match_info"
+            android:singleLine="false"
+            android:textColor="@color/white"
+            android:layout_centerInParent="true"
+            android:layout_below="@+id/post_match_heading"
+            android:textStyle="bold"/>
+    </RelativeLayout>
 
 </FrameLayout>
