@@ -17,12 +17,13 @@ import java.util.HashMap;
 import school.throstur.backgammonandroid.Adapters.LobbyListAdapter;
 import school.throstur.backgammonandroid.LobbyActivity;
 import school.throstur.backgammonandroid.R;
+import school.throstur.backgammonandroid.Utility.LobbyData;
 
 
 public class ListsFragment extends Fragment {
-    private static RecyclerView mListRecycler = null;
-    private static LobbyListAdapter mListAdapter = null;
-    private static LobbyActivity mParent = null;
+    private  RecyclerView mListRecycler;
+    private  LobbyListAdapter mListAdapter;
+    private  LobbyActivity mParent;
 
     public ListsFragment()
     {
@@ -33,12 +34,10 @@ public class ListsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        if(mListAdapter == null)
-        {
-            mParent = (LobbyActivity)getActivity();
-            mListAdapter = new LobbyListAdapter(getActivity(), mParent);
-        }
+        mParent = (LobbyActivity)getActivity();
+        mListAdapter = new LobbyListAdapter(getActivity(), mParent, LobbyData.getListEntries());
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {

@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import school.throstur.backgammonandroid.Fragments.CanvasFragment;
 import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
@@ -13,6 +14,7 @@ public class AnimationCoordinator {
     public static final int NOT_AN_ID = -1;
 
     private BoardManager board;
+    private Pawn movingPawn;
     private ArrayList<HashMap<String, Integer>> moves, delayedMoves;
     private int currAnimIndex;
     private int[] lastWhiteLighted;
@@ -21,6 +23,8 @@ public class AnimationCoordinator {
     private AnimationCoordinator(Context context)
     {
         moves = null;
+        movingPawn = null;
+
         currAnimIndex = 0;
         isSequential = false;
         pawnsAreMoving = false;
@@ -44,22 +48,49 @@ public class AnimationCoordinator {
         return existingBoard;
     }
 
-    //0.0 <= cx og cy <= 1.0
-    public String wasSquareClicked(double cx, double cy, int pivot)
+    public boolean isMovingSinglePawn()
+    {
+        return movingPawn != null;
+    }
+
+    public void highlightGreens(int[] greens)
+    {
+        for(int i = 0; i < greens.length; i++)
+            board.greenLightSquare(greens[i]);
+    }
+
+    public int wasWhiteSquareClicked(double cx, double cy)
+    {
+        Square square = board.getClickedSquare(cx , cy);
+        if(square == null || square.getLighting() != Utils.WHITE_LIGHT)
+            return CanvasFragment.NO_SQUARE;
+        else
+            return square.getPosition();
+    }
+
+    public void movePawnTo(double cx, double cy)
+    {
+        movingPawn.placeAt(cx, cy);
+    }
+
+    public void pickUpPawnAt(int pos)
+    {
+        movingPawn = board.getPawnFrom(pos);
+    }
+
+    public void addPawnTo(int pos)
+    {
+        board.addPawnTo(movingPawn, pos);
+        movingPawn = null;
+    }
+
+    public int wasGreenSquareBelow(double cx, double cy)
     {
         Square square = board.getClickedSquare(cx, cy);
-        if(square == null) return "none_0";
-        else if(square.getPosition() == pivot)
-                 return "pivot_"+square.getPosition();
-
-        switch(square.getLighting())
-        {
-            case Utils.WHITE_LIGHT:
-                return "white_"+square.getPosition();
-            case Utils.GREEN_LIGHT:
-                return "green_"+square.getPosition();
-        }
-        return "none_0";
+        if(square == null || square.getLighting() != Utils.GREEN_LIGHT)
+            return CanvasFragment.NO_SQUARE;
+        else
+            return square.getPosition();
     }
 
     public boolean arePawnsMoving()
@@ -128,19 +159,6 @@ public class AnimationCoordinator {
                     board.setUpNextMove(move.get("from"), move.get("to"), move.get("killMove"), currAnimIndex);
         }
 
-    }
-
-    public void performInTurnMoves(ArrayList<HashMap<String, Integer>> moves)
-    {
-        board.prepareTeleport();
-        isSequential = true;
-        currAnimIndex = 0;
-        for(HashMap<String, Integer> move: moves)
-        {
-            board.setUpNextMove(move.get("from"), move.get("to"), move.get("killMoce"), currAnimIndex++);
-            board.updateMovers(1);
-            board.finishMove(currAnimIndex - 1, move.get("to"));
-        }
     }
 
     public void updatePawns(int deltaMs)
@@ -275,6 +293,7 @@ public class AnimationCoordinator {
     }
     public void whiteLightSquares(int[] positions)
     {
+        lastWhiteLighted = positions;
         for(int pos: positions)
             board.whiteLightSquare(pos);
     }

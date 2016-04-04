@@ -48,6 +48,23 @@ public class BoardManager {
         return custom;
     }
 
+    public Pawn getPawnFrom(int pos)
+    {
+        return squares[pos].removePawn();
+    }
+    public void addPawnTo(Pawn pawn, int pos)
+    {
+        Pawn killed = squares[pos].addPawn(pawn);
+        if(killed != null)
+        {
+            if(killed.getTeam() == Utils.TEAM_WH)
+                squares[25].addPawn(killed);
+            else
+                squares[0].addPawn(killed);
+        }
+
+    }
+
     public boolean updateCube(int deltaMs)
     {
         return false;

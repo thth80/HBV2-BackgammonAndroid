@@ -49,15 +49,14 @@ public class StatsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
 
-        Log.d("STATSACTIVITY", "In the ONCreate yeaaaahhh");
         mLobbyMessage = null;
         mUsername = getIntent().getStringExtra(SENT_USERNAME);
         ArrayList<HashMap<String, String>> versusStats = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_VERSUS);
 
         mStatRecycler = (RecyclerView) findViewById(R.id.stats_list);
         mAdapter = new StatsAdapter(StatsActivity.this, versusStats, this);
-        mStatRecycler.setAdapter(mAdapter);
         mStatRecycler.setLayoutManager(new LinearLayoutManager(StatsActivity.this));
+        mStatRecycler.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
         new Timer().scheduleAtFixedRate(new TimerTask() {
@@ -72,16 +71,16 @@ public class StatsActivity extends AppCompatActivity {
     public void onBackPressed()
     {
         if(mLobbyMessage == null)
-            setResult(RESULT_OK);
+            setResult(RESULT_CANCELED);
         else
-            setResult(RESULT_CANCELED, mLobbyMessage);
+            setResult(RESULT_OK, mLobbyMessage);
 
-        super.onBackPressed();
+        finish();
     }
 
     public void makeToast(String toast)
     {
-        Toast.makeText(StatsActivity.this, toast, Toast.LENGTH_LONG);
+        Toast.makeText(StatsActivity.this, toast, Toast.LENGTH_LONG).show();
     }
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>>

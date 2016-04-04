@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import school.throstur.backgammonandroid.Fragments.LoginFragment;
+import school.throstur.backgammonandroid.Utility.LobbyData;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class LoginActivity extends FragmentActivity {
@@ -87,12 +88,12 @@ public class LoginActivity extends FragmentActivity {
 
             for(HashMap<String, String> msg: msgs)
             {
-                Log.d("LOGINACTIVITY", "ACTION OF MESSAGE: "+msg.get("action"));
                 if(msg.get("action").equals("legalSignup"))
                 {
                     String username = msg.get("username");
+                    LobbyData.setData(msgs, username);
 
-                    startActivity(LobbyActivity.initLobbyIntent(LoginActivity.this, username, msgs));
+                    startActivity(LobbyActivity.initLobbyIntent(LoginActivity.this, username));
                 }
                 else if(msg.get("action").equals("explain"))
                 {

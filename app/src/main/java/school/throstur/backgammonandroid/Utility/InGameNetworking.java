@@ -153,32 +153,15 @@ public class InGameNetworking {
         }
     }
 
-    public static JSONArray whiteSquare(String name, String pos) throws IOException
-    {
-        try
-        {
-            String url = Uri.parse(Utils.HOST + "/whiteSquare")
-                    .buildUpon()
-                    .appendQueryParameter("name", name)
-                    .appendQueryParameter("pos", pos)
-                    .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-    }
-
-    public static JSONArray greenSquare(String name, String pos) throws IOException
+    public static JSONArray greenSquare(String name, String from, String to) throws IOException
     {
         try
         {
             String url = Uri.parse(Utils.HOST + "/greenSquare")
                     .buildUpon()
                     .appendQueryParameter("name", name)
-                    .appendQueryParameter("pos", pos)
+                    .appendQueryParameter("from", from)
+                    .appendQueryParameter("to", to)
                     .build().toString();
             String json = Utils.getUrlString(url);
             return new JSONArray(json);
@@ -223,22 +206,6 @@ public class InGameNetworking {
         }
     }
 
-    public static JSONArray pivotClicked(String name) throws IOException
-    {
-        try
-        {
-            String url = Uri.parse(Utils.HOST + "/pivot")
-                    .buildUpon()
-                    .appendQueryParameter("name", name)
-                    .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-    }
 
     public static JSONArray leaveMatch(String name) throws IOException
     {

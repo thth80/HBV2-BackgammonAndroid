@@ -25,12 +25,12 @@ import java.util.TimerTask;
 import school.throstur.backgammonandroid.Adapters.ChatAdapter;
 import school.throstur.backgammonandroid.Fragments.ListsFragment;
 import school.throstur.backgammonandroid.Fragments.SetupMatchFragment;
+import school.throstur.backgammonandroid.Utility.LobbyData;
 import school.throstur.backgammonandroid.Utility.LobbyNetworking;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class LobbyActivity extends AppCompatActivity {
     private static final String USERNAME_FROM_LOGIN = "usernameExtra";
-    private static final String INIT_DATA_FROM_LOGIN = "hhhherrrrrrrrppppderrrrppp";
     private static final String MATCH_PRESENTATION = "ForPassingPresFromStatsToHere";
     private static final int REQUEST_CODE = 666;
 
@@ -46,7 +46,6 @@ public class LobbyActivity extends AppCompatActivity {
     private SetupMatchFragment mMatchSetupFragment;
     private ListsFragment mListsFragment;
     private boolean mDisplayingLists;
-    private ArrayList<HashMap<String, String>> mInitMessages;
 
     private RecyclerView mChatRecycler;
     private ChatAdapter mChatAdapter;
@@ -60,11 +59,10 @@ public class LobbyActivity extends AppCompatActivity {
         return i;
     }
 
-    public static Intent initLobbyIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> initData)
+    public static Intent initLobbyIntent(Context packageContext, String username)
     {
         Intent i = new Intent(packageContext, LobbyActivity.class);
         i.putExtra(USERNAME_FROM_LOGIN, username);
-        i.putExtra(INIT_DATA_FROM_LOGIN, initData);
         return i;
     }
 
@@ -72,13 +70,14 @@ public class LobbyActivity extends AppCompatActivity {
     public void onBackPressed()
     {
         (new NetworkingTask("logout")).execute();
+        LobbyData.clearData();
         super.onBackPressed();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if(resultCode == RESULT_OK)
+        if(resultCode == RESULT_CANCELED)
         {
             mRefresher = new Timer();
             mRefresher.scheduleAtFixedRate(new TimerTask() {
@@ -91,7 +90,7 @@ public class LobbyActivity extends AppCompatActivity {
         else
         {
             HashMap<String, String> matchPresentation = (HashMap<String, String>)data.getSerializableExtra(MATCH_PRESENTATION);
-            startActivityForResult(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation), REQUEST_CODE);
+            startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation));
         }
     }
 
@@ -102,17 +101,12 @@ public class LobbyActivity extends AppCompatActivity {
 
         FragmentManager fm = getSupportFragmentManager();
         mMatchSetupFragment = new SetupMatchFragment();
-        mListsFragment = (ListsFragment)fm.findFragmentById(R.id.lobby_fragment_container);
+
+        mListsFragment = new ListsFragment();
+        fm.beginTransaction()
+                .add(R.id.lobby_fragment_container, mListsFragment)
+                .commit();
         mDisplayingLists = true;
-
-        if (mListsFragment == null)
-        {
-            mListsFragment = new ListsFragment();
-            fm.beginTransaction()
-                    .add(R.id.lobby_fragment_container, mListsFragment)
-                    .commit();
-        }
-
 
         mChatText = (EditText) findViewById(R.id.text_to_submit);
         mSubmitChatButton = (ImageButton) findViewById(R.id.submit_chat);
@@ -133,8 +127,6 @@ public class LobbyActivity extends AppCompatActivity {
                 ft.commit();
             }
         });
-
-        mChatRecycler = (RecyclerView) findViewById(R.id.chat_list);
 
         mSubmitChatButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,53 +155,19 @@ public class LobbyActivity extends AppCompatActivity {
             }
         }, 7000, 7500);
 
-
         mUsername = getIntent().getStringExtra(USERNAME_FROM_LOGIN);
-        ArrayList<HashMap<String, String>> initialData =
-                (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(INIT_DATA_FROM_LOGIN);
 
-        mChatAdapter = new ChatAdapter(LobbyActivity.this, this);
+        mChatRecycler = (RecyclerView) findViewById(R.id.chat_list);
+        mChatAdapter = new ChatAdapter(LobbyActivity.this, LobbyData.getChatEntries() ,this);
         mChatRecycler.setAdapter(mChatAdapter);
         mChatRecycler.setLayoutManager(new LinearLayoutManager(LobbyActivity.this));
 
-        mInitMessages = initialData;
-
-        Log.d(TAG, "ONCREATING THE LOBBY");
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
-        if(mInitMessages != null)
-            processInitialData();
-    }
-
-    private void processInitialData()
-    {
-        for(HashMap<String, String> msg: mInitMessages)
-        {
-            Log.d(LobbyActivity.TAG + " Init", msg.get("action"));
-            switch (msg.get("action"))
-            {
-                case "chatBatch":
-                    addChatBatch(msg);
-                    break;
-                case "waitEntry":
-                    addWaitEntry(msg);
-                    break;
-                case "ongoingEntry":
-                    addOngoingEntry(msg);
-                    break;
-                case "deletedEntries":
-                    removeListEntries(msg);
-                    break;
-                case "deletedEntry":
-                    removeListEntry(msg.get("id"));
-                    break;
-            }
-        }
-       // mInitMessages = null;
     }
 
     private void submitChatEntry()
@@ -218,7 +176,7 @@ public class LobbyActivity extends AppCompatActivity {
         mChatText.setText("");
 
         if(chatEntry.length() == 0)
-            Toast.makeText(LobbyActivity.this, "If you want to chat you must write something down!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LobbyActivity.this, "No text to send, no chat for you!", Toast.LENGTH_SHORT).show();
         else
         {
             mChatAdapter.appendEntry("[" + mUsername + "]: " + chatEntry);
@@ -247,15 +205,6 @@ public class LobbyActivity extends AppCompatActivity {
         for(int i = 0; i < chats.size(); i++)
             mChatAdapter.appendEntry(chats.get("" + i));
         mChatAdapter.notifyDataSetChanged();
-    }
-
-    public SetupMatchFragment getSetupMatch()
-    {
-        return mMatchSetupFragment;
-    }
-    public ListsFragment getListsFragment()
-    {
-        return mListsFragment;
     }
 
     public void attemptObservingMatch(String id)
@@ -311,9 +260,6 @@ public class LobbyActivity extends AppCompatActivity {
             mPath = path;
         }
 
-        /*
-            HTTP REQUESTS
-         */
         @Override
         protected ArrayList<HashMap<String, String>> doInBackground(String... params)
         {
@@ -368,7 +314,7 @@ public class LobbyActivity extends AppCompatActivity {
                     goToTrophyRoomAfterProcessing = true;
                     break;
                 case "logout":
-                    return;
+                    finish();
                 case "goToStats":
                     goToStatsAfterProcessing = true;
             }
@@ -407,20 +353,23 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             }
 
+            if(startMatchAfterProcessing || observeMatchAfterProcessing || goToTrophyRoomAfterProcessing || goToStatsAfterProcessing)
+                mRefresher.cancel();
+
             if(startMatchAfterProcessing)
             {
                 HashMap<String, String> matchPresentation = Utils.extractSpecificAction(messages, "presentMatch");
-                startActivityForResult(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation), REQUEST_CODE);
+                startActivity(InGameActivity.playingUserIntent(LobbyActivity.this, mUsername, matchPresentation));
             }
             else if(observeMatchAfterProcessing)
             {
                 HashMap<String, String> currentBoardState = Utils.extractSpecificAction(messages, "wholeBoard");
-                startActivityForResult(InGameActivity.obersvingUserIntent(LobbyActivity.this, mUsername, currentBoardState), REQUEST_CODE);
+                startActivity(InGameActivity.obersvingUserIntent(LobbyActivity.this, mUsername, currentBoardState));
             }
             else if(goToTrophyRoomAfterProcessing)
             {
                 ArrayList<HashMap<String, String>> trophyMessages = Utils.extractSpecificActions(messages, "trophyEntry");
-                startActivity(TrophyActivity.trophyDataIntent(LobbyActivity.this, mUsername, trophyMessages));
+                startActivityForResult(TrophyActivity.trophyDataIntent(LobbyActivity.this, mUsername, trophyMessages), REQUEST_CODE);
             }
             else if(goToStatsAfterProcessing)
             {

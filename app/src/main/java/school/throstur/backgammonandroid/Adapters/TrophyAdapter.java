@@ -87,7 +87,7 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
             if(!isAccumulated)
                 progress = (progress >= 100) ? 100 : 0;
 
-            mTrophyProgress.setProgress(76);
+            mTrophyProgress.setProgress(55);
             //Drawable image = mContext.getResources().getDrawable(R.drawable.trophy_icon);
 
             //mTrophyImage.setImageDrawable(image);

@@ -21,7 +21,8 @@ import school.throstur.backgammonandroid.R;
 /**
  * Created by Aðalsteinn on 25.3.2016.
  */
-public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.ListEntryHolder>{
+public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.ListEntryHolder>
+{
     private ArrayList<HashMap<String, String>> mEntryList;
     private Context mContext;
     private LobbyActivity mParent;
@@ -31,6 +32,13 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
         mContext = context;
         mParent = parent;
         mEntryList = new ArrayList<>();
+    }
+
+    public LobbyListAdapter(Context context, LobbyActivity parent, ArrayList<HashMap<String, String>> entries)
+    {
+        mContext = context;
+        mParent = parent;
+        mEntryList = entries;
     }
 
     @Override

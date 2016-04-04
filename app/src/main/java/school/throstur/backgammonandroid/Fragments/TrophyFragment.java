@@ -14,8 +14,8 @@ import java.util.HashMap;
 import school.throstur.backgammonandroid.InGameActivity;
 import school.throstur.backgammonandroid.R;
 
-public class TrophyFragment extends Fragment {
-
+public class TrophyFragment extends Fragment
+{
     private static final String TROPHY_DESC = "description of the trophy";
     private Button mReturnButton;
     private InGameActivity mParent;
@@ -49,7 +49,9 @@ public class TrophyFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         super.onCreateView(inflater, container, savedInstanceState);
-        mReturnButton = (Button) new View(getActivity());
+        View view = inflater.inflate(R.layout.fragment_present_trophy, container, false);
+
+        mReturnButton = (Button) view.findViewById(R.id.present_trophy_btn);
         mReturnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +59,6 @@ public class TrophyFragment extends Fragment {
             }
         });
 
-        //Tengja við UI
-        return inflater.inflate(R.layout.fragment_present_trophy, container, false);
+        return view;
     }
 }

@@ -51,8 +51,6 @@ public class TrophyActivity extends AppCompatActivity {
         mUsername = getIntent().getStringExtra(SENT_USERNAME);
         ArrayList<HashMap<String, String>> trophies = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_TROPHIES);
 
-        Log.d("TROPHYROOM", "ONCREATE TROPHYROOM !!!");
-
         mTrophyRecycler = (RecyclerView) findViewById(R.id.trophy_list);
         mTrophyRecycler.setLayoutManager(new LinearLayoutManager(TrophyActivity.this));
         mAdapter = new TrophyAdapter(TrophyActivity.this, trophies);
@@ -74,7 +72,7 @@ public class TrophyActivity extends AppCompatActivity {
             public void run() {
                 (new NetworkingTask(mUsername)).execute();
             }
-        }, 0, 5000);
+        }, 0, 10000);
 
     }
 
@@ -82,11 +80,11 @@ public class TrophyActivity extends AppCompatActivity {
     public void onBackPressed()
     {
         if(mLobbyMessage == null)
-            setResult(RESULT_OK);
+            setResult(RESULT_CANCELED);
         else
-            setResult(RESULT_CANCELED, mLobbyMessage);
+            setResult(RESULT_OK, mLobbyMessage);
 
-        super.onBackPressed();
+        finish();
     }
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>> {

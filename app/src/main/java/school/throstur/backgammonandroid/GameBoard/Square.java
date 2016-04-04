@@ -51,14 +51,16 @@ public class Square {
         return removed;
     }
 
-    public void addPawn(Pawn pawn)
+    public Pawn addPawn(Pawn pawn)
     {
-        if(getCount() == 1 && pawn.getTeam() == getFirstPawn().getTeam())
-            pawns.remove(0);
+        Pawn removedPawn = null;
+        if(getCount() == 1 && pawn.getTeam() != getFirstPawn().getTeam())
+            removedPawn = pawns.remove(0);
 
         double availSpotCY = getAvailableSpot();
         pawn.placeAt(cx, availSpotCY);
         pawns.add(pawn);
+        return removedPawn;
     }
 
     public double getAvailableSpot()

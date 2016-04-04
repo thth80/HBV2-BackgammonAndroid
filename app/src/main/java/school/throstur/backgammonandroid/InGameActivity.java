@@ -4,14 +4,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Choreographer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -44,7 +42,7 @@ public class InGameActivity extends AppCompatActivity
 
     private Timer  mRefresher, mClockTimer;
     private CanvasFragment mCanvas;
-    private ArrayList<Fragment> mTrophyStack;
+    private ArrayList<Integer> mTrophyIds;
 
     private Button mLeaveMatchButton;
     private TextView mTextClock;
@@ -76,13 +74,12 @@ public class InGameActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_in_game);
 
         mMatchOver = false;
-        setResult(RESULT_OK);
         mUsername = getIntent().getStringExtra(USERNAME);
         mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
+
         mTextClock = (TextView) findViewById(R.id.time_left);
         mLeaveMatchButton = (Button) findViewById(R.id.btn_leave_match);
         mLeaveMatchButton.setOnClickListener(new View.OnClickListener() {
@@ -94,52 +91,42 @@ public class InGameActivity extends AppCompatActivity
 
         if(mIsPlaying)
         {
-            mCanvas = CanvasFragment.newInstance(CanvasFragment.NEW_BOARD, null);
+            HashMap<String, String> matchPres = (HashMap<String, String>)getIntent().getSerializableExtra(PRESENT_DATA);
+            mCanvas = CanvasFragment.newInstance(CanvasFragment.NEW_BOARD, null, matchPres);
 
-            HashMap<String, String> pres = (HashMap<String, String>)getIntent().getSerializableExtra(PRESENT_DATA);
-            mAddedTime = Integer.parseInt(pres.get("addedTime"));
-            //Setja klukku á infinity
-            //Það þarf að koma match presentatation gögnum til Fragment, líklega í gegnum NewInstance
+            mAddedTime = Integer.parseInt(matchPres.get("addedTime"));
+            if(mAddedTime == 0)
+                mTextClock.setText("inf");
 
         }
         else
         {
-            //FELA KLUKKU
-            // TODO AE: Ég held við getum falið klukkuna svona, spurning um að skilgreina sidebar
-            // annars staðar.
+            // TODO AE: Ég held við getum falið klukkuna svona, spurning um að skilgreina sidebar annars staðar
             FrameLayout sidebar = (FrameLayout) findViewById(R.id.ingame_sidebar_container);
             mTextClock.setVisibility(sidebar.GONE);
 
             HashMap<String, String> boardDescript = (HashMap<String, String>)getIntent().getSerializableExtra(CURRENT_BOARD);
-            mCanvas = CanvasFragment.newInstance(CanvasFragment.EXISTING_BOARD, boardDescript);
-
+            mCanvas = CanvasFragment.newInstance(CanvasFragment.EXISTING_BOARD, boardDescript, null);
         }
 
         setFragment(mCanvas);
 
         int delayUntilFirstRefresh = (mIsPlaying)? 5000 : 1500;
-        //Hér þarf að henda á Fragment.hideMatchPres(
         mRefresher = new Timer();
         mRefresher.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                mCanvas.hideMatchPresentation();
                 (new NetworkingTask("refresh")).execute();
             }
         }, delayUntilFirstRefresh, 2500);
     }
 
-    public void greenWasClicked(String pos)
+    public void greenWasClicked(int from, int to)
     {
-        (new NetworkingTask("green")).execute(pos);
+        (new NetworkingTask("green")).execute(from + "", to + "");
     }
-    public void whiteWasClicked(String pos)
-    {
-        (new NetworkingTask("white")).execute(pos);
-    }
-    public void pivotWasClicked()
-    {
-        (new NetworkingTask("pivot")).execute();
-    }
+
     public void endTurnWasClicked()
     {
         mClockTimer.cancel();
@@ -161,7 +148,6 @@ public class InGameActivity extends AppCompatActivity
         mClockTimer.cancel();
         (new NetworkingTask("timeOut")).execute();
 
-        // Láta klukku UI element fá rétt gildi mAddedTime/1000
         mTextClock.setText(mAddedTime/1000);
         Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG).show();
     }
@@ -171,8 +157,7 @@ public class InGameActivity extends AppCompatActivity
         if(!mIsPlaying)
         {
             (new NetworkingTask("observerLeaving")).execute();
-            super.onBackPressed();
-            return;
+            finish();
         }
 
         new AlertDialog.Builder(InGameActivity.this)
@@ -193,9 +178,6 @@ public class InGameActivity extends AppCompatActivity
                 .show();
     }
 
-    /*
-        HTTP RESPONSE aðferðir
-    */
     private void startAnimation(HashMap<String, String> animInfo)
     {
         ArrayList<HashMap<String, Integer>> animMoves = Utils.convertToAnimationMoves(animInfo);
@@ -215,12 +197,6 @@ public class InGameActivity extends AppCompatActivity
 
     }
 
-    private void performInTurnMoves(HashMap<String, String> moveInfo)
-    {
-        ArrayList<HashMap<String, Integer>> inTurnMoves = Utils.convertToAnimationMoves(moveInfo);
-        mCanvas.performInTurnMoves(inTurnMoves);
-    }
-
     private void startDiceRoll(int first, int second, int team, String thrower)
     {
         mCanvas.startDiceRoll(first, second, team);
@@ -228,16 +204,13 @@ public class InGameActivity extends AppCompatActivity
             mShouldResetClock = true;
     }
 
-    private void whiteLightSquares(HashMap<String, String> positions)
+    private void allHighlights(HashMap<String, String> highlightInfo)
     {
-        int[] squarePositions = Utils.extractIntsFromPositionMessage(positions);
-        mCanvas.whiteLightSquares(squarePositions);
-    }
+        HashMap<Integer, int[]> lightingData = Utils.convertToHighlights(highlightInfo);
+        int[] whitePositions = Utils.getWhitesFromLightingMap(lightingData);
 
-    private void greenLightSquares(HashMap<String, String> positions)
-    {
-        int[] squarePositions = Utils.extractIntsFromPositionMessage(positions);
-        mCanvas.greenLightSquares(squarePositions);
+        mCanvas.setLightingData(lightingData);
+        mCanvas.whiteLightSquares(whitePositions);
     }
 
     private void showButtonsIfPossible(boolean canDouble)
@@ -262,9 +235,9 @@ public class InGameActivity extends AppCompatActivity
     public void resetGameClock()
     {
         mShouldResetClock = false;
-
         mLastGameClockTime = System.currentTimeMillis();
         mClockTimer = new Timer();
+
         mClockTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -276,13 +249,13 @@ public class InGameActivity extends AppCompatActivity
                 if (mTimeLeftMs <= 0)
                     onTimeRunningOut();
             }
-        }, 25, 150);
+        }, 25, 250);
     }
 
     private void presentFinishedMatch(String winner, String loser, String winPoints, String lossPoints)
     {
         mMatchOver = true;
-        //TODO AE: Blokka öll input hjá acting player ef hinn spilarinn hætti í miðjum leik
+        mCanvas.matchEnded();
         //TODO AE: Setja gögn í viðeigandi glugga og show()-a svo gluggann. Slökkva á refresh?
 
         mRefresher.cancel();
@@ -290,8 +263,8 @@ public class InGameActivity extends AppCompatActivity
 
     private void presentFinishedGame(String winner, String multiplier, String cube, String winType)
     {
-        //TODO AE: Notumst við Toast hérna
-        String wonBy = " Won by a Regular win";
+        //TODO AE: Breyta þessu í setText á rétt item
+        String wonBy = " won a normal victory";
         if(multiplier.equals("2")) wonBy = " Won By Gammon!";
         else if(multiplier.equals("3")) wonBy = " Won By Backgammon!!!";
 
@@ -308,7 +281,9 @@ public class InGameActivity extends AppCompatActivity
                 if (mIsPlaying && !mMatchOver)
                     (new NetworkingTask("startNewGame")).execute();
 
-                if(mMatchOver) return;
+                if (mMatchOver) return;
+
+                mRefresher = new Timer();
                 mRefresher.scheduleAtFixedRate(new TimerTask() {
                     @Override
                     public void run() {
@@ -321,35 +296,37 @@ public class InGameActivity extends AppCompatActivity
 
     private void presentTrophy(int id)
     {
+        mTrophyIds.add(id);
+        if(mTrophyIds.size() == 1)
+            replaceFragment(convertIdToTrophyFragment(id));
+    }
+
+    private TrophyFragment convertIdToTrophyFragment(int id)
+    {
         //TODO: Tengja gefinn trophy við random bikaramynd til að byrja með
         HashMap<String, String> trophyPres = new HashMap<>();
         String trophyDescript = Utils.trophyDesc[id];
         String trophyName = Utils.trophyNames[id];
 
-        Fragment trophyFragment = TrophyFragment.newInstance(trophyPres);
-        mTrophyStack.add(trophyFragment);
-        if(mTrophyStack.size() == 1)
-            replaceFragment(trophyFragment);
-
-        //TODO AE: Er hægt að init-a fleiri en eitt Fragment í einu?
+        return TrophyFragment.newInstance(trophyPres);
     }
 
     public void onRemoveTrophy()
     {
-        if(mTrophyStack.size() == 1)
+        if(mTrophyIds.size() == 1)
         {
-            mTrophyStack = new ArrayList<>();
+            mTrophyIds = new ArrayList<>();
             replaceFragment(mCanvas);
         }
         else
         {
-            replaceFragment(mTrophyStack.get(1));
+            replaceFragment(convertIdToTrophyFragment(mTrophyIds.get(1)));
 
-            ArrayList<Fragment> restOfStack = new ArrayList<>();
-            for(int i = 1; i < mTrophyStack.size(); i++)
-                restOfStack.add(mTrophyStack.get(i));
+            ArrayList<Integer> restOfStack = new ArrayList<>();
+            for(int i = 1; i < mTrophyIds.size(); i++)
+                restOfStack.add(mTrophyIds.get(i));
 
-            mTrophyStack = restOfStack;
+            mTrophyIds = restOfStack;
         }
     }
 
@@ -405,9 +382,6 @@ public class InGameActivity extends AppCompatActivity
             mPath = path;
         }
 
-        /*
-            HTTP REQUESTS
-         */
         @Override
         protected List<HashMap<String, String>> doInBackground(String... params)
         {
@@ -416,15 +390,11 @@ public class InGameActivity extends AppCompatActivity
                 switch (mPath)
                 {
                     case "green":
-                        return Utils.JSONToMapList(InGameNetworking.greenSquare(mUsername, params[0]));
-                    case "white":
-                        return Utils.JSONToMapList(InGameNetworking.whiteSquare(mUsername, params[0]));
+                        return Utils.JSONToMapList(InGameNetworking.greenSquare(mUsername, params[0], params[1]));
                     case "dice":
                         return Utils.JSONToMapList(InGameNetworking.diceThrown(mUsername));
                     case "cube":
                         return Utils.JSONToMapList(InGameNetworking.cubeThrown(mUsername));
-                    case "pivot":
-                        return Utils.JSONToMapList(InGameNetworking.pivotClicked(mUsername));
                     case "refresh":
                         return Utils.JSONToMapList(InGameNetworking.refresh(mUsername));
                     case "endTurn":
@@ -463,18 +433,12 @@ public class InGameActivity extends AppCompatActivity
                     case "animate":
                         startAnimation(msg);
                         break;
-                    case "inTurnMove":
-                        performInTurnMoves(msg);
-                        break;
                     case "diceThrow":
                         startDiceRoll(Integer.parseInt(msg.get("firstDice")), Integer.parseInt(msg.get("secondDice")),
                                 Integer.parseInt(msg.get("team")), msg.get("thrower"));
                         break;
-                    case "whiteLighted":
-                        whiteLightSquares(msg);
-                        break;
-                    case "greenLighted":
-                        greenLightSquares(msg);
+                    case "allHighlights":
+                        allHighlights(msg);
                         break;
                     case "showButtons":
                         showButtonsIfPossible(Boolean.parseBoolean(msg.get("canDouble")));

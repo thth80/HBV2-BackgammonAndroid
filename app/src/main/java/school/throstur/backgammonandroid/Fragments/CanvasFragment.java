@@ -3,35 +3,30 @@ package school.throstur.backgammonandroid.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import school.throstur.backgammonandroid.Adapters.LobbyListAdapter;
 import school.throstur.backgammonandroid.DrawingCanvas;
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
 import school.throstur.backgammonandroid.InGameActivity;
-import school.throstur.backgammonandroid.LobbyActivity;
 import school.throstur.backgammonandroid.R;
 import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 
 public class CanvasFragment extends Fragment {
-    private static int NO_PIVOT = -1;
+    public static final int NO_SQUARE = -1;
+    private static final int NO_POINTER_ID = -9999999;
     private static final String BOARD_TYPE = "lykillinn fyrir borðið";
     private static final String BOARD_DESC = "lysing a borðinu";
+    private static final String MATCH_PRES = "presenting the match if its a player";
     public static final String NEW_BOARD = "new board";
     public static final String EXISTING_BOARD = "existing board";
 
@@ -41,11 +36,12 @@ public class CanvasFragment extends Fragment {
     private Button mFlipCubeButton;
 
     private AnimationCoordinator mAnimator;
-    private int mPivot;
+    private int mPivot, movementId;
     private Timer mAnimLoop;
     private boolean mCouldDouble, mButtonPermission;
+    private HashMap<Integer, int[]> mAllHighlighting;
 
-    private float firstX, firstY;
+    private HashMap<String, String> mMatchPresentation;
     private InGameActivity mParentGame;
 
     public CanvasFragment()
@@ -53,12 +49,14 @@ public class CanvasFragment extends Fragment {
 
     }
 
-    public static final CanvasFragment newInstance(String boardType, HashMap<String, String> boardDescript)
+    public static final CanvasFragment newInstance(String boardType, HashMap<String, String> boardDescript
+            , HashMap<String, String> matchPres)
     {
         CanvasFragment frag = new CanvasFragment();
-        Bundle bundle = new Bundle(2);
+        Bundle bundle = new Bundle(3);
         bundle.putString(BOARD_TYPE, boardType);
         bundle.putSerializable(BOARD_DESC, boardDescript);
+        bundle.putSerializable(MATCH_PRES, matchPres);
 
         frag.setArguments(bundle);
         return frag;
@@ -69,18 +67,30 @@ public class CanvasFragment extends Fragment {
     {
         super.onCreate(savedInstanceState);
 
+        mAllHighlighting = null;
+        movementId = NO_POINTER_ID;
         mButtonPermission = false;
         mCouldDouble = false;
-        mPivot = NO_PIVOT;
+
+        mPivot = NO_SQUARE;
         mParentGame = (InGameActivity)getActivity();
 
         String action = getArguments().getString(BOARD_TYPE);
         HashMap<String, String> board = (HashMap<String, String>)getArguments().getSerializable(BOARD_DESC);
+        HashMap<String, String> matchPres = (HashMap<String, String>)getArguments().getSerializable(MATCH_PRES);
 
         if(action.equals(NEW_BOARD))
+        {
             mAnimator = AnimationCoordinator.buildNewBoard(mParentGame);
+            mMatchPresentation = matchPres;
+        }
         else
+        {
             mAnimator = Utils.buildBoardFromDescription(board, mParentGame);
+            mMatchPresentation = null;
+        }
+
+        mDrawingCanvas.setAnimator(mAnimator);
     }
 
     @Override
@@ -88,7 +98,7 @@ public class CanvasFragment extends Fragment {
     {
         View view = inflater.inflate(R.layout.fragment_canvas, container, false);
 
-        //TODO ÞÞ: Búa til þessi element með þessum ids
+        //TODO AE: Búa til þessi element með þessum ids, ef MatchPres != null þá er það birt
 
         //mEndTurnButton = (Button) view.findViewById(R.id.end_turn_btn);
        // mThrowDiceButton = (Button) view.findViewById(R.id.throw_dice_btn);
@@ -102,7 +112,7 @@ public class CanvasFragment extends Fragment {
             {
                 hideEndTurn();
                 mAnimator.unHighlightAll();
-                mPivot = NO_PIVOT;
+                mPivot = NO_SQUARE;
                 mDrawingCanvas.invalidate();
 
                 mParentGame.endTurnWasClicked();
@@ -129,35 +139,68 @@ public class CanvasFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-                double relativeX = event.getX() / mDrawingCanvas.getCanvasWidth();
-                double relativeY = event.getY() / mDrawingCanvas.getCanvasHeight();
 
-                String results = mAnimator.wasSquareClicked(relativeX, relativeY, mPivot);
-                String[] eventAndPos = results.split("_");
+                if(mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_MOVE)
+                {
+                    int index = event.findPointerIndex(movementId);
+                    double relativeX = event.getX(index) / mDrawingCanvas.getCanvasWidth();
+                    double relativeY = event.getY(index) / mDrawingCanvas.getCanvasHeight();
 
-                if (eventAndPos[0].equals("green"))
-                {
-                    mAnimator.unHighlightAll();
-                    mAnimator.removeLastWhitelighted();
+                    mAnimator.movePawnTo(relativeX, relativeY);
                     mDrawingCanvas.invalidate();
-                    mPivot = NO_PIVOT;
-                    mParentGame.greenWasClicked(eventAndPos[1]);
-                    //TODO AE: Fela End Turn, gæti verið sjáanlegur og spilari færir til baka
+
                 }
-                else if (eventAndPos[0].equals("white"))
+                //Hér gæti verið einhver funky hegðun, sbr muninn á pointer up og up
+                else if(mAnimator.isMovingSinglePawn() &&
+                        (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP ))
                 {
-                    mAnimator.unHighlightAll();
-                    mDrawingCanvas.invalidate();
-                    mPivot = Integer.parseInt(eventAndPos[1]);
-                    mParentGame.whiteWasClicked(eventAndPos[1]);
+                    int index = event.getActionIndex();
+                    if(index == event.findPointerIndex(movementId))
+                    {
+                        double relativeX = event.getX(index) / mDrawingCanvas.getCanvasWidth();
+                        double relativeY = event.getY(index) / mDrawingCanvas.getCanvasHeight();
+                        int greenPos = mAnimator.wasGreenSquareBelow(relativeX, relativeY);
+
+                        mAnimator.unHighlightAll();
+
+                        if(greenPos == NO_SQUARE)
+                        {
+                            mAnimator.addPawnTo(mPivot);
+                            mAnimator.whiteLightSquares(mAnimator.getLastWhiteLighted());
+                        }
+                        else
+                        {
+                            hideEndTurn();
+                            mAnimator.removeLastWhitelighted();
+                            mAnimator.addPawnTo(greenPos);
+                            mParentGame.greenWasClicked(mPivot, greenPos);
+                        }
+
+                        movementId = NO_POINTER_ID;
+                        mPivot = NO_SQUARE;
+                        mDrawingCanvas.invalidate();
+                    }
                 }
-                else if (eventAndPos[0].equals("pivot"))
+                else if(!mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_DOWN)
                 {
-                    mAnimator.unHighlightAll();
-                    mAnimator.whiteLightSquares(mAnimator.getLastWhiteLighted());
-                    mPivot = NO_PIVOT;
-                    mParentGame.pivotWasClicked();
+                    double relativeX = event.getX(0) / mDrawingCanvas.getCanvasWidth();
+                    double relativeY = event.getY(0) / mDrawingCanvas.getCanvasHeight();
+
+                    int whitePos = mAnimator.wasWhiteSquareClicked(relativeX, relativeY);
+                    if(whitePos != NO_SQUARE)
+                    {
+                        mAnimator.unHighlightAll();
+                        mAnimator.highlightGreens(mAllHighlighting.get(whitePos));
+
+                        mPivot = whitePos;
+                        mAnimator.pickUpPawnAt(whitePos);
+                        mAnimator.movePawnTo(relativeX, relativeY);
+                        movementId = event.getPointerId(0);
+
+                        mDrawingCanvas.invalidate();
+                    }
                 }
+
                 return false;
             }
         });
@@ -165,9 +208,9 @@ public class CanvasFragment extends Fragment {
         return view;
     }
 
-    public void onViewCreated(View view, Bundle saved)
-    {
+    public void onViewCreated(View view, Bundle saved) {
         super.onViewCreated(view, saved);
+
         view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
@@ -180,9 +223,26 @@ public class CanvasFragment extends Fragment {
         });
     }
 
+    public void hideMatchPresentation()
+    {
+
+    }
+
+    public void matchEnded()
+    {
+        hideButtons();
+        hideEndTurn();
+        mAnimator.unHighlightAll();
+    }
+
     public void giveButtonPermission()
     {
         mButtonPermission = true;
+    }
+
+    public void setLightingData(HashMap<Integer, int[]> lightingData)
+    {
+        mAllHighlighting = lightingData;
     }
 
     public void setCouldDouble(boolean couldDouble)
@@ -210,16 +270,21 @@ public class CanvasFragment extends Fragment {
             @Override
             public void run()
             {
-                boolean animFinished = updateAnimator(16);
+                boolean stillAnimating = updateAnimator(16);
                 mDrawingCanvas.invalidate();
 
-                if(!mAnimator.isAnimating() && mParentGame.shouldResetClock())
+                if(!stillAnimating && mParentGame.shouldResetClock())
                     mParentGame.resetGameClock();
 
-                if (animFinished)
-                    this.cancel();
+                if (!stillAnimating)
+                    cancelAnimLoop();
             }
         }, 16, 16);
+    }
+
+    private void cancelAnimLoop()
+    {
+        mAnimLoop.cancel();
     }
 
     public boolean updateAnimator(int deltaMs)
@@ -251,12 +316,6 @@ public class CanvasFragment extends Fragment {
         return mAnimator.isAnimating();
     }
 
-    public void performInTurnMoves(ArrayList<HashMap<String, Integer>> moves)
-    {
-        mAnimator.performInTurnMoves(moves);
-        mDrawingCanvas.invalidate();
-    }
-
     public void startDiceRoll(int first, int second, int team)
     {
         mAnimator.startDiceRoll(first, second, team);
@@ -268,11 +327,6 @@ public class CanvasFragment extends Fragment {
         mAnimator.unHighlightAll();
         mDrawingCanvas.invalidate();
     }
-
-    /*public void drawCanvas()
-    {
-        mDrawingCanvas.invalidate();
-    }*/
 
     public void setAnimator(AnimationCoordinator animator)
     {
@@ -287,12 +341,6 @@ public class CanvasFragment extends Fragment {
         else
             mAnimator.whiteLightSquares(positions);
 
-        mDrawingCanvas.invalidate();
-    }
-
-    public void greenLightSquares(int[] positions)
-    {
-        mAnimator.greenLightSquares(positions);
         mDrawingCanvas.invalidate();
     }
 
@@ -319,6 +367,5 @@ public class CanvasFragment extends Fragment {
     {
         mThrowDiceButton.setVisibility(View.VISIBLE);
     }
-
 
 }

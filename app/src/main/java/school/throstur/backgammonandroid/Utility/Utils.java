@@ -148,6 +148,39 @@ public class Utils {
         return messages;
     }
 
+    public static HashMap<Integer, int[]> convertToHighlights(HashMap<String, String> lightInfo)
+    {
+        lightInfo.remove("action");
+        HashMap<Integer, int[]> lightingMap = new HashMap<>();
+
+        for (String key : lightInfo.keySet())
+        {
+            String greenStr = lightInfo.get(key);
+            String[] stringPos = greenStr.split("_");
+            int[] greenList = new int[stringPos.length];
+
+            int index = 0;
+            for(String pos: stringPos)
+                greenList[index++] = Integer.parseInt(pos);
+
+            Integer white = Integer.parseInt(key);
+
+            lightingMap.put(white, greenList);
+        }
+
+        return lightingMap;
+    }
+
+    public static int[] getWhitesFromLightingMap(HashMap<Integer, int[]> lightingList)
+    {
+        int[] whites = new int[lightingList.size()];
+        int index = 0;
+        for(Integer whiteKey: lightingList.keySet())
+            whites[index++] = whiteKey;
+
+        return whites;
+    }
+
     public static ArrayList<HashMap<String, Integer>> convertToAnimationMoves(HashMap<String, String> moveInfo)
     {
         moveInfo.remove("action");
@@ -186,6 +219,7 @@ public class Utils {
         AnimationCoordinator animator = AnimationCoordinator.buildExistingBoard(teams, counts, diceVals, cubeValue, context);
         return animator;
     }
+
 
     public static int[] extractIntsFromPositionMessage(HashMap<String, String> positions)
     {
