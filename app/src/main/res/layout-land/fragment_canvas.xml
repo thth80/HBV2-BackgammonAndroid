@@ -8,7 +8,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/game_canvas"
+        android:id="@+id/drawing_canvas"
         android:background="@drawable/game_board" />
 
     <Button
@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/throw_dice"
-        android:id="@+id/throw_dice"
+        android:id="@+id/throw_dice_btn"
         android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="100dp"
         android:background="@color/colorPrimaryDark"
@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/end_turn"
-        android:id="@+id/end_turn"
+        android:id="@+id/end_turn_btn"
         android:layout_gravity="center"
         android:textColor="@color/white"
         android:background="@color/orange"
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/double_stakes"
-        android:id="@+id/double_stakes"
+        android:id="@+id/flip_cube_btn"
         android:layout_gravity="center_vertical|right"
         android:layout_marginRight="100dp"
         android:textColor="@color/white"
@@ -150,7 +150,8 @@
             android:layout_marginTop="6dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            />
 
         <TextView
             android:layout_width="wrap_content"

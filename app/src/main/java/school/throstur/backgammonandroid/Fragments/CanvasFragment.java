@@ -100,10 +100,10 @@ public class CanvasFragment extends Fragment {
 
         //TODO AE: Búa til þessi element með þessum ids, ef MatchPres != null þá er það birt
 
-        //mEndTurnButton = (Button) view.findViewById(R.id.end_turn_btn);
-       // mThrowDiceButton = (Button) view.findViewById(R.id.throw_dice_btn);
-        //mFlipCubeButton = (Button) view.findViewById(R.id.flip_cube_btn);
-        //mDrawingCanvas = (DrawingCanvas)view.findViewById(R.id.drawing_canvas);
+        mEndTurnButton = (Button) view.findViewById(R.id.end_turn_btn);
+        mThrowDiceButton = (Button) view.findViewById(R.id.throw_dice_btn);
+        mFlipCubeButton = (Button) view.findViewById(R.id.flip_cube_btn);
+        //mDrawingCanvas = (DrawingCanvas) view.findViewById(R.id.drawing_canvas);
 
 
         mEndTurnButton.setOnClickListener(new View.OnClickListener() {
