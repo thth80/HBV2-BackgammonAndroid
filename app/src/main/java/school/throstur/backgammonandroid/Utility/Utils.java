@@ -134,6 +134,8 @@ public class Utils {
                     String key = keys.next();
                     currentMessage.put(key, msg.getString(key));
                 }
+                if(currentMessage.get("action") == null)
+                    Log.d("INCOMING ERROR PRE", currentMessage.toString());
                 messages.add(currentMessage);
             }
             catch (JSONException e)
@@ -143,7 +145,8 @@ public class Utils {
             }
         }
 
-        Log.d(LobbyActivity.TAG, "ARRAYLIST: "+messages.toString());
+        if(messages.size() > 0)
+            Log.d("INCOMING", "ARRAYLIST: "+messages.toString());
 
         return messages;
     }
@@ -223,8 +226,7 @@ public class Utils {
 
     public static int[] extractIntsFromPositionMessage(HashMap<String, String> positions)
     {
-        positions.remove("action");
-        int[] squarePos = new int[positions.size()];
+        int[] squarePos = new int[positions.size() - 1];
         for(int i = 0; i < squarePos.length; i++)
             squarePos[i] = Integer.parseInt(positions.get(""+i));
         return squarePos;
@@ -233,7 +235,7 @@ public class Utils {
     public static HashMap<String, String> extractSpecificAction(ArrayList<HashMap<String, String>> allMsgs, String action)
     {
         for(HashMap<String, String> msg: allMsgs)
-            if(msg.get("action").equals(action))
+            if(msg.get("action") != null && msg.get("action").equals(action))
                 return msg;
         return null;
     }
@@ -242,7 +244,7 @@ public class Utils {
     {
         ArrayList<HashMap<String, String>> onlyAction = new ArrayList<>();
         for(HashMap<String, String> msg: allMsgs)
-            if(msg.get("action").equals(action))
+            if(msg.get("action") != null && msg.get("action").equals(action))
                 onlyAction.add(msg);
 
         return onlyAction;

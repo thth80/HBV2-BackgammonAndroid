@@ -1,6 +1,7 @@
 package school.throstur.backgammonandroid.Utility;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONArray;
 
@@ -31,7 +32,8 @@ public class TrophyStatsNetworking {
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("TROPHYSTATSNET ERROR", e.getMessage());
+            return new ArrayList<>();
         }
     }
 }

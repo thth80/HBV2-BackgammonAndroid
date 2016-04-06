@@ -23,8 +23,7 @@ public class LobbyData
             switch (msg.get("action"))
             {
                 case "chatBatch":
-                    msg.remove("action");
-                    for(int i = 0; i < msg.size(); i++)
+                    for(int i = 0; i < msg.size() - 1; i++)
                         mChatList.add(msg.get("" + i));
                     break;
                 case "waitEntry":

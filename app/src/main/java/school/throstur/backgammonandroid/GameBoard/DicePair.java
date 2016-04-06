@@ -14,7 +14,7 @@ import school.throstur.backgammonandroid.Utility.Utils;
  * Created by Aðalsteinn on 15.3.2016.
  */
 public class DicePair {
-    public static final double WIDTH = 0.05;
+    public static final double WIDTH = 0.1;
 
     private boolean isWhite, isAnimating;
     private int first, second, firstCopy, secondCopy;
@@ -74,21 +74,14 @@ public class DicePair {
         this.first = first;
         this.second = second;
     }
-    public void setFirst(int val)
-    {
-        first = val;
-    }
-    public void setSecond(int val)
-    {
-        second = val;
-    }
 
     public void render(Canvas canvas)
     {
+        //TODO AE: Það þarf nú að rendera báða teningana
         int width = 60;
         int gap = 3;
         int leftOffset = (this.first - 1) * (width + gap);
-        Rect source = new Rect(leftOffset, 0, leftOffset + width, width);
+        Rect source = new Rect(leftOffset, 0, leftOffset + width, 120);
 
         canvas.save();
         if(isWhite)

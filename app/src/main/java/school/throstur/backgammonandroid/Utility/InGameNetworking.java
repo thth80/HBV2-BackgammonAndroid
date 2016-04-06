@@ -1,10 +1,13 @@
 package school.throstur.backgammonandroid.Utility;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONArray;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import school.throstur.backgammonandroid.Utility.Utils;
 
@@ -13,24 +16,25 @@ import school.throstur.backgammonandroid.Utility.Utils;
  */
 public class InGameNetworking {
 
-    public static JSONArray diceThrown(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> diceThrown(String name) throws IOException
     {
         try
         {
-            String url = Uri.parse(Utils.HOST + "/dice")
+            String url = Uri.parse(Utils.HOST + "/diceThrow")
                     .buildUpon()
                     .appendQueryParameter("name", name)
-                    .appendQueryParameter("pw", "derp")
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
-    public static JSONArray cubeThrown(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> cubeThrown(String name) throws IOException
     {
         try
         {
@@ -38,16 +42,18 @@ public class InGameNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray timeOut(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> timeOut(String name) throws IOException
     {
         try
         {
@@ -55,34 +61,18 @@ public class InGameNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray doublingDecision(String name, String accepted) throws IOException
-    {
-        try
-        {
-            String url = Uri.parse(Utils.HOST + "/startNewGame")
-                    .buildUpon()
-                    .appendQueryParameter("name", name)
-                    .appendQueryParameter("accepted", accepted)
-                    .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-    }
-
-    public static JSONArray startNewGame(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> startNewGame(String name) throws IOException
     {
         try
         {
@@ -90,16 +80,18 @@ public class InGameNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray rejectOffer(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> rejectOffer(String name) throws IOException
     {
         try
         {
@@ -108,16 +100,17 @@ public class InGameNetworking {
                     .appendQueryParameter("name", name)
                     .build().toString();
 
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray acceptOffer(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> acceptOffer(String name) throws IOException
     {
         try
         {
@@ -126,16 +119,17 @@ public class InGameNetworking {
                     .appendQueryParameter("name", name)
                     .build().toString();
 
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray refresh(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> refresh(String name) throws IOException
     {
         try
         {
@@ -144,16 +138,17 @@ public class InGameNetworking {
                     .appendQueryParameter("name", name)
                     .build().toString();
 
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray greenSquare(String name, String from, String to) throws IOException
+    public static ArrayList<HashMap<String, String>> greenSquare(String name, String from, String to) throws IOException
     {
         try
         {
@@ -163,16 +158,18 @@ public class InGameNetworking {
                     .appendQueryParameter("from", from)
                     .appendQueryParameter("to", to)
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray playerLeaving(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> playerLeaving(String name) throws IOException
     {
         try
         {
@@ -180,16 +177,18 @@ public class InGameNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
-    public static JSONArray observerLeaving(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> observerLeaving(String name) throws IOException
     {
         try
         {
@@ -197,34 +196,19 @@ public class InGameNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
 
-    public static JSONArray leaveMatch(String name) throws IOException
-    {
-        try
-        {
-            String url = Uri.parse(Utils.HOST + "/leaveMatch")
-                    .buildUpon()
-                    .appendQueryParameter("name", name)
-                    .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
-    }
-
-    public static JSONArray endTurn(String name) throws IOException
+    public static ArrayList<HashMap<String, String>> endTurn(String name) throws IOException
     {
         try
         {
@@ -232,12 +216,14 @@ public class InGameNetworking {
                     .buildUpon()
                     .appendQueryParameter("name", name)
                     .build().toString();
-            String json = Utils.getUrlString(url);
-            return new JSONArray(json);
+
+            JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
+            return Utils.JSONToMapList(jsonArray);
         }
         catch(Exception e)
         {
-            return null;
+            Log.d("MATCH NETWORK", e.getMessage());
+            return new ArrayList<>();
         }
     }
 

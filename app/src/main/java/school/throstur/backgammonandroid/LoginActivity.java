@@ -79,7 +79,7 @@ public class LoginActivity extends FragmentActivity {
             catch (Exception e)
             {
                 Log.w(e.getMessage(), e);
-               return null;
+               return new ArrayList<>();
             }
         }
 
@@ -88,7 +88,9 @@ public class LoginActivity extends FragmentActivity {
 
             for(HashMap<String, String> msg: msgs)
             {
-                if(msg.get("action").equals("legalSignup"))
+                if(msg.get("action") == null)
+                    Log.d("INCOMING ERROR", msg.toString());
+                else if(msg.get("action").equals("legalSignup"))
                 {
                     String username = msg.get("username");
                     LobbyData.setData(msgs, username);

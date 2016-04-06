@@ -7,7 +7,7 @@ import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
 public class Pawn {
-    public static final double RADIUS = 0.05;
+    public static final double RADIUS = 0.03;
 
     private int  team;
     private double cx, cy, z;
@@ -29,6 +29,7 @@ public class Pawn {
         cy += yVel*msDelta;
         z += zVel*msDelta;
     }
+
     public void halt()
     {
         xVel = yVel = zVel = 0;
@@ -99,7 +100,7 @@ public class Pawn {
         Drawable hue = DrawableStorage.getShine();
 
         canvas.save();
-        canvas.translate((float) cx, (float) cy);
+        canvas.translate((float) (cx * canvas.getWidth()), (float)( cy * canvas.getHeight()));
         pawnImage.draw(canvas);
         hue.draw(canvas);
         canvas.restore();

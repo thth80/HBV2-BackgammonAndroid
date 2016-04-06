@@ -3,6 +3,8 @@ package school.throstur.backgammonandroid;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import school.throstur.backgammonandroid.Fragments.CanvasFragment;
@@ -17,6 +19,19 @@ public class DrawingCanvas extends View {
 
     public DrawingCanvas(Context context) {
         super(context);
+        setWillNotDraw(false);
+        this.context = context;
+    }
+
+    public DrawingCanvas(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setWillNotDraw(false);
+        this.context = context;
+    }
+
+    public DrawingCanvas(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        setWillNotDraw(false);
         this.context = context;
     }
 
@@ -41,8 +56,11 @@ public class DrawingCanvas extends View {
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-        canvas.setBitmap(mBitMap);
-        mAnimator.render(canvas);
+
+        if(mAnimator != null)
+            mAnimator.render(canvas);
+        else
+            Log.d("MATCH ERROR", "mAnimator was NULL in onDraw");
     }
 
     public void setAnimator(AnimationCoordinator animator)

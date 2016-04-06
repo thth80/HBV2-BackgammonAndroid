@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -97,7 +98,8 @@ public class InGameActivity extends AppCompatActivity
             mAddedTime = Integer.parseInt(matchPres.get("addedTime"));
             if(mAddedTime == 0)
                 mTextClock.setText("inf");
-
+            else
+                mTimeLeftMs = 280 * 1000;
         }
         else
         {
@@ -109,18 +111,26 @@ public class InGameActivity extends AppCompatActivity
             mCanvas = CanvasFragment.newInstance(CanvasFragment.EXISTING_BOARD, boardDescript, null);
         }
 
-        setFragment(mCanvas);
+        addFragment(mCanvas);
 
         int delayUntilFirstRefresh = (mIsPlaying)? 5000 : 1500;
         mRefresher = new Timer();
         mRefresher.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                mCanvas.hideMatchPresentation();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCanvas.hideMatchPresentation();
+                    }
+                });
                 (new NetworkingTask("refresh")).execute();
             }
         }, delayUntilFirstRefresh, 2500);
     }
+
+    //TODO AE: Skilja runOnUIThread. Hef lesið að það megi ekki skrifa update logic þar? Einnig að hægt sé að kalla á
+    //getActivity().runOn.... ef maður er inni í fragment.
 
     public void greenWasClicked(int from, int to)
     {
@@ -148,8 +158,14 @@ public class InGameActivity extends AppCompatActivity
         mClockTimer.cancel();
         (new NetworkingTask("timeOut")).execute();
 
-        mTextClock.setText(mAddedTime/1000);
-        Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG).show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTextClock.setText(mAddedTime / 1000 + "");
+                Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG).show();
+            }
+        });
+
     }
 
     private void leaveMatchClicked()
@@ -165,8 +181,8 @@ public class InGameActivity extends AppCompatActivity
                 .setMessage("Are you sure you want to leave and forfeit the match?")
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        (new NetworkingTask("leaveMatch")).execute();
-                        InGameActivity.super.onBackPressed();
+                        (new NetworkingTask("playerLeaving")).execute();
+                        finish();
                     }
                 })
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {
@@ -193,6 +209,7 @@ public class InGameActivity extends AppCompatActivity
                 mCanvas.getAnimator().storeDelayedMoves(animMoves);
         }
         else
+            //TODO AE: Er þetta þráðvilla?
             Toast.makeText(InGameActivity.this, "Your opponent had no moves available!", Toast.LENGTH_SHORT).show();
 
     }
@@ -207,7 +224,14 @@ public class InGameActivity extends AppCompatActivity
     private void allHighlights(HashMap<String, String> highlightInfo)
     {
         HashMap<Integer, int[]> lightingData = Utils.convertToHighlights(highlightInfo);
+        Log.d("MATCH", lightingData.toString());
         int[] whitePositions = Utils.getWhitesFromLightingMap(lightingData);
+        Log.d("MATCH", "White positions incoming: ");
+        String whites = "";
+        for(int i = 0; i < whitePositions.length; i++ )
+            whites += (" "+whitePositions[i]);
+
+        Log.d("MATCH", whites);
 
         mCanvas.setLightingData(lightingData);
         mCanvas.whiteLightSquares(whitePositions);
@@ -245,6 +269,13 @@ public class InGameActivity extends AppCompatActivity
                 long delta = timeNow - mLastGameClockTime;
                 mLastGameClockTime = timeNow;
                 mTimeLeftMs -= delta;
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTextClock.setText(mTimeLeftMs/1000 + "");
+                    }
+                });
 
                 if (mTimeLeftMs <= 0)
                     onTimeRunningOut();
@@ -334,20 +365,22 @@ public class InGameActivity extends AppCompatActivity
     {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.lobby_fragment_container, newFragment);
+        ft.replace(R.id.ingame_fragment_container, newFragment);
         ft.commit();
     }
 
-    private void setFragment(Fragment firstFragment)
+    private void addFragment(Fragment firstFragment)
     {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.lobby_fragment_container, firstFragment);
+        ft.add(R.id.ingame_fragment_container, firstFragment);
         ft.commit();
     }
 
     private void playerDoubled(String doubler, String decider, String stakes)
     {
+        mCanvas.startCubeFlip();
+
         if(doubler.equals(mUsername))
             Toast.makeText(InGameActivity.this, "You doubled the stakes, "+decider+" is making his decision", Toast.LENGTH_LONG).show();
         else if(decider.equals(mUsername))
@@ -369,7 +402,17 @@ public class InGameActivity extends AppCompatActivity
                     .show();
         }
         else
-            Toast.makeText(InGameActivity.this, doubler + " doubled the stakes. "+decider+" is making his decision", Toast.LENGTH_LONG).show();
+            makeToast(doubler + " doubled the stakes. "+decider+" is making his decision");
+    }
+
+    private void makeToast(final String toastMessage)
+    {
+        runOnUiThread(new Runnable() {
+            public void run()
+            {
+                Toast.makeText(InGameActivity.this, toastMessage, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public class NetworkingTask extends AsyncTask<String, Void, List<HashMap<String, String>>>
@@ -390,29 +433,31 @@ public class InGameActivity extends AppCompatActivity
                 switch (mPath)
                 {
                     case "green":
-                        return Utils.JSONToMapList(InGameNetworking.greenSquare(mUsername, params[0], params[1]));
+                        return InGameNetworking.greenSquare(mUsername, params[0], params[1]);
                     case "dice":
-                        return Utils.JSONToMapList(InGameNetworking.diceThrown(mUsername));
+                        return InGameNetworking.diceThrown(mUsername);
                     case "cube":
-                        return Utils.JSONToMapList(InGameNetworking.cubeThrown(mUsername));
+                        return InGameNetworking.cubeThrown(mUsername);
                     case "refresh":
-                        return Utils.JSONToMapList(InGameNetworking.refresh(mUsername));
+                        return InGameNetworking.refresh(mUsername);
                     case "endTurn":
-                        return Utils.JSONToMapList(InGameNetworking.endTurn(mUsername));
+                        return InGameNetworking.endTurn(mUsername);
                     case "timeOut":
-                        return Utils.JSONToMapList(InGameNetworking.timeOut(mUsername));
+                        return InGameNetworking.timeOut(mUsername);
                     case "startNewGame":
-                        return Utils.JSONToMapList(InGameNetworking.startNewGame(mUsername));
+                        return InGameNetworking.startNewGame(mUsername);
                     case "accept":
-                        return Utils.JSONToMapList(InGameNetworking.acceptOffer(mUsername));
+                        return InGameNetworking.acceptOffer(mUsername);
                     case "reject":
-                        return Utils.JSONToMapList(InGameNetworking.rejectOffer(mUsername));
+                        return InGameNetworking.rejectOffer(mUsername);
                     case "observerLeaving":
-                        return Utils.JSONToMapList(InGameNetworking.observerLeaving(mUsername));
+                        return InGameNetworking.observerLeaving(mUsername);
                     case "playerLeaving":
-                        return Utils.JSONToMapList(InGameNetworking.playerLeaving(mUsername));
+                        return InGameNetworking.playerLeaving(mUsername);
                 }
-                return null;
+
+                Log.d("MATCH", "NO PATH TAKEN");
+                return new ArrayList<>();
             }
             catch (Exception e)
             {
@@ -420,14 +465,16 @@ public class InGameActivity extends AppCompatActivity
             }
         }
 
-        /*
-            HTTP RESPONSES
-        */
         @Override
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
             for(HashMap<String, String> msg: messages)
             {
+                if(msg.get("action") == null)
+                {
+                    Log.d("INCOMING ERROR MATCH", msg.toString());
+                    continue;
+                }
                 switch (msg.get("action"))
                 {
                     case "animate":
