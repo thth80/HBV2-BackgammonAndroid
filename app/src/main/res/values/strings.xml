@@ -60,7 +60,10 @@
     <string name="mediumDifficulty">Medium</string>
     <string name="hardDifficulty">Hard</string>
     <string name="create_match">Let\'s do this!</string>
-    <string name="lorem_ipsum">But I must explain to you how all this mistaken idea of denouncing of a pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness.</string>
+    <string name="lorem_ipsum">But I must explain to you how all this mistaken idea of denouncing of
+        a pleasure and praising pain was born and I will give you a complete account of the system,
+        and expound the actual teachings of the great explorer of the truth, the master-builder of
+        human happiness.</string>
     <string name="heading_example">Francis J. Underwood</string>
     <string name="stats_opponent">Ted Cruz</string>
     <string name="pawn_image_description">An image of a smiley face</string>

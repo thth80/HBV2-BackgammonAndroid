@@ -5,11 +5,11 @@
     tools:context="school.throstur.backgammonandroid.Fragments.CanvasFragment"
     >
 
-    <school.throstur.backgammonandroid.DrawingCanvas
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/drawing_canvas"
-         />
+        android:background="@drawable/game_board" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -48,24 +48,25 @@
 
     <RelativeLayout
         android:id="@+id/player_presentation"
-        android:layout_width="250dp"
-        android:layout_height="200dp"
+        android:layout_width="300dp"
+        android:layout_height="250dp"
         android:background="@color/black_transparent"
         android:layout_gravity="center"
         android:visibility="gone">
 
         <RelativeLayout
             android:id="@+id/match_player_one_view"
-            android:layout_width="80dp"
-            android:layout_height="110dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="30dp">
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp">
             <ImageView
                 android:id="@+id/match_player_one_img"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:background="@drawable/monster1"/>
             <TextView
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -80,16 +81,17 @@
 
         <RelativeLayout
             android:id="@+id/match_player_two_view"
-            android:layout_width="80dp"
-            android:layout_height="110dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="20dp">
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="10dp">
             <ImageView
                 android:id="@+id/match_player_two_img"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:background="@drawable/monster2"/>
             <TextView
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -134,8 +136,8 @@
 
     <RelativeLayout
         android:id="@+id/post_match_presentation"
-        android:layout_width="260dp"
-        android:layout_height="150dp"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
         android:background="@color/black_transparent"
         android:layout_gravity="center"
         android:visibility="gone">
@@ -147,11 +149,10 @@
             android:text="@string/match_heading_example"
             android:id="@+id/post_match_heading"
             android:textColor="@color/white"
-            android:layout_marginTop="6dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="10dp"
-            />
+            android:layout_marginTop="20dp"
+            android:layout_alignParentTop="false"
+            android:layout_marginBottom="20dp"
+            android:layout_centerHorizontal="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -162,7 +163,6 @@
             android:singleLine="false"
             android:textColor="@color/white"
             android:layout_centerInParent="true"
-            android:layout_below="@+id/post_match_heading"
             android:textStyle="bold"/>
     </RelativeLayout>
 
