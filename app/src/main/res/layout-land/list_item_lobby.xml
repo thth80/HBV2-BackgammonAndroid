@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeightLarge"
-    android:background="@drawable/border">
+    android:background="@drawable/border"
+    >
     <Button
         style="?android:attr/buttonStyleSmall"
         android:id="@+id/list_item_lobby_bnt"
@@ -11,11 +12,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         tools:text="Watch"
-        android:background="@color/orange"
+        android:background="@drawable/color_orange_btn_border"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"/>
 
     <RelativeLayout
         android:id="@+id/lobby_view_player_one"

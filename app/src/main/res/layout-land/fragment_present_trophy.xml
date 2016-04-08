@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/present_trophy_btn"
-            android:background="@color/btnColorPrimary"
+            android:background="@drawable/primary_color_btn_border"
             android:text="@string/btn_ok"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="6dp"

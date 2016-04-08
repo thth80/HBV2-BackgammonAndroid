@@ -70,7 +70,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/action_log_in"
                 android:textStyle="bold"
-                android:background="@color/btnColorPrimaryDark"
+                android:background="@drawable/primary_color_dark_btn"
                 android:textColor="@color/white"/>
 
         </LinearLayout>
@@ -101,7 +101,7 @@
             android:text="@string/action_sign_in"
             android:textStyle="bold"
             android:layout_gravity="center"
-            android:background="@color/btnColorPrimary"
+            android:background="@drawable/primary_color_btn"
             android:textColor="@color/white"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"/>

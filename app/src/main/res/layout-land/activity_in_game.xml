@@ -31,7 +31,7 @@
             android:id="@+id/btn_leave_match"
             android:layout_marginTop="20dp"
             android:textColor="@color/white"
-            android:background="@color/red"
+            android:background="@drawable/color_red_btn_border"
             android:layout_gravity="center_horizontal"
             android:paddingLeft="6dp"
             android:paddingRight="6dp"/>
