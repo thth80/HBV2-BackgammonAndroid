@@ -1,231 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/border"
               android:orientation="vertical"
-                android:gravity="center_vertical|center_horizontal">
-
-    <RadioGroup
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/human_sel">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/human"
-            android:id="@+id/check_human"
-            />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/bot"
-            android:id="@+id/check_bot"
-            />
-
-    </RadioGroup>
-
+                android:gravity="center_vertical|center_horizontal"
+              android:weightSum="5">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/human_sel"
-        android:id="@+id/setup_match_view_points">
-
-        <ImageView
-            android:id="@+id/setup_match_pointimg"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/point_image_description"
-            android:src="@drawable/ic_point"
-            android:layout_centerHorizontal="true"/>
-
-        <RadioGroup
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/points_sel"
-            android:layout_below="@id/setup_match_pointimg"
-            android:weightSum="5">
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/onePoint"
-                android:id="@+id/one_point"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/threePoint"
-                android:id="@+id/three_point"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fivePoint"
-                android:id="@+id/five_point"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sevenPoint"
-                android:id="@+id/seven_point"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ninePoint"
-                android:id="@+id/nine_point"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
-        </RadioGroup>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/setup_match_view_points"
-        android:id="@+id/setup_match_view_time"
+        android:layout_weight="2"
         >
-
-        <ImageView
-            android:id="@+id/setup_match_clock"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/clock_image_description"
-            android:src="@drawable/ic_clock"
-            android:layout_centerHorizontal="true"/>
-
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_centerHorizontal="true"
-            android:id="@+id/time_sel"
-            android:layout_below="@id/setup_match_clock"
-            android:weightSum="5">
+            android:id="@+id/human_sel">
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/infinityTime"
-                android:id="@+id/infinity_time"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:text="@string/human"
+                android:id="@+id/check_human"
+                />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/s15Time"
-                android:id="@+id/s15_time"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/s30Time"
-                android:id="@+id/s30_time"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
-
-            <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/s45Time"
-                android:id="@+id/s45_time"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:text="@string/bot"
+                android:id="@+id/check_bot"
+                />
 
         </RadioGroup>
-    </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/setup_match_view_time"
-        android:id="@+id/setup_match_view_difficulty"
-        android:visibility="visible">
-
-        <ImageView
-            android:id="@+id/setup_match_android"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/android_image_description"
-            android:src="@drawable/ic_action_android"
-            android:layout_centerHorizontal="true"/>
-
-        <RadioGroup
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/diff_sel"
-            android:layout_below="@id/setup_match_android"
-            android:weightSum="5">
+            android:layout_below="@+id/human_sel"
+            android:id="@+id/setup_match_view_points">
 
-            <RadioButton
+            <ImageView
+                android:id="@+id/setup_match_pointimg"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/point_image_description"
+                android:src="@drawable/ic_point"
+                android:layout_centerHorizontal="true"/>
+
+            <RadioGroup
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/easyDifficulty"
-                android:id="@+id/easy_difficulty"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/points_sel"
+                android:layout_below="@id/setup_match_pointimg"
+                android:weightSum="5">
 
-            <RadioButton
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/onePoint"
+                    android:id="@+id/one_point"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/threePoint"
+                    android:id="@+id/three_point"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fivePoint"
+                    android:id="@+id/five_point"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sevenPoint"
+                    android:id="@+id/seven_point"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ninePoint"
+                    android:id="@+id/nine_point"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+            </RadioGroup>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/setup_match_view_points"
+            android:id="@+id/setup_match_view_time"
+            >
+
+            <ImageView
+                android:id="@+id/setup_match_clock"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/clock_image_description"
+                android:src="@drawable/ic_clock"
+                android:layout_centerHorizontal="true"/>
+
+            <RadioGroup
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/mediumDifficulty"
-                android:id="@+id/medium_difficulty"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/time_sel"
+                android:layout_below="@id/setup_match_clock"
+                android:weightSum="5">
 
-            <RadioButton
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/infinityTime"
+                    android:id="@+id/infinity_time"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/s15Time"
+                    android:id="@+id/s15_time"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/s30Time"
+                    android:id="@+id/s30_time"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/s45Time"
+                    android:id="@+id/s45_time"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+            </RadioGroup>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/setup_match_view_time"
+            android:id="@+id/setup_match_view_difficulty"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/setup_match_android"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/android_image_description"
+                android:src="@drawable/ic_action_android"
+                android:layout_centerHorizontal="true"/>
+
+            <RadioGroup
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/hardDifficulty"
-                android:id="@+id/hard_difficulty"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/diff_sel"
+                android:layout_below="@id/setup_match_android"
+                android:weightSum="5">
 
-        </RadioGroup>
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/easyDifficulty"
+                    android:id="@+id/easy_difficulty"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mediumDifficulty"
+                    android:id="@+id/medium_difficulty"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hardDifficulty"
+                    android:id="@+id/hard_difficulty"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"/>
+
+            </RadioGroup>
+        </RelativeLayout>
     </RelativeLayout>
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/setup_match_view_difficulty"
-        android:layout_centerHorizontal="true"
         android:text="@string/create_match"
         android:background="@color/green"
         android:textColor="@color/white"
-        android:id="@+id/setup_match_btn"/>
+        android:id="@+id/setup_match_btn"
+        android:layout_weight="3"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="bottom|center_horizontal"/>
 
-</RelativeLayout>
+</LinearLayout>
