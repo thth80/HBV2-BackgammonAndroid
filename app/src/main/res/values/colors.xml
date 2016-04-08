@@ -5,6 +5,7 @@
     <color name="colorAccent">#3F51B5</color>
     <color name="btnColorPrimary">#31b0d5</color>
     <color name="btnColorPrimaryDark">#2E6DA4</color>
+    <color name="primaryBackground">#89b2d6</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#f0ad4e</color>
     <color name="red">#d9534f</color>

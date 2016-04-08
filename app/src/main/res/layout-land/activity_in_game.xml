@@ -5,7 +5,8 @@
               android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:baselineAligned="false">
+              android:baselineAligned="false"
+              android:background="@color/primaryBackground">
 
     <FrameLayout
         android:id="@+id/ingame_fragment_container"
@@ -17,7 +18,7 @@
 
     <FrameLayout
         android:id="@+id/ingame_sidebar_container"
-        android:layout_weight="3"
+        android:layout_weight="4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black">
