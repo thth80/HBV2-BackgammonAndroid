@@ -1,6 +1,7 @@
 package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
@@ -14,8 +15,8 @@ import school.throstur.backgammonandroid.Utility.Utils;
 public class Square {
     public static final double WIDTH = 0.06;
     public static final double HEIGHT = 0.25;
-    private static final Rect BOUNDS = new Rect((int)(-WIDTH/2),(int)(-HEIGHT/2),
-                        (int)(WIDTH/2), (int)(HEIGHT/2));
+    /*private static final Rect BOUNDS = new Rect((int)(-WIDTH/2),(int)(-HEIGHT/2),
+                        (int)(WIDTH/2), (int)(HEIGHT/2));  */
 
     private ArrayList<Pawn> pawns;
     private int position, highlighting;
@@ -27,6 +28,7 @@ public class Square {
         position = pos;
         pawns = new ArrayList<>();
         this.cx = cx;
+
         pointsDown = (pos < 13);
         bottomY = (pointsDown)? 0.039 : 0.961;
 
@@ -133,26 +135,21 @@ public class Square {
         for(Pawn pawn: pawns)
             pawn.render(canvas);
 
+        if(highlighting == Utils.NO_LIGHT) return;
+
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
         if(highlighting == Utils.GREEN_LIGHT)
-        {
-            Paint paint = new Paint();
-            paint.setARGB(110, 0, 255, 0);
+            paint.setColor(Color.GREEN);
+        else
+            paint.setColor(Color.WHITE);
 
-            canvas.save();
-            canvas.translate((float)cx, (float)cy);
-            canvas.drawRect(BOUNDS, paint);
-            canvas.restore();
-        }
-        else if(highlighting == Utils.WHITE_LIGHT)
-        {
-            Paint paint = new Paint();
-            paint.setARGB(110, 255, 255, 255);
+        double left = (cx - WIDTH/2) * canvas.getWidth();
+        double right = (cx + WIDTH/2) * canvas.getWidth();
+        double top = (cy - HEIGHT/2) * canvas.getHeight();
+        double bottom = (cy + HEIGHT/2) * canvas.getHeight();
 
-            canvas.save();
-            canvas.translate((float)cx, (float)cy);
-            canvas.drawRect(BOUNDS, paint);
-            canvas.restore();
-        }
+        canvas.drawRect((float)left, (float)top, (float)right, (float)bottom,  paint);
     }
 
 }

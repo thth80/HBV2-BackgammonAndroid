@@ -321,7 +321,11 @@ public class LobbyActivity extends AppCompatActivity {
 
             for(HashMap<String, String> msg: messages)
             {
-                Log.d(LobbyActivity.TAG, "Message action is: " + msg.get("action"));
+                if(msg.get("action") == null)
+                {
+                    Log.d("INCOMING ERROR POST", msg.toString());
+                    continue;
+                }
                 switch (msg.get("action"))
                 {
                     case "chatEntry":
@@ -353,6 +357,7 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             }
 
+            //TODO AE: Muna að sumar aðferðir fjarlægja "ACTION" sem gæti endað illa ef það HashMap er síðan ítrað aftur
             if(startMatchAfterProcessing || observeMatchAfterProcessing || goToTrophyRoomAfterProcessing || goToStatsAfterProcessing)
                 mRefresher.cancel();
 

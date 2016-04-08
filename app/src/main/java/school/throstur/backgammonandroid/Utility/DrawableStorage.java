@@ -38,7 +38,7 @@ public class DrawableStorage {
 
         redDiceSheet = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.red_strip) ;
         blueDiceSheet = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.blue_strip) ;
-        cubeSheet = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.doublecube) ;
+        cubeSheet = BitmapFactory.decodeResource(ctx.getResources(), R.drawable.cube_small) ;
     }
 
     public static void setDimensions(int width, int height)

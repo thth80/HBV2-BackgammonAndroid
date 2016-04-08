@@ -2,6 +2,7 @@ package school.throstur.backgammonandroid.GameBoard;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,9 +113,9 @@ public class AnimationCoordinator {
             board.startBlackDiceRoll(first, second);
     }
 
-    public void startCubeFlipping(int nextValue)
+    public void startCubeFlipping()
     {
-        board.startCubeFlipping(nextValue);
+        board.startCubeFlipping();
         cubeIsFlipping = true;
     }
 
@@ -149,7 +150,7 @@ public class AnimationCoordinator {
         {
             board.resetMovementSettings(true);
             HashMap<String, Integer> nextMove = getCurrentMove();
-            board.setUpNextMove(nextMove.get("from"),nextMove.get("to"), nextMove.get("killMove"), currAnimIndex);
+            board.setUpNextMove(nextMove.get("from"), nextMove.get("to"), nextMove.get("killMove"), currAnimIndex);
         }
         else
         {
@@ -174,6 +175,7 @@ public class AnimationCoordinator {
         diceAreStillRolling = board.updateDice(deltaMs);
         if(!diceAreStillRolling && isDelaying)
         {
+            Log.d("MATCH", "Dice were rolling, now we whitelight squares");
             isDelaying = false;
             whiteLightSquares(lastWhiteLighted);
         }

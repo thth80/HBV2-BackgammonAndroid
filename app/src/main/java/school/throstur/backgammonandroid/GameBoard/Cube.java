@@ -10,7 +10,7 @@ import school.throstur.backgammonandroid.Utility.DrawableStorage;
  * Created by Aðalsteinn on 20.3.2016.
  */
 public class Cube {
-    public static final double WIDTH = 0.05;
+    public static final double WIDTH = 0.06;
 
     private int cubeVal, cubeCopy;
     private boolean isAnimating;
@@ -18,7 +18,7 @@ public class Cube {
 
     public Cube(int val)
     {
-        cubeVal = val - 1;
+        cubeVal = val;
         isAnimating = false;
         timeBtwFlips = 75;
     }
@@ -51,14 +51,15 @@ public class Cube {
 
     public void render(Canvas canvas)
     {
-        int width = 450;
-        int gap = 40;
-        int offset = (cubeVal - 1)*(width + gap);
-        Rect source = new Rect(10 + offset, 0, 10 + offset + width , 592);
+        int width = 90;
+        int gap = 20;
+        int leftOffset = (cubeVal - 1)*(width + gap);
 
+        Rect source = new Rect(leftOffset, 0, leftOffset + width , 94);
         Bitmap cubeSheet = DrawableStorage.getCube();
+
         canvas.save();
-        canvas.translate((float)(canvas.getWidth() * 0.05), (float)(canvas.getHeight() * 0.5));
+        canvas.translate((float)(canvas.getWidth() * 0.065), (float)(canvas.getHeight() * 0.5));
         canvas.drawBitmap(cubeSheet, source ,DrawableStorage.getCubeBounds() , null );
         canvas.restore();
     }

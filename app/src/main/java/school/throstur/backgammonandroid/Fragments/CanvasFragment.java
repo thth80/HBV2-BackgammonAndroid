@@ -3,11 +3,14 @@ package school.throstur.backgammonandroid.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Timer;
@@ -23,7 +26,7 @@ import school.throstur.backgammonandroid.Utility.Utils;
 
 public class CanvasFragment extends Fragment {
     public static final int NO_SQUARE = -1;
-    private static final int NO_POINTER_ID = -9999999;
+    private static final int NO_POINTER_ID = -1;
     private static final String BOARD_TYPE = "lykillinn fyrir borðið";
     private static final String BOARD_DESC = "lysing a borðinu";
     private static final String MATCH_PRES = "presenting the match if its a player";
@@ -34,6 +37,7 @@ public class CanvasFragment extends Fragment {
     private Button mEndTurnButton;
     private Button mThrowDiceButton;
     private Button mFlipCubeButton;
+    private RelativeLayout mPresentMatch;
 
     private AnimationCoordinator mAnimator;
     private int mPivot, movementId;
@@ -89,8 +93,6 @@ public class CanvasFragment extends Fragment {
             mAnimator = Utils.buildBoardFromDescription(board, mParentGame);
             mMatchPresentation = null;
         }
-
-        mDrawingCanvas.setAnimator(mAnimator);
     }
 
     @Override
@@ -98,13 +100,35 @@ public class CanvasFragment extends Fragment {
     {
         View view = inflater.inflate(R.layout.fragment_canvas, container, false);
 
-        //TODO AE: Búa til þessi element með þessum ids, ef MatchPres != null þá er það birt
-
         mEndTurnButton = (Button) view.findViewById(R.id.end_turn_btn);
         mThrowDiceButton = (Button) view.findViewById(R.id.throw_dice_btn);
         mFlipCubeButton = (Button) view.findViewById(R.id.flip_cube_btn);
-        //mDrawingCanvas = (DrawingCanvas) view.findViewById(R.id.drawing_canvas);
+        mDrawingCanvas = (DrawingCanvas) view.findViewById(R.id.drawing_canvas);
 
+        mDrawingCanvas.setAnimator(mAnimator);
+
+        if(mMatchPresentation == null)
+            redraw();
+        else
+        {
+            mPresentMatch = (RelativeLayout) view.findViewById(R.id.player_presentation);
+            TextView playerOneName = (TextView) mPresentMatch.findViewById(R.id.match_player_one_text);
+            playerOneName.setText(mMatchPresentation.get("playerOne"));
+
+            TextView playerTwoName = (TextView) mPresentMatch.findViewById(R.id.match_player_two_text);
+            playerTwoName.setText(mMatchPresentation.get("playerTwo"));
+
+            TextView matchPoints = (TextView) mPresentMatch.findViewById(R.id.match_info_score);
+            matchPoints.setText("This is a " + mMatchPresentation.get("points") + " point match");
+
+            TextView matchTime = (TextView) mPresentMatch.findViewById(R.id.match_info_time);
+            int addedTime = Integer.parseInt(mMatchPresentation.get("addedTime"));
+            String timeString = (addedTime == 0)? "Unlimited time to act" : "Time added each round: " + addedTime + " seconds" ;
+            matchTime.setText(timeString);
+
+            mPresentMatch.setVisibility(View.VISIBLE);
+            redraw();
+        }
 
         mEndTurnButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,7 +137,7 @@ public class CanvasFragment extends Fragment {
                 hideEndTurn();
                 mAnimator.unHighlightAll();
                 mPivot = NO_SQUARE;
-                mDrawingCanvas.invalidate();
+                redraw();
 
                 mParentGame.endTurnWasClicked();
             }
@@ -139,31 +163,28 @@ public class CanvasFragment extends Fragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-
-                if(mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_MOVE)
-                {
+                if (mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_MOVE) {
                     int index = event.findPointerIndex(movementId);
                     double relativeX = event.getX(index) / mDrawingCanvas.getCanvasWidth();
                     double relativeY = event.getY(index) / mDrawingCanvas.getCanvasHeight();
 
                     mAnimator.movePawnTo(relativeX, relativeY);
-                    mDrawingCanvas.invalidate();
+                    redraw();
 
                 }
                 //Hér gæti verið einhver funky hegðun, sbr muninn á pointer up og up
-                else if(mAnimator.isMovingSinglePawn() &&
-                        (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP ))
+                else if (mAnimator.isMovingSinglePawn() &&
+                        (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP))
                 {
                     int index = event.getActionIndex();
-                    if(index == event.findPointerIndex(movementId))
-                    {
+                    if (index == event.findPointerIndex(movementId)) {
                         double relativeX = event.getX(index) / mDrawingCanvas.getCanvasWidth();
                         double relativeY = event.getY(index) / mDrawingCanvas.getCanvasHeight();
                         int greenPos = mAnimator.wasGreenSquareBelow(relativeX, relativeY);
 
                         mAnimator.unHighlightAll();
 
-                        if(greenPos == NO_SQUARE)
+                        if (greenPos == NO_SQUARE)
                         {
                             mAnimator.addPawnTo(mPivot);
                             mAnimator.whiteLightSquares(mAnimator.getLastWhiteLighted());
@@ -178,16 +199,16 @@ public class CanvasFragment extends Fragment {
 
                         movementId = NO_POINTER_ID;
                         mPivot = NO_SQUARE;
-                        mDrawingCanvas.invalidate();
+                        redraw();
                     }
                 }
-                else if(!mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_DOWN)
-                {
+                else if (!mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_DOWN) {
                     double relativeX = event.getX(0) / mDrawingCanvas.getCanvasWidth();
                     double relativeY = event.getY(0) / mDrawingCanvas.getCanvasHeight();
 
                     int whitePos = mAnimator.wasWhiteSquareClicked(relativeX, relativeY);
-                    if(whitePos != NO_SQUARE)
+                    Log.d("MATCH", "The Squares Position that was Picked: " + whitePos);
+                    if (whitePos != NO_SQUARE)
                     {
                         mAnimator.unHighlightAll();
                         mAnimator.highlightGreens(mAllHighlighting.get(whitePos));
@@ -197,7 +218,7 @@ public class CanvasFragment extends Fragment {
                         mAnimator.movePawnTo(relativeX, relativeY);
                         movementId = event.getPointerId(0);
 
-                        mDrawingCanvas.invalidate();
+                        redraw();
                     }
                 }
 
@@ -215,8 +236,10 @@ public class CanvasFragment extends Fragment {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
                                        int oldBottom) {
-                if (left == 0 && top == 0 && right == 0 && bottom == 0)
+                if (left == 0 && top == 0 && right == 0 && bottom == 0) {
+                    Log.d("MATCH ERROR", "onLayoutChange did not deliver width and height");
                     return;
+                }
 
                 DrawableStorage.setDimensions(mDrawingCanvas.getCanvasWidth(), mDrawingCanvas.getCanvasHeight());
             }
@@ -225,7 +248,7 @@ public class CanvasFragment extends Fragment {
 
     public void hideMatchPresentation()
     {
-
+        mPresentMatch.setVisibility(View.GONE);
     }
 
     public void matchEnded()
@@ -265,13 +288,14 @@ public class CanvasFragment extends Fragment {
 
     public void startAnimLoop()
     {
+        Log.d("MATCH", "Starting the animation loop");
         mAnimLoop = new Timer();
         mAnimLoop.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run()
             {
                 boolean stillAnimating = updateAnimator(16);
-                mDrawingCanvas.invalidate();
+                redraw();
 
                 if(!stillAnimating && mParentGame.shouldResetClock())
                     mParentGame.resetGameClock();
@@ -284,7 +308,18 @@ public class CanvasFragment extends Fragment {
 
     private void cancelAnimLoop()
     {
+        Log.d("MATCH", "Finishing Animation Loop for now");
         mAnimLoop.cancel();
+    }
+
+    private void redraw()
+    {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDrawingCanvas.invalidate();
+            }
+        });
     }
 
     public boolean updateAnimator(int deltaMs)
@@ -296,7 +331,7 @@ public class CanvasFragment extends Fragment {
         if(mAnimator.isFlippingCube())
             mAnimator.updateCube(deltaMs);
         if(mAnimator.isRollingDice() && !mAnimator.updateDice(deltaMs))
-            mDrawingCanvas.invalidate();
+            redraw();
 
         if(pawnsWereMoving != mAnimator.arePawnsMoving() && mAnimator.areMovesStored())
         {
@@ -318,14 +353,21 @@ public class CanvasFragment extends Fragment {
 
     public void startDiceRoll(int first, int second, int team)
     {
+        startAnimLoop();
         mAnimator.startDiceRoll(first, second, team);
+    }
+
+    public void startCubeFlip()
+    {
+        startAnimLoop();
+        mAnimator.startCubeFlipping();
     }
 
     public void timeRanOut()
     {
         hideEndTurn();
         mAnimator.unHighlightAll();
-        mDrawingCanvas.invalidate();
+        redraw();
     }
 
     public void setAnimator(AnimationCoordinator animator)
@@ -341,31 +383,56 @@ public class CanvasFragment extends Fragment {
         else
             mAnimator.whiteLightSquares(positions);
 
-        mDrawingCanvas.invalidate();
+        redraw();
     }
 
     public void hideButtons()
     {
-        mFlipCubeButton.setVisibility(View.INVISIBLE);
-        mThrowDiceButton.setVisibility(View.INVISIBLE);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mFlipCubeButton.setVisibility(View.INVISIBLE);
+                mThrowDiceButton.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     public void showEndTurn()
     {
-        mEndTurnButton.setVisibility(View.VISIBLE);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mEndTurnButton.setVisibility(View.VISIBLE);
+            }
+        });
     }
     public void hideEndTurn()
     {
-        mEndTurnButton.setVisibility(View.INVISIBLE);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mEndTurnButton.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     public void showFlipCube()
     {
-        mFlipCubeButton.setVisibility(View.VISIBLE);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mFlipCubeButton.setVisibility(View.VISIBLE);
+            }
+        });
     }
     public void showThrowDice()
     {
-        mThrowDiceButton.setVisibility(View.VISIBLE);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mThrowDiceButton.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
 }

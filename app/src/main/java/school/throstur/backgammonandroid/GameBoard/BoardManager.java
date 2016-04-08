@@ -1,11 +1,12 @@
 package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 
-import school.throstur.backgammonandroid.Fragments.CanvasFragment;
 import school.throstur.backgammonandroid.Utility.DrawableStorage;
 import school.throstur.backgammonandroid.Utility.Utils;
 
@@ -23,7 +24,7 @@ public class BoardManager {
         squares = new Square[28];
         killedPawns = new Pawn[28];
         pawnMovers = new PawnMover[]{new PawnMover(), new PawnMover(), new PawnMover(), new PawnMover()};
-        doublingCube = new Cube(0);
+        doublingCube = new Cube(1);
         whiteDice = new DicePair(Utils.TEAM_WH);
         blackDice = new DicePair(Utils.TEAM_BL);
         batchMode = false;
@@ -67,7 +68,7 @@ public class BoardManager {
 
     public boolean updateCube(int deltaMs)
     {
-        return false;
+        return doublingCube.update(deltaMs);
     }
 
     //Skilar true ef teningar eru animating, annars false
@@ -123,8 +124,9 @@ public class BoardManager {
     private PawnMover findAvailableMover()
     {
         if(!batchMode) return pawnMovers[0];
+
         for(PawnMover mover: pawnMovers)
-            if(mover.isActive())
+            if(!mover.isActive())
                 return mover;
         return null;
     }
@@ -144,12 +146,11 @@ public class BoardManager {
     public Square getClickedSquare(double cx, double cy)
     {
         for(Square square: squares)
-            if(square.isInside(cx, cy) && square.getLighting() == Utils.GREEN_LIGHT)
+            if(square.isInside(cx, cy))
                 return square;
 
         return null;
     }
-
 
     public void startBlackDiceRoll(int first, int second)
     {
@@ -159,7 +160,7 @@ public class BoardManager {
     {
         whiteDice.prepareForAnimation(first, second);
     }
-    public void startCubeFlipping(int nextVal)
+    public void startCubeFlipping()
     {
         doublingCube.startFlipping();
     }
@@ -185,32 +186,20 @@ public class BoardManager {
         else
             for(PawnMover mover: pawnMovers)
                 mover.setProtocols(randSettings);
-
     }
 
     public void greenLightSquare(int pos)
     {
         squares[pos].greenLight();
     }
-    public void whiteLightSquare(int pos)
-    {
-        squares[pos].whiteLight();
-    }
-    public void unHighlightSquare(int pos)
-    {
-        squares[pos].unHighlight();
-    }
+    public void whiteLightSquare(int pos) { squares[pos].whiteLight(); }
+
     public void unHighlightAll()
     {
         for(Square sq: squares)
             sq.unHighlight();
     }
 
-    public void prepareTeleport()
-    {
-        for(PawnMover mover: pawnMovers)
-            mover.setToTeleport();
-    }
 
     public void render(Canvas canvas)
     {
@@ -218,7 +207,7 @@ public class BoardManager {
         gameBoard.draw(canvas);
 
         for(Square square: squares)
-                square.render(canvas);
+            square.render(canvas);
 
         whiteDice.render(canvas);
         blackDice.render(canvas);
@@ -250,7 +239,7 @@ public class BoardManager {
             if(pos > 18 || pos < 7)
                 cx = 1.0 - offset * Square.WIDTH - 0.133;
             else
-                cx = 0.102 + offset * Square.WIDTH + 0.5;
+                cx = 0.135 + offset * Square.WIDTH;
 
             squares[pos] = new Square(pos, cx);
         }
@@ -307,6 +296,14 @@ public class BoardManager {
         {
             blackTriple.addPawn(new Pawn(Utils.TEAM_BL));
             whiteTriple.addPawn(new Pawn(Utils.TEAM_WH));
+        }
+
+        Square blackRunners = squares[1];
+        Square whiteRunners = squares[24];
+        for(int i = 0; i < 2; i++)
+        {
+            blackRunners.addPawn(new Pawn(Utils.TEAM_BL));
+            whiteRunners.addPawn(new Pawn(Utils.TEAM_WH));
         }
     }
 
