@@ -5,46 +5,49 @@
     tools:context="school.throstur.backgammonandroid.Fragments.CanvasFragment"
     >
 
-    <school.throstur.backgammonandroid.DrawingCanvas
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/drawing_canvas"
-         />
+        android:background="@drawable/game_board" />
 
     <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
         android:text="@string/throw_dice"
+        android:drawableLeft="@drawable/ic_action_dice6"
         android:id="@+id/throw_dice_btn"
-        android:layout_gravity="left|center_vertical"
-        android:layout_marginLeft="100dp"
-        android:background="@color/colorPrimaryDark"
+        android:layout_gravity="center"
+        android:background="@drawable/primary_color_dark_btn_border"
         android:textColor="@color/white"
-        android:visibility="gone"/>
+        android:visibility="visible"
+        android:padding="20dp"
+        android:layout_marginRight="120dp"/>
 
     <Button
-        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/end_turn"
+        android:drawableLeft="@drawable/ic_check"
         android:id="@+id/end_turn_btn"
         android:layout_gravity="center"
         android:textColor="@color/white"
-        android:background="@color/orange"
-        android:visibility="gone"/>
+        android:background="@drawable/color_orange_btn_border"
+        android:visibility="visible"
+        android:padding="20dp"/>
 
     <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
         android:text="@string/double_stakes"
+        android:drawableLeft="@drawable/ic_star_border"
         android:id="@+id/flip_cube_btn"
-        android:layout_gravity="center_vertical|right"
-        android:layout_marginRight="100dp"
+        android:layout_gravity="center"
         android:textColor="@color/white"
-        android:background="@color/red"
-        android:visibility="gone"/>
+        android:background="@drawable/color_red_btn_border"
+        android:visibility="visible"
+        android:layout_marginLeft="120dp"
+        android:padding="20dp"/>
 
     <RelativeLayout
         android:id="@+id/player_presentation"
