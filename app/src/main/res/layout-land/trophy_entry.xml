@@ -62,12 +62,11 @@
             android:layout_gravity="bottom"
             android:max="100"
             android:progress="25"
-            android:layout_marginLeft="80dp"
-            android:layout_marginRight="80dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:layout_below="@+id/trophy_view_text"
             android:layout_toLeftOf="@+id/trophy_view_img"
             android:layout_alignParentBottom="false"
-            android:layout_centerVertical="true"
             android:layout_marginTop="40dp"
             android:progressDrawable="@drawable/progress_bar_style"/>
     </RelativeLayout>
