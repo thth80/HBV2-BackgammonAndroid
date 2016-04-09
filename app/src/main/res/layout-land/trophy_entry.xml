@@ -25,11 +25,12 @@
 
         <RelativeLayout
             android:layout_width="400dp"
-            android:layout_height="200dp"
+            android:layout_height="100dp"
             android:id="@+id/trophy_view_text"
             android:layout_below="@+id/trophy_view_heading"
             android:layout_toLeftOf="@+id/trophy_view_img"
-            android:layout_margin="10dp">
+            android:layout_margin="10dp"
+            android:layout_alignParentLeft="true">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -41,10 +42,10 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/trophy_view_img"
-            android:layout_toRightOf="@+id/trophy_view_heading"
-            android:layout_margin="10dp">
+            android:layout_margin="10dp"
+            android:layout_alignParentRight="true">
             <ImageView
                 android:layout_width="200dp"
                 android:layout_height="match_parent"
@@ -65,8 +66,8 @@
             android:layout_marginRight="80dp"
             android:layout_below="@+id/trophy_view_text"
             android:layout_toLeftOf="@+id/trophy_view_img"
-            android:layout_alignParentBottom="true"
-            />
+            android:layout_alignParentBottom="false"
+            android:layout_centerVertical="true"/>
     </RelativeLayout>
 
 </LinearLayout>
