@@ -73,7 +73,9 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
             mPointsProgress.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String toast = "You have earned " + mStats.get("pointsOne") + " points and your opponent has earned " + mStats.get("pointsTwo");
+                    String opponent = (String)oppoNameTextView.getText();
+                    String toast = "You have earned " + mStats.get("pointsOne") + " points. " +
+                            opponent + " has earned " + mStats.get("pointsTwo");
                     mParent.makeToast(toast);
                 }
             });
@@ -81,7 +83,9 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
             mPawnsProgress.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String toast = "Your have saved " + mStats.get("pawnsOne") + " pawns and your opponent has saved " + mStats.get("pawnsTwo");
+                    String opponent = (String)oppoNameTextView.getText();
+                    String toast = "Your have saved " + mStats.get("pawnsOne") + " pawns. " +
+                            opponent + " has saved " + mStats.get("pawnsTwo");
                     mParent.makeToast(toast);
                 }
             });
@@ -99,11 +103,10 @@ public class StatsAdapter extends RecyclerView.Adapter<StatsAdapter.StatHolder> 
             mPointsProgress.setMax(pointsLost + pointsWon);
             mPointsProgress.setProgress(pointsWon);
 
-            mPawnsProgress.setMax(100);
-            mPawnsProgress.setProgress(55);
+            mPawnsProgress.setMax(userPawns + oppoPawns);
+            mPawnsProgress.setProgress(userPawns);
 
             mStats = stats;
-
         }
     }
 }

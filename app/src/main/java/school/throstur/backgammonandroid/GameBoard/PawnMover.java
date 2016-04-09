@@ -1,7 +1,8 @@
 package school.throstur.backgammonandroid.GameBoard;
 
 import android.graphics.Canvas;
-import android.graphics.Point;
+
+import java.util.ArrayList;
 
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
 import school.throstur.backgammonandroid.GameBoard.Pawn;
@@ -10,23 +11,22 @@ public class PawnMover {
 
     private static final int JUMPER = 0;
     private static final int TELEPORT = 1;
+    private static final int FLOATER = 7;
 
     private Pawn movingPawn;
     private int id, currTargetIndex;
-    private int[] updateProtocols;
-    private Point[] targetsOnTheWay;
+    private int updateProtocol;
+    private ArrayList<Double> XtargetsOnTheWay, YtargetsOnTheWay;
     private boolean isActive;
-    private double gravity;
 
     public PawnMover()
     {
         id = -1;
         movingPawn = null;
         currTargetIndex = AnimationCoordinator.NOT_AN_ID;
-        updateProtocols = new int[]{JUMPER, JUMPER, JUMPER, JUMPER};
+        updateProtocol = JUMPER;
         isActive = false;
-        targetsOnTheWay = null;
-        gravity = 0;
+        XtargetsOnTheWay = YtargetsOnTheWay = null;
     }
 
     public int getId()
@@ -34,13 +34,12 @@ public class PawnMover {
         return id;
     }
 
-
     public Pawn shutDownAndReleasePawn()
     {
         movingPawn.halt();
         isActive = false;
         currTargetIndex = 0;
-        targetsOnTheWay = null;
+        XtargetsOnTheWay = YtargetsOnTheWay = null;
         id = AnimationCoordinator.NOT_AN_ID;
 
         Pawn copy = movingPawn;
@@ -48,31 +47,49 @@ public class PawnMover {
         return copy;
     }
 
-    public void setProtocols(int[] newProto)
+    public void setProtocol(int newProto)
     {
-        for(int i = 0; i < updateProtocols.length; i++)
-            updateProtocols[i] = newProto[i];
+        updateProtocol = newProto;
     }
 
     public int update(int deltaMs)
     {
-        if(this.updateProtocols[0] == TELEPORT)
-            return this.id;
-        else if(this.updateProtocols[0] == JUMPER)
+        if(this.updateProtocol == JUMPER)
             return updateStandardJumper(deltaMs);
+        else if(updateProtocol == FLOATER)
+            return updateFloater(deltaMs);
         else
             return 0;
     }
 
     private boolean noMoreTargets()
     {
-        return currTargetIndex >= targetsOnTheWay.length;
+        return currTargetIndex >= XtargetsOnTheWay.size();
+    }
+
+    private boolean reachedTarget(double pawnCx, double pawnCy )
+    {
+        double targetX = XtargetsOnTheWay.get(currTargetIndex);
+        double targetY = YtargetsOnTheWay.get(currTargetIndex);
+
+        double xDistSquared = Math.pow( pawnCx - targetX ,2);
+        double yDistSquared = Math.pow( pawnCy - targetY ,2);
+        double realDist = Math.sqrt(xDistSquared + yDistSquared);
+        return realDist < 0.15;
+    }
+
+    private void initTargetList(double cx, double cy)
+    {
+        if(updateProtocol == FLOATER)
+            initFloater(cx, cy);
+        else if(updateProtocol == JUMPER)
+            initJumper(cx, cy);
     }
 
     private int updateStandardJumper(int deltaMs)
     {
         movingPawn.updatePos(deltaMs);
-        if(reachedTarget(movingPawn.getX(), movingPawn.getY(), getCurrentTarget()))
+        if(reachedTarget(movingPawn.getX(), movingPawn.getY()))
         {
             currTargetIndex++;
             if(noMoreTargets())
@@ -90,41 +107,29 @@ public class PawnMover {
         return AnimationCoordinator.NOT_AN_ID;
     }
 
-    private Point getCurrentTarget()
+    private int updateFloater(int deltaMs)
     {
-        return targetsOnTheWay[currTargetIndex];
+        movingPawn.updatePos(1);
+        if(reachedTarget(movingPawn.getX(), movingPawn.getY()))
+            return id;
+        else
+            return AnimationCoordinator.NOT_AN_ID;
+
     }
 
-    private boolean reachedTarget(double pawnCx, double pawnCy, Point target )
+    private void initFloater(double cx, double cy)
     {
-        double xDistSquared = Math.pow(Math.abs(pawnCx - target.x ),2);
-        double yDistSquared = Math.pow(Math.abs(pawnCy - target.y),2);
-        double realDistSquared = xDistSquared + yDistSquared;
-        return realDistSquared < 100;
-    }
-
-    private void initTargetList(double cx, double cy)
-    {
-        if(updateProtocols[0] == TELEPORT)
-            movingPawn.placeAt(cx, cy);
-        else if(updateProtocols[0] == JUMPER)
-            initJumper(cx, cy);
-    }
-
-    private void initLauncher(double cx, double cy)
-    {
-        gravity = -0.00003;
-        double zLaunchVel = 0.011 + Math.random()*0.003;
-        double timeToLandAgain = -2 * (zLaunchVel/gravity);
-
         double xVector = cx - movingPawn.getX();
         double yVector = cy - movingPawn.getY();
-        double neededXVel = xVector/timeToLandAgain;
-        double neededYVel = yVector/timeToLandAgain;
+        double xVel = xVector/100;
+        double yVel = yVector/100;
 
-        movingPawn.applyForces(neededXVel, neededYVel);
-        movingPawn.applyVerticalForce(zLaunchVel);
+        movingPawn.setVelocity(xVel, yVel);
+        XtargetsOnTheWay = new ArrayList<>();
+        YtargetsOnTheWay = new ArrayList<>();
 
+        XtargetsOnTheWay.add(cx);
+        YtargetsOnTheWay.add(cy);
     }
 
     private void initJumper(double cx, double cy)
@@ -137,9 +142,9 @@ public class PawnMover {
 
         double xForce = midXVect/timeToApex;
         double yForce = midYVect/timeToApex;
-        targetsOnTheWay = new Point[2];
+        /*targetsOnTheWay = new Point[2];
         targetsOnTheWay[0] = new Point((int)(movingPawn.getX()+ midXVect),(int)( movingPawn.getY() + midYVect));
-        targetsOnTheWay[1] = new Point((int)cx, (int)cy);
+        targetsOnTheWay[1] = new Point((int)cx, (int)cy); */
 
         movingPawn.applyForces(xForce, yForce);
         movingPawn.applyVerticalForce(zVel);
@@ -155,26 +160,10 @@ public class PawnMover {
         initTargetList(targetX, targetY);
     }
 
-    public void activate()
+    public static int randomMovementSettings()
     {
-        isActive = true;
-    }
-
-    public static int[] randomMovementSettings()
-    {
-        int[] randomProtocols = new int[4];
-        randomProtocols[0] = JUMPER;
-        randomProtocols[1] = JUMPER;
-        randomProtocols[2] = JUMPER;
-        randomProtocols[3] = JUMPER;
-
-        return randomProtocols;
-    }
-
-    public void setToTeleport()
-    {
-        for(int i = 0; i< updateProtocols.length; i++)
-            updateProtocols[i] = TELEPORT;
+        int randomProtocol = FLOATER;
+        return randomProtocol;
     }
 
     public boolean isActive()
@@ -191,4 +180,21 @@ public class PawnMover {
 
         canvas.restore();
     }
+
+    /*
+    private void initLauncher(double cx, double cy)
+    {
+        gravity = -0.00003;
+        double zLaunchVel = 0.011 + Math.random()*0.003;
+        double timeToLandAgain = -2 * (zLaunchVel/gravity);
+
+        double xVector = cx - movingPawn.getX();
+        double yVector = cy - movingPawn.getY();
+        double neededXVel = xVector/timeToLandAgain;
+        double neededYVel = yVector/timeToLandAgain;
+
+        movingPawn.applyForces(neededXVel, neededYVel);
+        movingPawn.applyVerticalForce(zLaunchVel);
+
+    }*/
 }

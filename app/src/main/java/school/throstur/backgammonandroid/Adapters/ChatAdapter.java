@@ -70,18 +70,20 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     public class ChatHolder extends RecyclerView.ViewHolder
     {
         private TextView mChatTextView;
+        private View mWholeEntry;
 
         public ChatHolder(View view)
         {
             super(view);
             mChatTextView = (TextView) view.findViewById(R.id.chat_entry);
+            mWholeEntry = view;
         }
 
         public void bindEntryData(String chatEntry, int index)
         {
             mChatTextView.setText(chatEntry);
-            int background = (index%2 == 0)? Color.argb(36, 255, 0, 0): Color.argb(36, 0, 255, 0) ;
-            mChatTextView.setBackgroundColor(background);
+            int background = (index%2 == 0)? Color.argb(18, 255, 0, 0): Color.argb(18, 0, 0, 255) ;
+            mWholeEntry.setBackgroundColor(background);
         }
     }
 }

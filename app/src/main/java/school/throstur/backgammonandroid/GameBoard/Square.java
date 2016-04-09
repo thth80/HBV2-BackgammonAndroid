@@ -14,9 +14,7 @@ import school.throstur.backgammonandroid.Utility.Utils;
  */
 public class Square {
     public static final double WIDTH = 0.06;
-    public static final double HEIGHT = 0.25;
-    /*private static final Rect BOUNDS = new Rect((int)(-WIDTH/2),(int)(-HEIGHT/2),
-                        (int)(WIDTH/2), (int)(HEIGHT/2));  */
+    public static final double HEIGHT = 0.375;
 
     private ArrayList<Pawn> pawns;
     private int position, highlighting;
@@ -32,7 +30,7 @@ public class Square {
         pointsDown = (pos < 13);
         bottomY = (pointsDown)? 0.039 : 0.961;
 
-        this.cy = (pointsDown)? bottomY + Utils.SQUARE_HEIGHT/2 : bottomY - Utils.SQUARE_HEIGHT/2 ;
+        this.cy = (pointsDown)? bottomY + HEIGHT/2 : bottomY - HEIGHT/2 ;
 
         highlighting = Utils.NO_LIGHT;
     }
@@ -44,6 +42,11 @@ public class Square {
     public int getPosition()
     {
         return position;
+    }
+
+    public void setCY()
+    {
+        this.cy = (pointsDown)? bottomY + HEIGHT/2 : bottomY - HEIGHT/2;
     }
 
     public Pawn removePawn()
@@ -140,9 +143,9 @@ public class Square {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         if(highlighting == Utils.GREEN_LIGHT)
-            paint.setColor(Color.GREEN);
+            paint.setARGB(68, 0, 255, 0);
         else
-            paint.setColor(Color.WHITE);
+            paint.setARGB(68, 255, 255, 255);
 
         double left = (cx - WIDTH/2) * canvas.getWidth();
         double right = (cx + WIDTH/2) * canvas.getWidth();

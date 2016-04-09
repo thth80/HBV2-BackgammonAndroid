@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -55,16 +56,18 @@ public class StatsActivity extends AppCompatActivity {
 
         mStatRecycler = (RecyclerView) findViewById(R.id.stats_list);
         mAdapter = new StatsAdapter(StatsActivity.this, versusStats, this);
-        mStatRecycler.setLayoutManager(new LinearLayoutManager(StatsActivity.this));
+        mStatRecycler.setLayoutManager(new GridLayoutManager(StatsActivity.this, 2, GridLayoutManager.VERTICAL, false));
         mStatRecycler.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
-        new Timer().scheduleAtFixedRate(new TimerTask() {
+        Toast.makeText(StatsActivity.this, "Click the progress bars for more detailed stats", Toast.LENGTH_LONG).show();
+
+        /*new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 (new NetworkingTask(mUsername)).execute();
             }
-        }, 5000, 5000);
+        }, 5000, 5000); */
     }
 
     @Override

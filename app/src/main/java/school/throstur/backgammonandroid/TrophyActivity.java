@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,7 +53,7 @@ public class TrophyActivity extends AppCompatActivity {
         ArrayList<HashMap<String, String>> trophies = (ArrayList<HashMap<String, String>>)getIntent().getSerializableExtra(SENT_TROPHIES);
 
         mTrophyRecycler = (RecyclerView) findViewById(R.id.trophy_list);
-        mTrophyRecycler.setLayoutManager(new LinearLayoutManager(TrophyActivity.this));
+        mTrophyRecycler.setLayoutManager(new GridLayoutManager(TrophyActivity.this, 2, GridLayoutManager.VERTICAL, false));
         mAdapter = new TrophyAdapter(TrophyActivity.this, trophies);
         mTrophyRecycler.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
@@ -67,12 +68,12 @@ public class TrophyActivity extends AppCompatActivity {
             }
         });
     */
-        new Timer().scheduleAtFixedRate(new TimerTask() {
+        /*new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 (new NetworkingTask(mUsername)).execute();
             }
-        }, 0, 10000);
+        }, 0, 10000); */
 
     }
 

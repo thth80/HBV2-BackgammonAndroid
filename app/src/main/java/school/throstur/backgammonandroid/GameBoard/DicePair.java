@@ -19,10 +19,12 @@ public class DicePair {
     private boolean isWhite, isAnimating;
     private int first, second, firstCopy, secondCopy;
     private int animTimeLeft, timeBtwFlips;
+    private double centerX;
 
     public DicePair(int team)
     {
         isWhite = (team == Utils.TEAM_WH);
+        centerX = (isWhite)? 0.29 : 0.71 ;
 
         first = second = firstCopy = secondCopy = 1;
         isAnimating = false;
@@ -77,20 +79,26 @@ public class DicePair {
 
     public void render(Canvas canvas)
     {
-        //TODO AE: Það þarf nú að rendera báða teningana
+        Bitmap diceSheet = (isWhite)? DrawableStorage.getRedDice(): DrawableStorage.getBlueDice() ;
+        Rect diceBounds = DrawableStorage.getDiceBounds();
+        int diceWidth = diceBounds.width();
+
         int width = 60;
         int gap = 3;
-        int leftOffset = (this.first - 1) * (width + gap);
-        Rect source = new Rect(leftOffset, 0, leftOffset + width, 120);
+        int leftOffsetOne = (this.first - 1) * (width + gap);
+        Rect source = new Rect(leftOffsetOne, 0, leftOffsetOne + width, 60);
+
+        int leftOffsetTwo = (this.second - 1)* (width + gap);
+        Rect sourceTwo = new Rect(leftOffsetTwo, 0, leftOffsetTwo + width, 60);
 
         canvas.save();
-        if(isWhite)
-            canvas.translate((float)(canvas.getWidth()*0.25), (float)(canvas.getHeight()*0.5));
-        else
-            canvas.translate((float)(canvas.getWidth() - canvas.getWidth()*0.25), (float)(canvas.getHeight()*0.5) );
+        canvas.translate((float) (canvas.getWidth() * centerX), (float) (canvas.getHeight() * 0.5));
+        canvas.translate((float)-diceWidth/2, 0.0f);
+        canvas.drawBitmap(diceSheet, source, diceBounds, null);
 
-        Bitmap diceSheet = (isWhite)? DrawableStorage.getRedDice(): DrawableStorage.getBlueDice() ;
-        canvas.drawBitmap(diceSheet, source, DrawableStorage.getDiceBounds(), null);
+        canvas.translate((float)diceWidth, 0.0f);
+        canvas.drawBitmap(diceSheet, sourceTwo, diceBounds, null );
+
         canvas.restore();
     }
 }

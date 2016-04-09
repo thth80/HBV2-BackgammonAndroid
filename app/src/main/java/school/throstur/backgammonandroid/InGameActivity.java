@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -37,11 +38,13 @@ public class InGameActivity extends AppCompatActivity
     private static final String CURRENT_BOARD = "currentStateOfTheBoardForNewcomers";
 
     private String mUsername;
-    private boolean mIsPlaying, mShouldResetClock, mMatchOver;
+    private boolean mIsPlaying, mShouldResetClock, mMatchOver, blockProcessing;
     private long mLastGameClockTime;
     private int mTimeLeftMs, mAddedTime;
 
-    private Timer  mRefresher, mClockTimer;
+    private Handler mClockHandler, mRefreshHandler;
+    private Runnable mClockTickRunnable, mRefreshRunnable;
+
     private CanvasFragment mCanvas;
     private ArrayList<Integer> mTrophyIds;
 
@@ -77,6 +80,10 @@ public class InGameActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_in_game);
 
+        blockProcessing = false;
+        mClockHandler = new Handler();
+        mRefreshHandler = new Handler();
+
         mMatchOver = false;
         mUsername = getIntent().getStringExtra(USERNAME);
         mIsPlaying = getIntent().getBooleanExtra(IS_PLAYING, false);
@@ -97,9 +104,12 @@ public class InGameActivity extends AppCompatActivity
 
             mAddedTime = Integer.parseInt(matchPres.get("addedTime"));
             if(mAddedTime == 0)
-                mTextClock.setText("inf");
+                mTextClock.setText("\u221E");
             else
-                mTimeLeftMs = 280 * 1000;
+            {
+                mTimeLeftMs = 30 * 1000;
+                mTextClock.setText(mTimeLeftMs/1000 + "");
+            }
         }
         else
         {
@@ -113,9 +123,8 @@ public class InGameActivity extends AppCompatActivity
 
         addFragment(mCanvas);
 
-        int delayUntilFirstRefresh = (mIsPlaying)? 5000 : 1500;
-        mRefresher = new Timer();
-        mRefresher.scheduleAtFixedRate(new TimerTask() {
+        int delayUntilFirstRefresh = (mIsPlaying)? 7000 : 1500;
+        mRefreshRunnable = new Runnable() {
             @Override
             public void run() {
                 runOnUiThread(new Runnable() {
@@ -124,24 +133,37 @@ public class InGameActivity extends AppCompatActivity
                         mCanvas.hideMatchPresentation();
                     }
                 });
-                (new NetworkingTask("refresh")).execute();
-            }
-        }, delayUntilFirstRefresh, 2500);
-    }
 
-    //TODO AE: Skilja runOnUIThread. Hef lesið að það megi ekki skrifa update logic þar? Einnig að hægt sé að kalla á
-    //getActivity().runOn.... ef maður er inni í fragment.
+                (new NetworkingTask("refresh")).execute();
+                mRefreshHandler.postDelayed(mRefreshRunnable, 1500);
+            }
+        };
+
+        mRefreshHandler.postDelayed(mRefreshRunnable, delayUntilFirstRefresh);
+    }
 
     public void greenWasClicked(int from, int to)
     {
+        Log.d("MATCH", "FromSquare: " + from + " ToSquare: " + to);
         (new NetworkingTask("green")).execute(from + "", to + "");
     }
 
     public void endTurnWasClicked()
     {
-        mClockTimer.cancel();
+        mClockHandler.removeCallbacks(mClockTickRunnable);
+        if(mAddedTime > 0)
+        {
+            mTimeLeftMs += (mAddedTime * 1000);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTextClock.setText(mTimeLeftMs / 1000 + "");
+                }
+            });
+        }
         (new NetworkingTask("endTurn")).execute();
     }
+
     public void cubeWasFlipped()
     {
         (new NetworkingTask("cube")).execute();
@@ -155,13 +177,13 @@ public class InGameActivity extends AppCompatActivity
     {
         mCanvas.timeRanOut();
         mTimeLeftMs = mAddedTime * 1000;
-        mClockTimer.cancel();
+        mClockHandler.removeCallbacks(mClockTickRunnable);
         (new NetworkingTask("timeOut")).execute();
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mTextClock.setText(mAddedTime / 1000 + "");
+                mTextClock.setText(mTimeLeftMs / 1000 + "");
                 Toast.makeText(InGameActivity.this, "No more time for you!", Toast.LENGTH_LONG).show();
             }
         });
@@ -173,6 +195,8 @@ public class InGameActivity extends AppCompatActivity
         if(!mIsPlaying)
         {
             (new NetworkingTask("observerLeaving")).execute();
+            mRefreshHandler.removeCallbacks(mRefreshRunnable);
+            blockProcessing = true;
             finish();
         }
 
@@ -182,6 +206,8 @@ public class InGameActivity extends AppCompatActivity
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         (new NetworkingTask("playerLeaving")).execute();
+                        mRefreshHandler.removeCallbacks(mRefreshRunnable);
+                        blockProcessing = true;
                         finish();
                     }
                 })
@@ -209,7 +235,6 @@ public class InGameActivity extends AppCompatActivity
                 mCanvas.getAnimator().storeDelayedMoves(animMoves);
         }
         else
-            //TODO AE: Er þetta þráðvilla?
             Toast.makeText(InGameActivity.this, "Your opponent had no moves available!", Toast.LENGTH_SHORT).show();
 
     }
@@ -224,14 +249,7 @@ public class InGameActivity extends AppCompatActivity
     private void allHighlights(HashMap<String, String> highlightInfo)
     {
         HashMap<Integer, int[]> lightingData = Utils.convertToHighlights(highlightInfo);
-        Log.d("MATCH", lightingData.toString());
         int[] whitePositions = Utils.getWhitesFromLightingMap(lightingData);
-        Log.d("MATCH", "White positions incoming: ");
-        String whites = "";
-        for(int i = 0; i < whitePositions.length; i++ )
-            whites += (" "+whitePositions[i]);
-
-        Log.d("MATCH", whites);
 
         mCanvas.setLightingData(lightingData);
         mCanvas.whiteLightSquares(whitePositions);
@@ -260,11 +278,11 @@ public class InGameActivity extends AppCompatActivity
     {
         mShouldResetClock = false;
         mLastGameClockTime = System.currentTimeMillis();
-        mClockTimer = new Timer();
 
-        mClockTimer.scheduleAtFixedRate(new TimerTask() {
+        mClockTickRunnable = new Runnable() {
             @Override
-            public void run() {
+            public void run()
+            {
                 long timeNow = System.currentTimeMillis();
                 long delta = timeNow - mLastGameClockTime;
                 mLastGameClockTime = timeNow;
@@ -273,60 +291,99 @@ public class InGameActivity extends AppCompatActivity
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mTextClock.setText(mTimeLeftMs/1000 + "");
+                        mTextClock.setText(mTimeLeftMs / 1000 + "");
                     }
                 });
 
                 if (mTimeLeftMs <= 0)
                     onTimeRunningOut();
+                else
+                    mClockHandler.postDelayed(mClockTickRunnable, 200);
             }
-        }, 25, 250);
+        };
+
+        mClockHandler.postDelayed(mClockTickRunnable, 50);
     }
 
     private void presentFinishedMatch(String winner, String loser, String winPoints, String lossPoints)
     {
         mMatchOver = true;
         mCanvas.matchEnded();
-        //TODO AE: Setja gögn í viðeigandi glugga og show()-a svo gluggann. Slökkva á refresh?
 
-        mRefresher.cancel();
+        final String lineOne = "The ultimate winner was " + winner + " \n";
+        final String lineTwo = "The biggest loser was " + loser + " \n";
+        final String lineThree = winner + " earned " + winPoints + " points \n";
+        final String lineFour = loser + " earned " + lossPoints + " points";
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                mCanvas.presentEndOfGame("The Match Is Over!", lineOne + lineTwo + lineThree + lineFour);
+            }
+        });
+
+        mRefreshHandler.removeCallbacks(mRefreshRunnable);
     }
 
     private void presentFinishedGame(String winner, String multiplier, String cube, String winType)
     {
-        //TODO AE: Breyta þessu í setText á rétt item
-        String wonBy = " won a normal victory";
+        mClockHandler.removeCallbacks(mClockTickRunnable);
+
+        String wonBy = " Won by a Regular win";
         if(multiplier.equals("2")) wonBy = " Won By Gammon!";
         else if(multiplier.equals("3")) wonBy = " Won By Backgammon!!!";
 
-        int totalPoints = Integer.parseInt(multiplier) * Integer.parseInt(cube);
-        Toast.makeText(InGameActivity.this, winner+wonBy+" "+winner+" receives a total of " + totalPoints + " points!", Toast.LENGTH_LONG).show();
+        String cubeStr = "The final value of the doubling cube: " + cube;
 
-        mRefresher.cancel();
+        int totalPoints = Integer.parseInt(multiplier) * Integer.parseInt(cube);
+        final String lineOne = winner+wonBy+" \n ";
+        final String lineTwo = cubeStr + " \n";
+        final String lineThree = winner+" receives a total of " + totalPoints + " points!";
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                mCanvas.presentEndOfGame("The Game Has Ended!" , lineOne + lineTwo + lineThree );
+            }
+        });
+
+        mRefreshHandler.removeCallbacks(mRefreshRunnable);
 
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
+
                 AnimationCoordinator animator = AnimationCoordinator.buildNewBoard(InGameActivity.this);
                 mCanvas.setAnimator(animator);
+                if (mIsPlaying && mAddedTime > 0 && !mMatchOver)
+                    mTimeLeftMs = 30 * 1000;
+
                 if (mIsPlaying && !mMatchOver)
                     (new NetworkingTask("startNewGame")).execute();
 
                 if (mMatchOver) return;
 
-                mRefresher = new Timer();
-                mRefresher.scheduleAtFixedRate(new TimerTask() {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        mCanvas.hideEndOfGame();
+                    }
+                });
+
+                mRefreshRunnable = new Runnable() {
                     @Override
                     public void run() {
                         (new NetworkingTask("refresh")).execute();
+                        mRefreshHandler.postDelayed(mRefreshRunnable, 2000);
                     }
-                }, 2500, 3500);
+                };
+
+                mRefreshHandler.postDelayed(mRefreshRunnable, 2000);
+
             }
         }, 5000);
     }
 
     private void presentTrophy(int id)
     {
+        mTrophyIds = new ArrayList<>();
         mTrophyIds.add(id);
         if(mTrophyIds.size() == 1)
             replaceFragment(convertIdToTrophyFragment(id));
@@ -334,10 +391,9 @@ public class InGameActivity extends AppCompatActivity
 
     private TrophyFragment convertIdToTrophyFragment(int id)
     {
-        //TODO: Tengja gefinn trophy við random bikaramynd til að byrja með
         HashMap<String, String> trophyPres = new HashMap<>();
-        String trophyDescript = Utils.trophyDesc[id];
-        String trophyName = Utils.trophyNames[id];
+        trophyPres.put("desc", Utils.trophyDesc[id]);
+        trophyPres.put("name", Utils.trophyNames[id]);
 
         return TrophyFragment.newInstance(trophyPres);
     }
@@ -468,6 +524,7 @@ public class InGameActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(final List<HashMap<String, String>> messages)
         {
+            if(blockProcessing) return;
             for(HashMap<String, String> msg: messages)
             {
                 if(msg.get("action") == null)

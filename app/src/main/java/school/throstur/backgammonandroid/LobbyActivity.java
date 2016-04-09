@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -50,7 +51,9 @@ public class LobbyActivity extends AppCompatActivity {
     private RecyclerView mChatRecycler;
     private ChatAdapter mChatAdapter;
 
-    private Timer mRefresher;
+    private Handler mRefreshHandler;
+    private Runnable mRefreshRunnable;
+    private boolean stopProcessing;
 
     public static Intent fromStatsTrophiesIntent(Context packageContext, HashMap<String, String> matchPres)
     {
@@ -71,21 +74,25 @@ public class LobbyActivity extends AppCompatActivity {
     {
         (new NetworkingTask("logout")).execute();
         LobbyData.clearData();
+        stopProcessing = true;
         super.onBackPressed();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        stopProcessing = false;
         if(resultCode == RESULT_CANCELED)
         {
-            mRefresher = new Timer();
-            mRefresher.scheduleAtFixedRate(new TimerTask() {
+            mRefreshRunnable = new Runnable() {
                 @Override
                 public void run() {
                     (new NetworkingTask("refresh")).execute();
+                    mRefreshHandler.postDelayed(mRefreshRunnable, 1200);
                 }
-            }, 100, 5000);
+            };
+
+            mRefreshHandler.postDelayed(mRefreshRunnable, 1000);
         }
         else
         {
@@ -98,6 +105,9 @@ public class LobbyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
+
+        stopProcessing = false;
+        mRefreshHandler = new Handler();
 
         FragmentManager fm = getSupportFragmentManager();
         mMatchSetupFragment = new SetupMatchFragment();
@@ -147,13 +157,15 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-        mRefresher = new Timer();
-        mRefresher.scheduleAtFixedRate(new TimerTask() {
+        mRefreshRunnable = new Runnable() {
             @Override
             public void run() {
                 (new NetworkingTask("refresh")).execute();
+                mRefreshHandler.postDelayed(mRefreshRunnable, 1500);
             }
-        }, 7000, 7500);
+        };
+
+        mRefreshHandler.postDelayed(mRefreshRunnable, 1500);
 
         mUsername = getIntent().getStringExtra(USERNAME_FROM_LOGIN);
 
@@ -168,6 +180,7 @@ public class LobbyActivity extends AppCompatActivity {
     public void onResume()
     {
         super.onResume();
+        stopProcessing = false;
     }
 
     private void submitChatEntry()
@@ -301,6 +314,8 @@ public class LobbyActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final ArrayList<HashMap<String, String>> messages)
         {
+            if(stopProcessing) return;
+
             boolean goToTrophyRoomAfterProcessing = false;
             boolean goToStatsAfterProcessing = false;
             boolean startMatchAfterProcessing = false;
@@ -357,9 +372,12 @@ public class LobbyActivity extends AppCompatActivity {
                 }
             }
 
-            //TODO AE: Muna að sumar aðferðir fjarlægja "ACTION" sem gæti endað illa ef það HashMap er síðan ítrað aftur
+            //TODO AE: Muna að sumar aðferðir fjarlægja "ACTION"
             if(startMatchAfterProcessing || observeMatchAfterProcessing || goToTrophyRoomAfterProcessing || goToStatsAfterProcessing)
-                mRefresher.cancel();
+            {
+                mRefreshHandler.removeCallbacks(mRefreshRunnable);
+                stopProcessing = true;
+            }
 
             if(startMatchAfterProcessing)
             {

@@ -2,6 +2,7 @@ package school.throstur.backgammonandroid.Fragments;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,8 +14,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import school.throstur.backgammonandroid.DrawingCanvas;
 import school.throstur.backgammonandroid.GameBoard.AnimationCoordinator;
@@ -39,9 +38,13 @@ public class CanvasFragment extends Fragment {
     private Button mFlipCubeButton;
     private RelativeLayout mPresentMatch;
 
+    private TextView postGameHeader, postGameInfo;
+    private RelativeLayout postGameWindow;
+
     private AnimationCoordinator mAnimator;
-    private int mPivot, movementId;
-    private Timer mAnimLoop;
+    private int mPivot, movementId, debugCounter;
+    private static Handler mAnimLoop;
+    private Runnable mAnimCycle;
     private boolean mCouldDouble, mButtonPermission;
     private HashMap<Integer, int[]> mAllHighlighting;
 
@@ -75,6 +78,7 @@ public class CanvasFragment extends Fragment {
         movementId = NO_POINTER_ID;
         mButtonPermission = false;
         mCouldDouble = false;
+        mAnimLoop = new Handler();
 
         mPivot = NO_SQUARE;
         mParentGame = (InGameActivity)getActivity();
@@ -104,6 +108,10 @@ public class CanvasFragment extends Fragment {
         mThrowDiceButton = (Button) view.findViewById(R.id.throw_dice_btn);
         mFlipCubeButton = (Button) view.findViewById(R.id.flip_cube_btn);
         mDrawingCanvas = (DrawingCanvas) view.findViewById(R.id.drawing_canvas);
+
+        postGameHeader = (TextView) view.findViewById(R.id.post_match_heading);
+        postGameInfo = (TextView) view.findViewById(R.id.post_match_info);
+        postGameWindow = (RelativeLayout) view.findViewById(R.id.post_match_presentation);
 
         mDrawingCanvas.setAnimator(mAnimator);
 
@@ -159,6 +167,7 @@ public class CanvasFragment extends Fragment {
             }
         });
 
+
         mDrawingCanvas.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -174,8 +183,7 @@ public class CanvasFragment extends Fragment {
                 }
                 //Hér gæti verið einhver funky hegðun, sbr muninn á pointer up og up
                 else if (mAnimator.isMovingSinglePawn() &&
-                        (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP))
-                {
+                        (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP)) {
                     int index = event.getActionIndex();
                     if (index == event.findPointerIndex(movementId)) {
                         double relativeX = event.getX(index) / mDrawingCanvas.getCanvasWidth();
@@ -184,16 +192,14 @@ public class CanvasFragment extends Fragment {
 
                         mAnimator.unHighlightAll();
 
-                        if (greenPos == NO_SQUARE)
-                        {
+                        if (greenPos == NO_SQUARE) {
                             mAnimator.addPawnTo(mPivot);
                             mAnimator.whiteLightSquares(mAnimator.getLastWhiteLighted());
-                        }
-                        else
-                        {
+                        } else {
                             hideEndTurn();
                             mAnimator.removeLastWhitelighted();
                             mAnimator.addPawnTo(greenPos);
+
                             mParentGame.greenWasClicked(mPivot, greenPos);
                         }
 
@@ -201,15 +207,12 @@ public class CanvasFragment extends Fragment {
                         mPivot = NO_SQUARE;
                         redraw();
                     }
-                }
-                else if (!mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_DOWN) {
+                } else if (!mAnimator.isMovingSinglePawn() && event.getAction() == MotionEvent.ACTION_DOWN) {
                     double relativeX = event.getX(0) / mDrawingCanvas.getCanvasWidth();
                     double relativeY = event.getY(0) / mDrawingCanvas.getCanvasHeight();
 
                     int whitePos = mAnimator.wasWhiteSquareClicked(relativeX, relativeY);
-                    Log.d("MATCH", "The Squares Position that was Picked: " + whitePos);
-                    if (whitePos != NO_SQUARE)
-                    {
+                    if (whitePos != NO_SQUARE) {
                         mAnimator.unHighlightAll();
                         mAnimator.highlightGreens(mAllHighlighting.get(whitePos));
 
@@ -222,7 +225,7 @@ public class CanvasFragment extends Fragment {
                     }
                 }
 
-                return false;
+                return true;
             }
         });
 
@@ -286,30 +289,50 @@ public class CanvasFragment extends Fragment {
         return mAnimator;
     }
 
+    public void presentEndOfGame(String header, String content)
+    {
+        postGameHeader.setText(header);
+        postGameInfo.setText(content);
+        postGameWindow.setVisibility(View.VISIBLE);
+    }
+
+    public void hideEndOfGame()
+    {
+        postGameWindow.setVisibility(View.GONE);
+    }
+
     public void startAnimLoop()
     {
         Log.d("MATCH", "Starting the animation loop");
-        mAnimLoop = new Timer();
-        mAnimLoop.scheduleAtFixedRate(new TimerTask() {
+        debugCounter  = 0;
+
+        mAnimCycle = new Runnable() {
             @Override
-            public void run()
-            {
-                boolean stillAnimating = updateAnimator(16);
-                redraw();
-
-                if(!stillAnimating && mParentGame.shouldResetClock())
-                    mParentGame.resetGameClock();
-
-                if (!stillAnimating)
-                    cancelAnimLoop();
+            public void run() {
+                boolean stillAnimating = runOneAnimCycle();
+                if(!stillAnimating)
+                {
+                    Log.d("MATCH", "Finishing Animation Loop for now. Loops taken: " + debugCounter);
+                    mAnimLoop.removeCallbacks(mAnimCycle);
+                }
+                else
+                    mAnimLoop.postDelayed(mAnimCycle, 16);
             }
-        }, 16, 16);
+        };
+
+        mAnimLoop.postDelayed(mAnimCycle, 16);
     }
 
-    private void cancelAnimLoop()
+    private boolean runOneAnimCycle()
     {
-        Log.d("MATCH", "Finishing Animation Loop for now");
-        mAnimLoop.cancel();
+        boolean stillAnimating = updateAnimator(16);
+        redraw();
+        debugCounter++;
+
+        if (!stillAnimating && mParentGame.shouldResetClock())
+            mParentGame.resetGameClock();
+
+        return stillAnimating;
     }
 
     private void redraw()
@@ -324,6 +347,7 @@ public class CanvasFragment extends Fragment {
 
     public boolean updateAnimator(int deltaMs)
     {
+        //TODO AE: Inf lykkja fannst hér, fyrir vikið voru peðin á undarlegum stöðum.
         boolean pawnsWereMoving = mAnimator.arePawnsMoving();
 
         if(pawnsWereMoving)
@@ -335,13 +359,13 @@ public class CanvasFragment extends Fragment {
 
         if(pawnsWereMoving != mAnimator.arePawnsMoving() && mAnimator.areMovesStored())
         {
-            //pawnsAreMoving = TRUE eftir þessa línu
             mAnimator.initPawnAnimation(mAnimator.getStoredMoves());
             mAnimator.emptyStorage();
         }
 
         if(pawnsWereMoving != mAnimator.arePawnsMoving() && mButtonPermission)
         {
+            Log.d("MATCH", "Delayed showing of the buttons");
             mButtonPermission = false;
             showThrowDice();
             if(mCouldDouble)

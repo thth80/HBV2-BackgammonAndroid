@@ -22,9 +22,6 @@ import java.util.HashMap;
 import school.throstur.backgammonandroid.R;
 import school.throstur.backgammonandroid.Utility.Utils;
 
-/**
- * Created by Aðalsteinn on 25.3.2016.
- */
 public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHolder> {
     private ArrayList<HashMap<String, String>> mTrophyList;
     private Context mContext;
@@ -60,7 +57,6 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
         private TextView mNameTextView;
         private TextView mDecriptTextView;
         private ProgressBar mTrophyProgress;
-        private ImageView mTrophyImage;
 
         private Context mContext;
 
@@ -72,7 +68,6 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
             mDecriptTextView = (TextView) view.findViewById(R.id.trophy_entry_text);
             mTrophyProgress = (ProgressBar) view.findViewById(R.id.trophy_entry_progbar);
             mTrophyProgress.setMax(100);
-            mTrophyImage = (ImageView) view.findViewById(R.id.trophy_entry_img);
         }
 
         public void bindEntryData(HashMap<String, String> trophy)
@@ -84,13 +79,10 @@ public class TrophyAdapter extends RecyclerView.Adapter<TrophyAdapter.TrophyHold
             boolean isAccumulated = true;
 
             int progress = Math.min(100, Integer.parseInt(trophy.get("percent")));
-            if(!isAccumulated)
+            if(isAccumulated)
                 progress = (progress >= 100) ? 100 : 0;
 
-            mTrophyProgress.setProgress(55);
-            //Drawable image = mContext.getResources().getDrawable(R.drawable.trophy_icon);
-
-            //mTrophyImage.setImageDrawable(image);
+            mTrophyProgress.setProgress(progress);
         }
     }
 }

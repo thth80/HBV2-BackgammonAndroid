@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.HashMap;
 
@@ -50,6 +51,12 @@ public class TrophyFragment extends Fragment
     {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_present_trophy, container, false);
+
+        TextView name = (TextView) view.findViewById(R.id.present_trophy_entry_heading);
+        name.setText(mTrophyPres.get("name"));
+
+        TextView description = (TextView) view.findViewById(R.id.present_trophy_entry_text);
+        description.setText(mTrophyPres.get("desc"));
 
         mReturnButton = (Button) view.findViewById(R.id.present_trophy_btn);
         mReturnButton.setOnClickListener(new View.OnClickListener() {

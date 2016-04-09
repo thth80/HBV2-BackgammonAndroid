@@ -110,7 +110,6 @@ public class LobbyNetworking {
                     .appendQueryParameter("chatEntry", chatEntry)
                     .build().toString();
 
-            Log.d(LobbyActivity.TAG, url );
             JSONArray jsonArray = new JSONArray(Utils.getUrlString(url));
             return Utils.JSONToMapList(jsonArray);
         }

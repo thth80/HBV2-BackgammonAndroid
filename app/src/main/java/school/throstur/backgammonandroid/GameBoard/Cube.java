@@ -53,13 +53,14 @@ public class Cube {
     {
         int width = 90;
         int gap = 20;
-        int leftOffset = (cubeVal - 1)*(width + gap);
+        int cubeOffset = (cubeVal == 0)? 0 : cubeVal - 1;
+        int leftOffset = cubeOffset*(width + gap);
 
         Rect source = new Rect(leftOffset, 0, leftOffset + width , 94);
         Bitmap cubeSheet = DrawableStorage.getCube();
 
         canvas.save();
-        canvas.translate((float)(canvas.getWidth() * 0.065), (float)(canvas.getHeight() * 0.5));
+        canvas.translate((float)(canvas.getWidth() * 0.058), (float)(canvas.getHeight() * 0.5));
         canvas.drawBitmap(cubeSheet, source ,DrawableStorage.getCubeBounds() , null );
         canvas.restore();
     }

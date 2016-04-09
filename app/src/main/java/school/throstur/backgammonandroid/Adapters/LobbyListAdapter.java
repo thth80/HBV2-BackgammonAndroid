@@ -3,6 +3,7 @@ package school.throstur.backgammonandroid.Adapters;
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -179,23 +180,31 @@ public class LobbyListAdapter extends RecyclerView.Adapter<LobbyListAdapter.List
             mButtonType = entryData.get("type");
             mId = entryData.get("id");
 
+            int midGradient = Color.argb(42, 255, 255, 0);
+
             switch (mButtonType)
             {
                 case "cancel":
                     mEntryButton.setBackgroundColor(Color.argb(220, 0, 255, 255));
-                    mEntryButton.setText("CANCEL");
-                    mWholeEntry.setBackgroundColor(Color.argb(33, 255, 255, 0));
+                    mEntryButton.setText("Cancel");
+                    //mWholeEntry.setBackgrfoundColor(Color.argb(33, 255, 255, 0));
                     break;
                 case "observe":
                     mEntryButton.setBackgroundColor(Color.argb(220, 25, 26, 255));
-                    mEntryButton.setText("OBSERVE");
-                    mWholeEntry.setBackgroundColor(Color.argb(33,0,0 ,255));
+                    mEntryButton.setText("Watch");
+                    //mWholeEntry.setBackgroundColor(Color.argb(33,0,0 ,255));
+                    midGradient = Color.argb(42, 0, 0, 255);
                     break;
                 case "join":
                     mEntryButton.setBackgroundColor(Color.argb(220, 10, 255, 10));
                     mEntryButton.setText("JOIN!");
-                    mWholeEntry.setBackgroundColor(Color.argb(33, 0, 255,0));
+                    //mWholeEntry.setBackgroundColor(Color.argb(33, 0, 255,0));
+                    midGradient = Color.argb(42, 0, 255, 0);
             }
+
+            GradientDrawable gradient = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                                                new int[]{Color.WHITE, midGradient});
+            mWholeEntry.setBackgroundDrawable(gradient);
         }
     }
 

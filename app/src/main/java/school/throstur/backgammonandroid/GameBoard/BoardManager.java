@@ -24,7 +24,7 @@ public class BoardManager {
         squares = new Square[28];
         killedPawns = new Pawn[28];
         pawnMovers = new PawnMover[]{new PawnMover(), new PawnMover(), new PawnMover(), new PawnMover()};
-        doublingCube = new Cube(1);
+        doublingCube = new Cube(0);
         whiteDice = new DicePair(Utils.TEAM_WH);
         blackDice = new DicePair(Utils.TEAM_BL);
         batchMode = false;
@@ -63,7 +63,6 @@ public class BoardManager {
             else
                 squares[0].addPawn(killed);
         }
-
     }
 
     public boolean updateCube(int deltaMs)
@@ -74,9 +73,7 @@ public class BoardManager {
     //Skilar true ef teningar eru animating, annars false
     public boolean updateDice(int deltaMs)
     {
-        if(!blackDice.isRolling() && !whiteDice.isRolling())
-            return false;
-        else if(blackDice.isRolling())
+        if(blackDice.isRolling())
             return blackDice.update(deltaMs);
         else
             return whiteDice.update(deltaMs);
@@ -96,6 +93,17 @@ public class BoardManager {
         return finishedIds;
     }
 
+    public void setUpNextMove(int fromPos, int toPos, int killMove, int moveId)
+    {
+        Pawn removedPawn = pickUpDepartingPawn(fromPos);
+        if(killMove == 1)
+            killedPawns[toPos] = squares[toPos].getFirstPawn();
+
+        double landingSpotY = squares[toPos].getAvailableSpot();
+        double landingSpotX = squares[toPos].getX();
+        findAvailableMover().receiveDirections(removedPawn, landingSpotX, landingSpotY, moveId);
+    }
+
     public void finishMove(int moveId, int moveTo)
     {
         Pawn landingPawn = getMoverById(moveId).shutDownAndReleasePawn();
@@ -108,17 +116,6 @@ public class BoardManager {
             if(mover.getId() == id)
                 return mover;
         return null;
-    }
-
-    public void setUpNextMove(int fromPos, int toPos, int killMove, int moveId)
-    {
-        Pawn removedPawn = pickUpDepartingPawn(fromPos);
-        if(killMove == 1)
-            killedPawns[toPos] = squares[toPos].getFirstPawn();
-
-        double landingSpotY = squares[toPos].getAvailableSpot();
-        double landingSpotX = squares[toPos].getX();
-        findAvailableMover().receiveDirections(removedPawn, landingSpotX, landingSpotY, moveId);
     }
 
     private PawnMover findAvailableMover()
@@ -180,12 +177,12 @@ public class BoardManager {
     public void resetMovementSettings(boolean isSequential)
     {
         batchMode = !isSequential;
-        int[] randSettings = PawnMover.randomMovementSettings();
+        int randSetting = PawnMover.randomMovementSettings();
         if(isSequential)
-            pawnMovers[0].setProtocols(randSettings);
+            pawnMovers[0].setProtocol(randSetting);
         else
             for(PawnMover mover: pawnMovers)
-                mover.setProtocols(randSettings);
+                mover.setProtocol(randSetting);
     }
 
     public void greenLightSquare(int pos)
@@ -246,18 +243,21 @@ public class BoardManager {
 
         Square whiteDeadZone = new Square(25, 0.5);
         whiteDeadZone.setBottomY(0.8);
+        whiteDeadZone.setCY();
         squares[25] = whiteDeadZone;
 
         Square blackDeadZone = new Square(0, 0.5);
         blackDeadZone.setBottomY(0.2);
+        blackDeadZone.setCY();
         squares[0] = blackDeadZone;
 
         Square whiteEndZone = new Square(26, 0.94);
         whiteEndZone.makePointDown();
         whiteEndZone.setBottomY(0.039);
+        whiteEndZone.setCY();
         squares[26] = whiteEndZone;
 
-        Square blackEndZone = new Square(27, Utils.WIDTH*0.94);
+        Square blackEndZone = new Square(27, 0.94);
         squares[27] = blackEndZone;
         //Gera eitthvað með bounding boxes hér eins og í JS?
     }

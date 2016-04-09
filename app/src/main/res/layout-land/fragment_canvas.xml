@@ -5,11 +5,11 @@
     tools:context="school.throstur.backgammonandroid.Fragments.CanvasFragment"
     >
 
-    <ImageView
+    <school.throstur.backgammonandroid.DrawingCanvas
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/drawing_canvas"
-        android:background="@drawable/game_board" />
+         />
 
     <Button
         style="?android:attr/buttonStyleSmall"

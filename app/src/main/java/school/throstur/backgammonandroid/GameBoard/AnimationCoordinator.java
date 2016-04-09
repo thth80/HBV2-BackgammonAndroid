@@ -17,6 +17,7 @@ public class AnimationCoordinator {
     private BoardManager board;
     private Pawn movingPawn;
     private ArrayList<HashMap<String, Integer>> moves, delayedMoves;
+
     private int currAnimIndex;
     private int[] lastWhiteLighted;
     boolean isSequential, pawnsAreMoving, diceAreStillRolling, isDelaying, cubeIsFlipping;
@@ -63,6 +64,10 @@ public class AnimationCoordinator {
     public int wasWhiteSquareClicked(double cx, double cy)
     {
         Square square = board.getClickedSquare(cx , cy);
+
+        //if(square == null)Log.d("MATCH", "No White square returned for that position" );
+        //else              Log.d("MATCH", "Square position found: "+ square.getPosition());
+
         if(square == null || square.getLighting() != Utils.WHITE_LIGHT)
             return CanvasFragment.NO_SQUARE;
         else
@@ -88,6 +93,10 @@ public class AnimationCoordinator {
     public int wasGreenSquareBelow(double cx, double cy)
     {
         Square square = board.getClickedSquare(cx, cy);
+
+        //if(square == null)Log.d("MATCH", "No green square returned for that position" );
+        //else              Log.d("MATCH", "Green Square position found: "+ square.getPosition());
+
         if(square == null || square.getLighting() != Utils.GREEN_LIGHT)
             return CanvasFragment.NO_SQUARE;
         else
@@ -144,7 +153,7 @@ public class AnimationCoordinator {
         pawnsAreMoving = true;
         currAnimIndex = 0;
         this.moves = moves;
-        isSequential = isSequenceNeeded();
+        isSequential = true;      //isSequenceNeeded();
 
         if(isSequential)
         {
@@ -175,7 +184,7 @@ public class AnimationCoordinator {
         diceAreStillRolling = board.updateDice(deltaMs);
         if(!diceAreStillRolling && isDelaying)
         {
-            Log.d("MATCH", "Dice were rolling, now we whitelight squares");
+            //Log.d("MATCH", "Dice were rolling, now we whitelight squares");
             isDelaying = false;
             whiteLightSquares(lastWhiteLighted);
         }
@@ -210,6 +219,8 @@ public class AnimationCoordinator {
     public void render(Canvas canvas)
     {
         board.render(canvas);
+        if(movingPawn != null)
+            movingPawn.render(canvas);
     }
 
     private void sequentialUpdate(int deltaMs)
@@ -288,11 +299,6 @@ public class AnimationCoordinator {
         return lastWhiteLighted;
     }
 
-    public void greenLightSquares(int[] positions)
-    {
-        for(int pos: positions)
-            board.greenLightSquare(pos);
-    }
     public void whiteLightSquares(int[] positions)
     {
         lastWhiteLighted = positions;
