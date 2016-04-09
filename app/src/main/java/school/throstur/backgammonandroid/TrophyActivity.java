@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,7 +31,7 @@ public class TrophyActivity extends AppCompatActivity {
     private String mUsername;
     private RecyclerView mTrophyRecycler;
     private TrophyAdapter mAdapter;
-    private Button mBackToLobby;
+    private FloatingActionButton mBackToLobby;
     private Intent mLobbyMessage;
 
     public static Intent trophyDataIntent(Context packageContext, String username, ArrayList<HashMap<String, String>> trophies)
@@ -60,14 +61,14 @@ public class TrophyActivity extends AppCompatActivity {
 
         mLobbyMessage = null;
 
-        /*mBackToLobby = (Button)new View(TrophyActivity.this);
+        mBackToLobby = (FloatingActionButton) findViewById(R.id.floating_back_btn);
         mBackToLobby.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
-    */
+
         /*new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
