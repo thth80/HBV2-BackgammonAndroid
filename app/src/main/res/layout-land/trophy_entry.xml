@@ -67,7 +67,8 @@
             android:layout_below="@+id/trophy_view_text"
             android:layout_toLeftOf="@+id/trophy_view_img"
             android:layout_alignParentBottom="false"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:layout_marginTop="40dp"/>
     </RelativeLayout>
 
 </LinearLayout>
