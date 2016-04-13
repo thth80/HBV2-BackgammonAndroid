@@ -131,6 +131,17 @@ public class LobbyActivity extends AppCompatActivity {
                 Fragment toUse = (mDisplayingLists)? mMatchSetupFragment : new ListsFragment();
                 mDisplayingLists = !mDisplayingLists;
 
+                // The button should have a different icon + color depending on the fragment shown
+                int addResID = getResources().getIdentifier("ic_playlist_add" , "drawable", getPackageName());
+                int listResID = getResources().getIdentifier("ic_action_list_2", "drawable", getPackageName());
+                if(mDisplayingLists) {
+                    mSwitchFragButton.setImageResource(addResID);
+                    mSwitchFragButton.setBackgroundResource(R.drawable.color_green_btn_border);
+                } else {
+                    mSwitchFragButton.setImageResource(listResID);
+                    mSwitchFragButton.setBackgroundResource(R.drawable.primary_color_btn_border);
+                }
+
                 FragmentManager fm = getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
                 ft.replace(R.id.lobby_fragment_container, toUse);

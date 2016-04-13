@@ -12,7 +12,8 @@
         android:id="@+id/lobby_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="3">
+        android:layout_weight="3"
+        >
 
     </FrameLayout>
 
@@ -64,10 +65,11 @@
                 android:id="@+id/btn_swap"
                 android:contentDescription="@string/swap_description"
                 android:layout_marginLeft="6dp"
-                android:background="@drawable/ic_swap_horiz"
                 android:textColor="@color/white"
                 android:layout_marginBottom="6dp"
-                android:layout_alignParentLeft="true"/>
+                android:layout_alignParentLeft="true"
+                android:src="@drawable/ic_playlist_add"
+                android:background="@drawable/color_green_btn_border"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/chat_list"
