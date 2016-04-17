@@ -11,6 +11,6 @@
             android:layout_height="wrap_content"
             android:text="@string/lorem_ipsum"
             android:textStyle="bold"
-            android:textColor="@color/darkGrey"
+            android:textColor="@color/black"
             android:singleLine="false"/>
 </LinearLayout>

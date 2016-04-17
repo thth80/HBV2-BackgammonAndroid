@@ -78,8 +78,8 @@
                 android:layout_below="@+id/to_stats"
                 android:layout_above="@+id/submit_chat"
                 tools:listitem="@layout/chat_entry"
-                android:background="@drawable/border"
-                android.support.v7.recyclerview:stackFromEnd ="true">
+                android.support.v7.recyclerview:stackFromEnd ="true"
+                android:background="@drawable/border">
 
             </android.support.v7.widget.RecyclerView>
 
@@ -101,7 +101,8 @@
                 android:layout_below="@id/chat_list"
                 android:layout_alignParentLeft="true"
                 android:hint="@string/chat_hint"
-                android:inputType="textLongMessage"/>
+                android:inputType="textLongMessage"
+                />
 
         </RelativeLayout>
 
